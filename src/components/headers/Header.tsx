@@ -1,7 +1,7 @@
 "use client";
 
 import { RootState } from '@/redux/store';
-import { Calendar, Home, Inbox, ListTodoIcon, MessageCircle, User2 } from 'lucide-react';
+import { Calendar, Home, ListTodoIcon, MessageCircle, User2 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux';
