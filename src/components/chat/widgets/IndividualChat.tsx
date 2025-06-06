@@ -13,8 +13,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setChatOpen, setHideBottomBar } from '@/redux/reducers/BooleanReducer';
+import { RootState } from '@/redux/store';
+import ChangeThemeColor from '@/lib/ChangeThemeColor';
 
 const MockMessages = [
     {
@@ -81,6 +83,7 @@ const MockMessages = [
 
 const IndividualChat:React.FC = () => {
     const dispatch = useDispatch();
+    const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
     const {chat_id} = useParams<{chat_id: string}>();
     const [messages, setMessages] = React.useState<{
         id: number,
@@ -105,6 +108,11 @@ const IndividualChat:React.FC = () => {
     dispatch(setHideBottomBar(true));
   }, []);
   
+  useEffect(() => {
+    if (isDarkMode) {
+        ChangeThemeColor("#171717");
+    }
+  },[isDarkMode])
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "instant" });

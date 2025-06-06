@@ -26,7 +26,7 @@ const mockUpcomingActivities = [
 ];
 const UpCommingActivities:React.FC = () => {
   return (
-    <Card className='w-full max-w-4xl snap-start'>
+    <Card className='w-full max-w-4xl max-sm:shadow-none max-sm:!border-none snap-start'>
         <CardHeader>
             <h2 className='text-lg font-semibold'>Upcoming Activities</h2>
             <p className='text-sm text-muted-foreground'>Stay updated with the upcoming activities.</p>

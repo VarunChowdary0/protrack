@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import React, { useState, useMemo } from 'react'
-import { Search, Clock, CalendarClockIcon } from 'lucide-react'
+import { Search, Clock, CalendarClockIcon, Calendar } from 'lucide-react'
 import Image from 'next/image';
 
 interface ImportantDate {
@@ -104,9 +104,15 @@ const ImportantDates:React.FC<ImportantDate> = ({data}) => {
     }
 
     return (
-        <Card className="w-full max-w-2xl !gap-0 !pb-10 !px-0 !py-0 mx-auto">
-            <CardHeader className="pb-4 p-8">
-                <h2 className="text-xl font-medium">Important Dates</h2>
+        <Card className="w-full max-w-2xl !gap-0  max-sm:!shadow-none max-sm:!border-none !pb-10 !px-0 !py-0 mx-auto">
+    {/* <Card className="w-full max-w-2xl !gap-0 !shadow-none !border-none !pb-10 !px-0 !py-0 mx-auto"> */}
+            <CardHeader style={{
+                zIndex: 1000,
+            }} className="sticky max-sm:top-0 dark:bg-primary-foreground rounded-2xl gap-0 bg-background max-sm:!py-4 !pt-5 !pb-3 p-8">
+                <h2 className="text-xl flex items-center gap-2 font-semibold">
+                    <Calendar/>
+                    Important Dates
+                </h2>
                 <div className="relative mt-3">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2" />
                     <input
@@ -119,7 +125,7 @@ const ImportantDates:React.FC<ImportantDate> = ({data}) => {
                 </div>
             </CardHeader>
 
-            <CardContent className=' !px-0 !pb-10 '>
+            <CardContent className=' !px-0 !pb-10  '>
                 {filteredGroupedData.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                         <p>No events found</p>
