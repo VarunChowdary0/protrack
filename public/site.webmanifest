@@ -4,9 +4,9 @@
   "description": "Protrack is a full-stack project management platform tailored for colleges and organizations. It enables efficient tracking of project phases, team collaboration, supervisor involvement, real-time chat, notifications, and event scheduling — all in one centralized system.",
   "start_url": "/u",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "/logo.png",

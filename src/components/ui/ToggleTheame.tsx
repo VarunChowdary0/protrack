@@ -6,17 +6,22 @@ import React, { useEffect, useState } from 'react';
 const ToggleTheme: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
-  // Set the initial theme based on localStorage
-useEffect(() => {
+  // Initialize theme on mount
+  useEffect(() => {
     const prefersDark = localStorage.getItem('theme') === 'dark';
     setIsDarkMode(prefersDark);
-    if (prefersDark) document.body.classList.add('dark');
-}, []);
+    document.documentElement.classList.toggle('dark', prefersDark); // <-- set on <html>
+  }, []);
 
-  // Apply the theme change
+  // Update theme and meta tag on change
   useEffect(() => {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    document.body.classList.toggle('dark', isDarkMode);
+    document.documentElement.classList.toggle('dark', isDarkMode);
+
+    const meta = document.querySelector("meta[name='theme-color']");
+    if (meta) {
+      meta.setAttribute('content', isDarkMode ? '#0d0d0d' : '#ffffff');
+    }
   }, [isDarkMode]);
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
