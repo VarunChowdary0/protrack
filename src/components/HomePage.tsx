@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Bell, Globe, Settings, Eye, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
+import { Bell, Globe, Eye, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

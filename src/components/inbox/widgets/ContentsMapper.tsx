@@ -6,10 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from '@/components/ui/badge'
@@ -206,15 +203,19 @@ const ContentsMapper:React.FC = () => {
     };
 
     const isRowSelected = (id: number): boolean => selectedRows.includes(id);
-    const handleCheckboxChange = (checked: boolean, id: number) => {
-        if (checked) {
-            setSelectedRows((prev) => [...prev, id]);
-        } else {
-            setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
-        }
-    };
+    // const handleCheckboxChange = (checked: boolean, id: number) => {
+    //     if (checked) {
+    //         setSelectedRows((prev) => [...prev, id]);
+    //     } else {
+    //         setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
+    //     }
+    // };
 
-    const [inboxMessages, setInboxMessages] = React.useState(mockData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+    const [inboxMessages, setInboxMessages] = React.useState([] as typeof mockData);
+    React.useEffect(() => {
+        // Simulate fetching data from an API
+        setInboxMessages(mockData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+    }, []);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);

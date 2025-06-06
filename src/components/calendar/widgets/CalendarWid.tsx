@@ -12,31 +12,31 @@ interface CalendarWidgetProps {
 
 const CalendarWidget = ({ 
   importantDates,
-  title = "Important Dates",
-  description = "Select and manage your important dates"
+  // title = "Important Dates",
+  // description = "Select and manage your important dates"
 }: CalendarWidgetProps) => {
   const [selectedDates, setSelectedDates] = React.useState<Date[] | undefined>(importantDates)
+  console.log(setSelectedDates);
+  // const handleDateToggle = (date: Date) => {
+  //   setSelectedDates((prev) => {
+  //     if (!prev) return [date]
+  //     const existingDate = prev.find(d => d.getTime() === date.getTime())
+  //     if (existingDate) {
+  //       return prev.filter((d) => d.getTime() !== date.getTime())
+  //     }
+  //     return [...prev, date]
+  //   })
+  // }
 
-  const handleDateToggle = (date: Date) => {
-    setSelectedDates((prev) => {
-      if (!prev) return [date]
-      const existingDate = prev.find(d => d.getTime() === date.getTime())
-      if (existingDate) {
-        return prev.filter((d) => d.getTime() !== date.getTime())
-      }
-      return [...prev, date]
-    })
-  }
-
-  const formatDateList = (dates: Date[]) => {
-    return dates
-      .sort((a, b) => a.getTime() - b.getTime())
-      .map(date => date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: 'numeric'
-      }))
-  }
+  // const formatDateList = (dates: Date[]) => {
+  //   return dates
+  //     .sort((a, b) => a.getTime() - b.getTime())
+  //     .map(date => date.toLocaleDateString('en-US', { 
+  //       month: 'short', 
+  //       day: 'numeric',
+  //       year: 'numeric'
+  //     }))
+  // }
 
   return (
     <Card className="max-w-4xl mx-auto p-6 max-sm:p-0  min-h-fit">
