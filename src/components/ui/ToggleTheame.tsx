@@ -20,7 +20,7 @@ const ToggleTheme: React.FC = () => {
 
     const meta = document.querySelector("meta[name='theme-color']");
     if (meta) {
-      meta.setAttribute('content', isDarkMode ? '#0d0d0d' : '#ffffff');
+      meta.setAttribute('content', isDarkMode ? '#0a0a0a' : '#ffffff');
     }
   }, [isDarkMode]);
 

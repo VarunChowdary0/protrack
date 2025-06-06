@@ -34,6 +34,10 @@ export const metadata: Metadata = {
       url: "https://saivarun.vercel.app",
     },
   ],
+    themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#1f1f1f" }
+  ],
   description: "Protrack is a full-stack project management platform tailored for colleges and organizations. It enables efficient tracking of project phases, team collaboration, supervisor involvement, real-time chat, notifications, and event scheduling — all in one centralized system.",
   manifest: "/site.webmanifest",
 };
@@ -45,6 +49,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">  {/* <--- allow 'dark' class here */}
+      <meta name="theme-color" content="#ffffff"></meta>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
