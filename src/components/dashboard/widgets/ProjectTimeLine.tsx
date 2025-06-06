@@ -96,7 +96,7 @@ const ProjectTimeLine = () => {
 
   return (
     <div className='w-full max-w-5xl flex flex-col'>
-      <Card>
+      <Card className=' max-sm:shadow-none max-sm:!border-none'>
         <CardHeader>
           <h2 className='text-lg font-semibold'>Project Timeline</h2>
           <p className='text-sm text-muted-foreground'>Track your project progress through review phases.</p>

@@ -10,6 +10,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from '@/components/ui/badge'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import ChangeThemeColor from '@/lib/ChangeThemeColor'
 
 const mockData = [
     {
@@ -192,6 +195,7 @@ const mockData = [
 
 const ContentsMapper:React.FC = () => {
     const [selectedRows, setSelectedRows] = React.useState<number[]>([]);
+    const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
     const handleRowSelection = (id: number) => {
         setSelectedRows((prev) => {
             if (prev.includes(id)) {
@@ -210,6 +214,12 @@ const ContentsMapper:React.FC = () => {
     //         setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
     //     }
     // };
+
+    React.useEffect(() => {
+        if(isDarkMode){
+            ChangeThemeColor("#171717");
+        }
+    }, [isDarkMode]);
 
     const [inboxMessages, setInboxMessages] = React.useState([] as typeof mockData);
     React.useEffect(() => {
@@ -256,15 +266,71 @@ const ContentsMapper:React.FC = () => {
 
     
   return (
-    <Card className=' max-w-6xl max-sm:!rounded-none max-sm:min-h-screen !gap-0 !w-full'>
-        <CardHeader className=' w-full max-sm:px-3'>
-            <div className='flex flex-col gap-2'>
+    <Card className=' max-w-6xl max-sm:!pt-0 max-sm:!rounded-none max-sm:min-h-screen !gap-0 !w-full'>
+        <CardHeader style={{
+                        zIndex: 1000,
+                    }} className=' w-full max-sm:px-3 sticky top-0 
+         dark:bg-primary-foreground gap-0 bg-background '>
+            <div className='flex flex-col gap-0 py-4'>
                 <h2 className='text-2xl font-semibold'>Inbox</h2>
                 <p className='text-muted-foreground max-sm:hidden'>Here you can find all your messages and notifications.</p>
             </div>
         </CardHeader>
         <hr className=' my-4 mx-5 max-sm:hidden'/>
         <CardContent className='  max-sm:!px-0'>
+            <div className=' !px-0 overflow-hidden max-sm:hidden !rounded-md !border'>
+                <Table>
+                    <TableBody>
+                        {
+                            inboxMessages.map((message)=>      
+                                <TableRow className={`  
+                                ${isRowSelected(message.id) ? 
+                                    " dark:bg-secondary-foreground/20 bg-blue-100 hover:bg-blue-100 dark:hover:bg-secondary-foreground/20" 
+                                    :
+                                    `${message.seenAt.length!==0 && " text-muted-foreground bg-secondary/15" + "hover:bg-secondary/5  "}` }
+                             cursor-pointer`}                              
+                            //  onDoubleClick={() => handleRowSelection(message.id)}
+                                    key={message.id}>
+                                    <TableCell
+                                        className=' group'
+                                        onClick={()=>handleRowSelection(message.id)}>
+                                        <div className=' p-2  rounded-full h-8 w-8 flex items-center justify-center 
+                                        bg-transparent transition-all dark:group-hover:bg-[#393939] 
+                                        group-hover:bg-blue-50 group-hover:border dark:group-hover:border-0 duration-300'>
+                                            <Checkbox
+                                                checked={isRowSelected(message.id)}
+                                                onCheckedChange={(checked) => {
+                                                    handleRowSelection(message.id);
+                                                    console.log("Checkbox checked:", checked);
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className=' font-semibold !w-fit max-w-[230px]'>
+                                        <p className='max-w-[240px]'>{message.title}</p>
+                                    </TableCell>
+                                    <TableCell className="max-w-[400px]">
+                                        <div className='flex flex-col gap-1'>
+                                            <p className='break-words line-clamp-2 whitespace-pre-wrap'>{message.description}</p>
+                                            <div className='flex items-center gap-2 flex-wrap'>
+                                                {
+                                                    message.attcachments.map((attachment) => (
+                                                        <div key={attachment.id} className=' text-xs text-muted-foreground'>
+                                                            <Badge variant={message.seenAt.length!==0?"secondary":"default"} className={message.seenAt.length!==0 ? " text-muted-foreground" : ""}>{attachment.name}</Badge>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-right text-xs dark:font-semibold">{formatDate(message.timestamp)}</TableCell>
+                                </TableRow>
+                            )
+                        }
+                    </TableBody>
+                </Table>
+            </div>
             <div className=' !px-0 overflow-hidden max-sm:hidden !rounded-md !border'>
                 <Table>
                     <TableBody>

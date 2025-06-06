@@ -3,8 +3,10 @@
 import React, { useEffect } from 'react'
 import CalendarWid from './widgets/CalendarWid'
 import ImportantDates from './widgets/ImportantDates';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setChatOpen } from '@/redux/reducers/BooleanReducer';
+import { RootState } from '@/redux/store';
+import ChangeThemeColor from '@/lib/ChangeThemeColor';
 
 
 const mockImportantDates = [
@@ -50,12 +52,19 @@ const dates = mockImportantDates.map(event => event.date);
 
 
 const MainCalendar = () => {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(setChatOpen(false));
-    },[])
+  const dispatch = useDispatch();
+  const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
+  useEffect(() => {
+      dispatch(setChatOpen(false));
+  },[]);
+
+  useEffect(() => {
+    if(isDarkMode){
+      ChangeThemeColor("#171717");
+    }
+  }, [isDarkMode]);
   return (
-        <div className=' flex h-full gap-10 flex-col snap-mandatory snap-y p-10 max-sm:p-0
+        <div className=' flex h-full dark:max-sm:bg-primary-foreground gap-10 flex-col snap-mandatory snap-y p-10 max-sm:p-0
          items-center py-20 max-sm:py-15'>
             <CalendarWid importantDates={dates}/>
             <ImportantDates data={mockImportantDates}/>

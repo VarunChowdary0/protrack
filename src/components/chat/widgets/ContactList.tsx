@@ -1,9 +1,14 @@
-import React from 'react'
+"use client";
+
+import React, { useEffect } from 'react'
 import { AvatarImage, Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import Link from 'next/link';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import ChangeThemeColor from '@/lib/ChangeThemeColor';
 
 const MockTeamMembers = [
     {
@@ -67,8 +72,14 @@ const MockSupervisors = [
 
 const mock = [...MockTeamMembers, ...MockSupervisors];
 
-const ContactList = () => {
-  return (
+const ContactList:React.FC = () => {
+      const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
+        useEffect(() => {
+            if(isDarkMode){
+                ChangeThemeColor("#0a0a0a");
+            }
+        },[]);
+    return (
             <div className=' max-sm:w-full w-[25%] min-w-[250px] h-[calc(100vh-60px)] border-r'>
             <div className=" px-5 py-2 mt-3  relative max-sm:p-3 max-sm:px-5">
                 <Search size={16} className=' absolute max-sm:top-5.5 max-sm:left-7.5

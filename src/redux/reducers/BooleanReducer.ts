@@ -4,11 +4,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface BooleanState {
     isChatOpen: boolean;
     hideBottomBar: boolean; 
+    isDarkMode: boolean;
 }
 
 const initialState: BooleanState = {
   isChatOpen: false,
   hideBottomBar: false,
+  isDarkMode: true, // Default value for dark mode
 };
 
 const booleanSlice = createSlice({
@@ -21,8 +23,17 @@ const booleanSlice = createSlice({
     setHideBottomBar(state, action: PayloadAction<boolean>) {
       state.hideBottomBar = action.payload;
     },
+    setDarkMode(state, action: PayloadAction<boolean>) {
+      console.log("Dark mode set to:", action.payload);
+      state.isDarkMode = action.payload;
+    }
   },
 });
 
-export const { setChatOpen, setHideBottomBar } = booleanSlice.actions;
+export const { 
+  setChatOpen,
+  setHideBottomBar, 
+  setDarkMode 
+} = booleanSlice.actions;
+
 export default booleanSlice.reducer;

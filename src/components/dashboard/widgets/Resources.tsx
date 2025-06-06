@@ -79,7 +79,7 @@ const Resources:React.FC = () => {
     <div className=' grid grid-cols-2 max-md:grid-cols-1 w-full  gap-5'>        
         <Dialog >
             <DialogTrigger className=' flex items-center max-md:w-full !h-full '>
-                <Card className=' !border-dashed border-2 flex items-center justify-center
+                <Card className=' max-sm:mx-6 !border-dashed border-2 flex items-center justify-center
                  w-full h-full border-pr hover:cursor-pointer transition-all 
                  hover:border-gray-400/30'>
                     <CardContent className='h-full flex items-center justify-center'>
@@ -99,9 +99,9 @@ const Resources:React.FC = () => {
             <DialogContent>
                 <DialogHeader>
                 <DialogTitle className=' mb-4'>Are you absolutely sure?</DialogTitle>
-                <div className=' flex flex-col gap-2'>
+                <div className=' flex flex-col gap-2 max-sm:gap-6'>
                     <div className=''>
-                        <Label className=' mb-1' htmlFor='resource_id'>Title / File Name</Label>
+                        <Label className=' mb-1 max-sm:mb-3' htmlFor='resource_id'>Title / File Name</Label>
                         <Input 
                             value={newResource.title}
                             id='resource_id'
@@ -188,7 +188,7 @@ const Resources:React.FC = () => {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-        <Card className=' w-full'>
+        <Card className=' w-full max-sm:shadow-none max-sm:!border-none'>
             <CardHeader>
                 <h2 className='text-lg font-semibold'>Resources</h2>
                 <p className='text-sm text-muted-foreground'>Manage your project resources here.</p>

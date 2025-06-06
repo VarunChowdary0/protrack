@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Bell, Globe, Eye, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
+import { Bell, Globe, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import ChangeThemeColor from '@/lib/ChangeThemeColor';
 
 const ProjectCards = () => {
+  const isDarkMode = useSelector((state:RootState) => state.booleans.isDarkMode);
   const [projects] = useState([
     {
       id: 1,
@@ -114,90 +117,89 @@ const ProjectCards = () => {
       day: 'numeric'
     });
   };
+  React.useEffect(() => {
+    if(isDarkMode){
+      ChangeThemeColor("#0a0a0a")
+    }
+  },[isDarkMode]);
 
   return (
     <div className="p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">My Projects</h1>
+          <h1 className="text-3xl font-bold mb-2 max-md:mb-0">My Projects</h1>
           <p className=" text-muted-foreground">Manage and track your project progress</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <Card key={project.id} className="hover:shadow-lg transition-shadow duration-300 ">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-xl font-semibold mb-1">
-                      {project.name}
-                    </CardTitle>
-                    <CardDescription className="text-sm mb-3">
-                      {project.description}
-                    </CardDescription>
-                  </div>
-                  {project.notifications > 0 && (
-                    <div className="relative">
-                      <Bell className="w-5 h-5 " />
-                      <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                        {project.notifications}
-                      </span>
+            <Link key={project.id} 
+                  href={`/${project.id}/dashboard/`}  
+                  className="flex-1">
+              <Card className="hover:shadow-lg !gap-0 transition-shadow duration-300 ">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl font-semibold mb-1">
+                        {project.name}
+                      </CardTitle>
+                      <CardDescription className="text-sm mb-3">
+                        {project.description}
+                      </CardDescription>
                     </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="outline" className="text-xs font-medium">
-                    <Globe className="w-3 h-3 mr-1" />
-                    {project.domain}
-                  </Badge>
-                  <Badge className={`text-xs font-medium ${getStatusColor(project.status)}`}>
-                    {getStatusIcon(project.status)}
-                    <span className="ml-1 capitalize">{project.status.replace('-', ' ')}</span>
-                  </Badge>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                <div className="space-y-4">
-                  {/* Progress Bar */}
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Progress</span>
-                      <span className="text-sm text-muted-foreground">{project.progress}%</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className=" bg-primary h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${project.progress}%` }}
-                      ></div>
-                    </div>
+                    {project.notifications > 0 && (
+                      <div className="relative">
+                        <Bell className="w-5 h-5 " />
+                        <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                          {project.notifications}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Project Details */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2 ">
-                      <Calendar className="w-4 h-4" />
-                      <span>{formatDate(project.createdAt)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 ">
-                      <User className="w-4 h-4" />
-                      <span>{project.team} members</span>
-                    </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge variant="outline" className="text-xs font-medium">
+                      <Globe className="w-3 h-3 mr-1" />
+                      {project.domain}
+                    </Badge>
+                    <Badge className={`text-xs font-medium ${getStatusColor(project.status)}`}>
+                      {getStatusIcon(project.status)}
+                      <span className="ml-1 capitalize">{project.status.replace('-', ' ')}</span>
+                    </Badge>
                   </div>
+                </CardHeader>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 pt-2">
-                    <Link href={`/${project.id}/dashboard/`}  className="flex-1">
-                      <Button variant={'default'} size="sm" >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                    </Link>  
+                <CardContent className="pt-0">
+                  <div className="space-y-4">
+                    {/* Progress Bar */}
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Progress</span>
+                        <span className="text-sm text-muted-foreground">{project.progress}%</span>
+                      </div>
+                      <div className="w-full bg-secondary rounded-full h-2">
+                        <div 
+                          className=" bg-primary h-2 rounded-full transition-all duration-300" 
+                          style={{ width: `${project.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Project Details */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2 ">
+                        <Calendar className="w-4 h-4" />
+                        <span>{formatDate(project.createdAt)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 ">
+                        <User className="w-4 h-4" />
+                        <span>{project.team} members</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 

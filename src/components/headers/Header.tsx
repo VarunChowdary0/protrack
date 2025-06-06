@@ -13,7 +13,7 @@ const items = [
     icon: Home
   },
   {
-    title: "Tods",
+    title: "Todos",
     url: "todos",
     icon: ListTodoIcon
   },
