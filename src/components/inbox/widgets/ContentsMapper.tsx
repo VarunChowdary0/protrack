@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import React, { useRef } from 'react'
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -13,6 +13,17 @@ import { Badge } from '@/components/ui/badge'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import ChangeThemeColor from '@/lib/ChangeThemeColor'
+import { Loader } from 'lucide-react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+
 
 const mockData = [
     {
@@ -195,6 +206,7 @@ const mockData = [
 
 const ContentsMapper:React.FC = () => {
     const [selectedRows, setSelectedRows] = React.useState<number[]>([]);
+    const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
     const handleRowSelection = (id: number) => {
         setSelectedRows((prev) => {
@@ -223,8 +235,10 @@ const ContentsMapper:React.FC = () => {
 
     const [inboxMessages, setInboxMessages] = React.useState([] as typeof mockData);
     React.useEffect(() => {
+        setIsLoading(true);
         // Simulate fetching data from an API
         setInboxMessages(mockData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+        setIsLoading(false);
     }, []);
 
     const formatDate = (dateString: string) => {
@@ -261,22 +275,34 @@ const ContentsMapper:React.FC = () => {
         });
     };
 
-      const touchStartTimeRef = useRef<number | null>(null);
+    const touchStartTimeRef = useRef<number | null>(null);
     const LONG_PRESS_THRESHOLD = 500; // in milliseconds
 
+    const Load = () => {
+        if (isLoading) {
+            return (
+                <div className=' w-full h-[60vh] flex items-center justify-center'>
+                    <Loader className=' animate-spin text-secondary' size={32} />
+                </div>
+            );
+        }
+        else{
+            return <></>;
+        }
+    }
     
   return (
-    <Card className=' max-w-6xl max-sm:!pt-0 max-sm:!rounded-none max-sm:min-h-screen !gap-0 !w-full'>
+    <Card className=' max-w-6xl max-sm:pb-20 max-sm:!pt-0 max-sm:!rounded-none max-sm:min-h-screen !gap-0 !w-full'>
         <CardHeader style={{
                         zIndex: 1000,
                     }} className=' w-full max-sm:px-3 sticky top-0 
-         dark:bg-primary-foreground gap-0 bg-background '>
-            <div className='flex flex-col gap-0 py-4'>
+         dark:bg-primary-foreground gap-0 bg-background !py-4 '>
+            <div className='flex flex-col gap-0 '>
                 <h2 className='text-2xl font-semibold'>Inbox</h2>
                 <p className='text-muted-foreground max-sm:hidden'>Here you can find all your messages and notifications.</p>
             </div>
         </CardHeader>
-        <hr className=' my-4 mx-5 max-sm:hidden'/>
+        {/* <hr className=' mb-4 mx-5 max-sm:hidden'/> */}
         <CardContent className='  max-sm:!px-0'>
             <div className=' !px-0 overflow-hidden max-sm:hidden !rounded-md !border'>
                 <Table>
@@ -331,60 +357,8 @@ const ContentsMapper:React.FC = () => {
                     </TableBody>
                 </Table>
             </div>
-            <div className=' !px-0 overflow-hidden max-sm:hidden !rounded-md !border'>
-                <Table>
-                    <TableBody>
-                        {
-                            inboxMessages.map((message)=>      
-                                <TableRow className={`  
-                                ${isRowSelected(message.id) ? 
-                                    " dark:bg-secondary-foreground/20 bg-blue-100 hover:bg-blue-100 dark:hover:bg-secondary-foreground/20" 
-                                    :
-                                    `${message.seenAt.length!==0 && " text-muted-foreground bg-secondary/15" + "hover:bg-secondary/5  "}` }
-                             cursor-pointer`}                              
-                            //  onDoubleClick={() => handleRowSelection(message.id)}
-                                    key={message.id}>
-                                    <TableCell
-                                        className=' group'
-                                        onClick={()=>handleRowSelection(message.id)}>
-                                        <div className=' p-2  rounded-full h-8 w-8 flex items-center justify-center 
-                                        bg-transparent transition-all dark:group-hover:bg-[#393939] 
-                                        group-hover:bg-blue-50 group-hover:border dark:group-hover:border-0 duration-300'>
-                                            <Checkbox
-                                                checked={isRowSelected(message.id)}
-                                                onCheckedChange={(checked) => {
-                                                    handleRowSelection(message.id);
-                                                    console.log("Checkbox checked:", checked);
-                                                }}
-                                                onClick={(e) => e.stopPropagation()}
-                                            />
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className=' font-semibold !w-fit max-w-[230px]'>
-                                        <p className='max-w-[240px]'>{message.title}</p>
-                                    </TableCell>
-                                    <TableCell className="max-w-[400px]">
-                                        <div className='flex flex-col gap-1'>
-                                            <p className='break-words line-clamp-2 whitespace-pre-wrap'>{message.description}</p>
-                                            <div className='flex items-center gap-2 flex-wrap'>
-                                                {
-                                                    message.attcachments.map((attachment) => (
-                                                        <div key={attachment.id} className=' text-xs text-muted-foreground'>
-                                                            <Badge variant={message.seenAt.length!==0?"secondary":"default"} className={message.seenAt.length!==0 ? " text-muted-foreground" : ""}>{attachment.name}</Badge>
-                                                        </div>
-                                                    ))
-                                                }
-                                            </div>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right text-xs dark:font-semibold">{formatDate(message.timestamp)}</TableCell>
-                                </TableRow>
-                            )
-                        }
-                    </TableBody>
-                </Table>
-            </div>
-            <div className=' mt-3 pb-10 hidden max-sm:flex flex-col gap-0 select-none'>
+            <Load/>
+            <div className=' mt-3 hidden max-sm:flex flex-col gap-0 select-none'>
                 {
                   inboxMessages.map((message)=>
                     <div key={message.id} 
@@ -448,6 +422,24 @@ className={` py-4 ${isRowSelected(message.id) ? " dark:bg-secondary-foreground/2
 
             </div>
         </CardContent>
+        <CardFooter>
+            <Pagination className=' mt-2 w-full flex items-center justify-end'>
+                <PaginationContent>
+                    <PaginationItem>
+                    <PaginationPrevious href="#" />
+                    </PaginationItem>
+                    <PaginationItem>
+                    <PaginationLink href="#">1</PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                    <PaginationEllipsis />
+                    </PaginationItem>
+                    <PaginationItem>
+                    <PaginationNext href="#" />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+        </CardFooter>
     </Card>
   )
 }

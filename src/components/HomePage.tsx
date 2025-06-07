@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Bell, Globe, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
+import { Bell, Globe, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle, Search, Boxes } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import ChangeThemeColor from '@/lib/ChangeThemeColor';
+import { Input } from './ui/input';
 
 const ProjectCards = () => {
+  const [searchTerm, setSearchTerm] = useState('');
   const isDarkMode = useSelector((state:RootState) => state.booleans.isDarkMode);
   const [projects] = useState([
     {
@@ -80,6 +82,12 @@ const ProjectCards = () => {
     }
   ]);
 
+  const  filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const getStatusColor = (status:string) => {
     switch (status) {
       case 'active':
@@ -110,6 +118,7 @@ const ProjectCards = () => {
     }
   };
 
+
   const formatDate = (dateString:string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -119,28 +128,49 @@ const ProjectCards = () => {
   };
   React.useEffect(() => {
     if(isDarkMode){
-      ChangeThemeColor("#0a0a0a")
+      ChangeThemeColor("#171717")
     }
   },[isDarkMode]);
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="p-6 max-sm:p-0 min-h-screen ">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 max-md:mb-0">My Projects</h1>
-          <p className=" text-muted-foreground">Manage and track your project progress</p>
+        <div style={{zIndex:1000}}
+         className=' sticky max-sm:p-3  max-sm:py-0 max-sm:bg-primary-foreground top-0 flex flex-col'>
+          <div className="mb-0 max-sm:bg-primary-foreground max-sm:px-4 max-sm:pt-4 ">
+            <h1 className="text-3xl flex items-center gap-2 font-bold mb-2 max-sm:text-xl max-md:mb-0">
+              <Boxes/>
+              My Projects
+            </h1>
+            <p className=" text-muted-foreground max-sm:hidden">Manage and track your project progress</p>
+          </div>
+          <div  
+                className=' py-3 dark:max-sm:bg-primary-foreground dark:bg-[#0a0a0a] '>
+              <div className="relative mt-3 max-sm:mt-0 max-sm:mx-4">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                  <Input
+                      type="text"
+                      placeholder="Search projects..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 max-sm:pl-8 text-sm border max-sm:py-6 rounded-full
+                      focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  />
+              </div>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <Link key={project.id} 
+        <div className="grid grid-cols-1 max-sm:mt-3 md:grid-cols-2 max-sm:divide-y lg:grid-cols-3 max-sm:gap-3 gap-6">
+          {filteredProjects.map((project) => (
+            <Link  key={project.id} 
                   href={`/${project.id}/dashboard/`}  
-                  className="flex-1">
-              <Card className="hover:shadow-lg !gap-0 transition-shadow duration-300 ">
+                  className=" h-full flex-1 hover:bg-primary-foreground/20">
+              <Card className="hover:shadow-lg  h-full
+                max-sm:pt-2 !gap-0 transition-shadow max-sm:shadow-none max-sm:border-none
+                 max-sm:bg-transparent duration-300 ">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-xl font-semibold mb-1">
+                      <CardTitle className="text-xl max-sm:text-[16px] font-semibold mb-1 max-sm:mb-0">
                         {project.name}
                       </CardTitle>
                       <CardDescription className="text-sm mb-3">
@@ -150,7 +180,7 @@ const ProjectCards = () => {
                     {project.notifications > 0 && (
                       <div className="relative">
                         <Bell className="w-5 h-5 " />
-                        <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                        <span className="absolute -top-2 -right-2 border bg-[#49b5e8] opacity-90 text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                           {project.notifications}
                         </span>
                       </div>
@@ -169,7 +199,7 @@ const ProjectCards = () => {
                   </div>
                 </CardHeader>
 
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 ">
                   <div className="space-y-4">
                     {/* Progress Bar */}
                     <div>
@@ -204,7 +234,7 @@ const ProjectCards = () => {
         </div>
 
         {/* Summary Stats */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="mt-8 max-sm:pb-12 grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="p-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">

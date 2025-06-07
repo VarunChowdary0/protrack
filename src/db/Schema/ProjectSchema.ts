@@ -10,6 +10,6 @@ export const projects = pgTable("projects", {
     site_link: text("site_link").notNull(), // Link to the project site
     repositoryLink: text("repository_link").notNull(), // Link to the project repository
     location: text("location").notNull(), // Location of the project, can be a city or region
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: text("created_at").default(new Date().toISOString()).notNull(),
+    updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
 });

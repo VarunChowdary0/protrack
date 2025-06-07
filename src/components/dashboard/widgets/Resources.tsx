@@ -76,7 +76,7 @@ const Resources:React.FC = () => {
         return parts[n-1]
     }
   return (
-    <div className=' grid grid-cols-2 max-md:grid-cols-1 w-full  gap-5'>        
+    <div className=' grid grid-cols-2 px-3 max-sm:px-0 max-md:grid-cols-1 w-full  gap-5'>        
         <Dialog >
             <DialogTrigger className=' flex items-center max-md:w-full !h-full '>
                 <Card className=' max-sm:mx-6 !border-dashed border-2 flex items-center justify-center
@@ -96,7 +96,7 @@ const Resources:React.FC = () => {
                     </CardContent>
                 </Card>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className=' max-sm:bg-secondary'>
                 <DialogHeader>
                 <DialogTitle className=' mb-4'>Are you absolutely sure?</DialogTitle>
                 <div className=' flex flex-col gap-2 max-sm:gap-6'>

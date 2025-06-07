@@ -1,8 +1,9 @@
+import AllTasks from '@/components/todos/AllTasks'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>page</div>
+    <AllTasks/>
   )
 }
 
