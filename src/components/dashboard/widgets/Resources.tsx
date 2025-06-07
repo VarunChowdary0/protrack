@@ -214,7 +214,7 @@ const Resources:React.FC = () => {
                                                             <EyeIcon/>
                                                         </Button>
                                                     </DialogTrigger>
-                                                    <DialogContent>
+                                                    <DialogContent className='max-sm:bg-secondary'>
                                                         <DialogHeader>
                                                             <DialogTitle>{resource.name}</DialogTitle>
                                                         </DialogHeader>

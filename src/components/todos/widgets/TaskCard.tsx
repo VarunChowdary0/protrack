@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useRef } from 'react';
 import { Task, TaskStatus } from '@/types/taskTypes';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ import {
   AlertTriangle,
   ChartLineIcon
 } from 'lucide-react';
+import ChangeTaskStatusDialog from './ChangeTaskStatusDialog';
 
 const statusIconMap = {
   [TaskStatus.PENDING]: <Clock className="w-4 h-4 text-amber-500" />,
@@ -50,11 +51,12 @@ const statusLabelMap = {
 
 const TaskCard: React.FC<{ 
   task: Task; 
-  onToggleComplete: (id: string) => void;
+  onStatusChange: (id: string,NewStatus:TaskStatus) => void;
   onToggleImportant: (id: string) => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
-}> = ({ task, onToggleComplete, onToggleImportant, onEdit, onDelete }) => {
+}> = ({ task, onStatusChange, onToggleImportant, onEdit, onDelete }) => {
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = React.useState(false);
   const isCompleted = task.status === TaskStatus.COMPLETED;
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !isCompleted;
 
@@ -68,12 +70,36 @@ const TaskCard: React.FC<{
   };
 
   const priorityConfig = getPriorityConfig(task.priority);
+    const touchStartTimeRef = useRef<number | null>(null);
+    const LONG_PRESS_THRESHOLD = 500; // in milliseconds
 
   return (
-      <Card className={`group transition-all max-sm:bg-transparent max-sm:border-none max-sm:shadow-none
+      <Card
+        onDoubleClick={() => {
+            setIsStatusDialogOpen(true); // Open the status change dialog on double click
+        }}
+        onTouchStart={() => {
+            touchStartTimeRef.current = Date.now();
+          }}
+        onTouchEnd={() => {
+            const touchEndTime = Date.now();
+            const duration = touchEndTime - (touchStartTimeRef.current ?? 0);
+
+            if (duration >= LONG_PRESS_THRESHOLD) {
+            setIsStatusDialogOpen(true);
+            }
+        }}
+          
+        className={`group transition-all max-sm:bg-transparent max-sm:border-none max-sm:shadow-none
          max-sm:p-2 max-sm:py-2 duration-200 hover:shadow-md hover:border-primary/20 ${
         isCompleted ? 'opacity-70 bg-muted/30' : ''
       } ${isOverdue ? 'border-destructive/30 bg-destructive/5' : ''}`}>
+        <ChangeTaskStatusDialog
+          open={isStatusDialogOpen}
+          onClose={()=> setIsStatusDialogOpen(false)} 
+          onStatusChange={(newStatus) => onStatusChange(task.id,newStatus)}
+          currentStatus={task.status}
+        />
         <CardContent className="p-4 max-sm:p-0">
           <div className="flex items-start gap-3 ">
             {/* Completion Toggle */}
@@ -85,16 +111,20 @@ const TaskCard: React.FC<{
                     size="sm"
                     className={`h-7 w-7 p-0 rounded-full transition-colors ${
                       isCompleted 
-                        ? 'text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950' 
-                        : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
-                    }`}
-                    onClick={() => onToggleComplete(task.id)}
+                          ? 'text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950' 
+                          : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+                      }`}
+                   
+                    onClick={() => 
+                      setIsStatusDialogOpen(true) // Open the status change dialog
+                      // onStatusChange(task.id)
+                    }
                   >
                     {statusIconMap[task.status]}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{isCompleted ? 'Mark as incomplete' : 'Mark as complete'}</p>
+                  <p>Change Status</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -105,15 +135,15 @@ const TaskCard: React.FC<{
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="secondary" className="text-xs">
-                      {statusLabelMap[task.status]}
-                    </Badge>
                     {isOverdue && (
                       <Badge variant="destructive" className="text-xs flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" />
                         Overdue
                       </Badge>
                     )}
+                    <Badge variant="secondary" className="text-xs">
+                      {statusLabelMap[task.status]}
+                    </Badge>
                   </div>
                   
                   <h3 className={`font-semibold max-sm:text-sm text-base leading-tight ${

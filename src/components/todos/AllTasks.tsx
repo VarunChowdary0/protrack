@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Task, TaskStatus } from '@/types/taskTypes';
 import { CheckCircle } from 'lucide-react';
 import EditTaskDialog from './widgets/EditTaskDialog';
-import { Badge } from '../ui/badge';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -19,6 +18,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
+import AddNewTask from './AddNewTask';
 
 const AllTasks: React.FC = () => {
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
@@ -26,13 +26,13 @@ const AllTasks: React.FC = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  const handleToggleComplete = (taskId: string) => {
+  const handleStatusChange = (taskId: string,NewStatus:TaskStatus) => {
     setTasks(prevTasks => 
       prevTasks.map(task => 
         task.id === taskId 
           ? { 
               ...task, 
-              status: task.status === TaskStatus.COMPLETED ? TaskStatus.PENDING : TaskStatus.COMPLETED 
+              status: NewStatus
             }
           : task
       )
@@ -102,9 +102,16 @@ const AllTasks: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 max-sm:p-3 space-y-6">
+      <div className=' hidden'>
+        <span className=' bg-red-500'></span>
+        <span className=' bg-blue-500'></span>
+        <span className=' bg-amber-500'></span>
+        <span className=' bg-green-500'></span>
+        <span className=' bg-orange-500'></span>
+      </div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 max-sm:text-md max-sm:mt-14 dark:text-gray-100">All Tasks</h1>
-        <div className="text-sm flex gap-2 text-gray-500">
+        {/* <div className="text-sm flex gap-2 text-gray-500">
           <Badge variant={'destructive'}>
             {pendingTasks.length + overdeueTasks.length} remaining
           </Badge>
@@ -114,12 +121,14 @@ const AllTasks: React.FC = () => {
           <Badge variant={'secondary'}>
             {pausedTasks.length} on-hold
           </Badge>
-        </div>
+        </div> */}
+        <AddNewTask setTasks={setTasks} />
       </div>
 
         <div className="  p-0">
-          <Tabs defaultValue="Pending" className="w-full">
-            <TabsList className="grid w-fit grid-cols-2 sm:grid-cols-3 !rounded-2xl lg:grid-cols-5 gap-1 h-auto p-1 bg-muted">
+          <Tabs defaultValue="Pending" className="w-full flex">
+            <TabsList className="grid w-fit grid-cols-2 bg-primary-foreground 
+            shadow sm:grid-cols-3 !rounded-2xl lg:grid-cols-5 gap-1 h-auto p-1 ">
               {
                 tabs.map(tab => (
                 
@@ -148,7 +157,7 @@ const AllTasks: React.FC = () => {
                       <TaskCard
                         key={task.id}
                         task={task}
-                        onToggleComplete={handleToggleComplete}
+                        onStatusChange={handleStatusChange}
                         onToggleImportant={handleToggleImportant}
                         onEdit={handleEdit}
                         onDelete={confirmDeleteTask}
@@ -186,7 +195,7 @@ const AllTasks: React.FC = () => {
         onSave={handleSaveEdit}
       />}
       <AlertDialog open={!!deleteTaskId} onOpenChange={() => setDeleteTaskId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className=' max-sm:bg-secondary'>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
