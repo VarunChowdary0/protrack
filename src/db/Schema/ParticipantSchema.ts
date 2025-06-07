@@ -1,6 +1,6 @@
 import { boolean, pgTable, text } from "drizzle-orm/pg-core";
-import { users } from "../drizzle";
 import { projects } from "./ProjectSchema";
+import { users } from "./UserSchema";
 
 export const participants = pgTable("participants", {
     id: text("id").primaryKey(),

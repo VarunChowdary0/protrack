@@ -7,11 +7,11 @@ import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 
 const tabs = [
-  { id: 'important', label: 'Important', icon: Star },
-  { id: 'planned', label: 'Planned', icon: Calendar },
-  { id: 'assigned', label: 'Assigned', icon: Users },
-  { id: 'my-tasks', label: 'My Tasks', icon: User },
-  { id: 'all', label: 'All', icon: List },
+    { id: 'all', label: 'All', icon: List },
+    { id: 'important', label: 'Important', icon: Star },
+    { id: 'planned', label: 'Planned', icon: Calendar },
+    { id: 'assigned', label: 'Assigned', icon: Users },
+    { id: 'my-tasks', label: 'My Tasks', icon: User },
 ];
 
 interface TodosLayoutProps {
@@ -111,7 +111,7 @@ export default function TodosLayout({ children }: TodosLayoutProps) {
                 zIndex: 1000,
             }} className={` ${isOpen ? "" : " -translate-x-200"} duration-200 fixed left-0 top-0 bottom-0 transition-all 
              flex border-b h-screen border-border `}>
-                <div className="flex py-10 flex-col bg-card space-y-4">
+                <div className="flex py-10 flex-col h-fit rounded-full shadow-2xl bg-card space-y-4">
                     <div className=' font-bold flex items-center justify-center w-full'>
                         <span className=' text-rose-500'>T</span>
                         <span className=' '>odo</span>

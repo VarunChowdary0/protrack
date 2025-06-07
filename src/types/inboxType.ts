@@ -1,0 +1,26 @@
+import { FileType } from "./timelineType";
+
+export interface InboxAttachment{
+    id: string;
+    name: string;
+    inboxIs: string;
+    type: FileType;
+    size: number; // Size in bytes
+}
+
+export interface Inbox {
+    id: string;
+    fromId: string; // ID of the sender
+    participantId: string; // ID of the participant
+    userId: string; // ID of the user
+    projectId: string; // ID of the project
+    title: string; // Title of the inbox item
+    description: string; // Description of the inbox item
+    type: string; // Type of inbox item (e.g., message, notification)
+    seenAt: string; // Timestamp when the item was seen
+    isArchived: boolean; // Whether the inbox item is archived
+    isDeleted: boolean; // Whether the inbox item is deleted
+    isStarred: boolean; // Whether the inbox item is starred
+    timestamp: string; // Timestamp when the item was created
+    updatedAt: string; // Timestamp when the item was last updated
+}

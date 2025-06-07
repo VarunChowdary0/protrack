@@ -12,4 +12,5 @@ export const projects = pgTable("projects", {
     location: text("location").notNull(), // Location of the project, can be a city or region
     createdAt: text("created_at").default(new Date().toISOString()).notNull(),
     updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
+
 });
