@@ -9,7 +9,7 @@ const page = () => {
         .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
         .filter(task => task.assignedBy_id !== task.assignedTo_id )
       }
-      title='Important Tasks'
+      title='Assigned Tasks'
     />
   )
 }
