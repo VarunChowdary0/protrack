@@ -18,7 +18,7 @@ const MainComponent = () => {
     }
   },[isDarkMode])
   return (
-    <div className=' flex h-full dark:max-sm:bg-primary-foreground gap-10 flex-col snap-mandatory snap-y items-center py-20 max-sm:py-5'>
+    <div className=' flex h-full max-sm:pb-32 dark:max-sm:bg-primary-foreground gap-10 flex-col snap-mandatory snap-y items-center py-20 max-sm:py-5'>
       <DescriptionCard />
       <Members/>
       <ProjectTimeLine/>

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import React, { useState, useMemo } from 'react'
 import { Search, Clock, CalendarClockIcon, Calendar } from 'lucide-react'
 import Image from 'next/image';
+import { Input } from '@/components/ui/input';
 
 interface ImportantDate {
     data : {
@@ -109,19 +110,19 @@ const ImportantDates:React.FC<ImportantDate> = ({data}) => {
             <CardHeader style={{
                 zIndex: 1000,
             }} className="sticky max-sm:top-0 dark:bg-primary-foreground rounded-2xl gap-0 bg-background max-sm:!py-4 !pt-5 !pb-3 p-8">
-                <h2 className="text-xl flex items-center gap-2 font-semibold">
+                <h2 className="text-xl flex items-center max-sm:text-lg gap-2 font-semibold">
                     <Calendar/>
                     Important Dates
                 </h2>
-                <div className="relative mt-3">
+                <div className="relative mt-3 max-sm:mt-2">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                    <input
+                    <Input
                         type="text"
                         placeholder="Search events..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
-                    />
+                        className="w-full pl-10 pr-4 py-2 max-sm:pl-8 text-sm border max-sm:py-6 rounded-full
+                            focus:outline-none focus:ring-2 focus:ring-gray-200"                    />
                 </div>
             </CardHeader>
 

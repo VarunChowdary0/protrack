@@ -1,4 +1,4 @@
-import { pgTable, text } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text } from "drizzle-orm/pg-core";
 import { organizations } from "./Organization.Schema";
 import { UserRole } from "@/types/userTypes";
 
@@ -10,11 +10,11 @@ export const users = pgTable("users", {
     password: text("password").notNull(),
     organizationId: text("organization_id").references(() => organizations.id, { onDelete: "cascade" }),
     role: text("role").notNull().$type<UserRole>().default(UserRole.USER), // default role is USER
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
-    isActive: text("is_active").notNull().default("true"),
-    isEmailVerified: text("is_email_verified").notNull().default("false"), // send otp to email
-    isPhoneVerified: text("is_phone_verified").notNull().default("false"), // send otp to phone
+    createdAt: text("created_at").default(new Date().toISOString()).notNull(),
+    updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    isEmailVerified: boolean("is_email_verified").notNull().default(false), // send otp to email
+    isPhoneVerified: boolean("is_phone_verified").notNull().default(false), // send otp to phone
     phoneNumber: text("phone_number").notNull().default(""),
     profilePicture: text("profile_picture").notNull().default(""), // URL to the profile picture
     lastLogin: text("last_login").notNull().default(""), // timestamp of the last login

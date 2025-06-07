@@ -94,7 +94,7 @@ const ContactList:React.FC = () => {
             <div className=' w-full overflow-y-auto max-h-[calc(100vh-75px)] mybar max-sm:p-5 p-3'>
                 {
                     mock.map((member, index) => (
-                        <Link href={`/in/chat/${index + 1}`} className=' no-underline' key={index}>
+                        <Link href={`${index + 1}`} className=' no-underline' key={index}>
                             <Card key={index} className=' !py-2.5 relative !border-0 mb-3'>
                                 <CardContent className=' flex gap-3 items-center'>
                                     <Avatar>

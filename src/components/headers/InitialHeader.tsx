@@ -1,16 +1,17 @@
 "use client";
 
 import { RootState } from '@/redux/store';
-import { Calendar, Home, Inbox } from 'lucide-react';
+import { Boxes, Calendar, Inbox, User2Icon } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux';
-import Logo from '../logo/Logo';
+import Logo0 from './Logo0';
+
 const items = [
   {
-    title: "Home",
+    title: "Projects",
     url: "/u",
-    icon: Home
+    icon: Boxes
   },
   {
     title: "Inbox",
@@ -21,19 +22,13 @@ const items = [
     title: "Calendar",
     url: "/u/calendar",
     icon: Calendar
+  },{
+    title: "Profile",
+    url: "/u/profile",
+    icon: User2Icon
   }
 ]
-const Logo0 = () => {
-    return (
-        <div className=' font-semibold flex items-center px-2 gap-2 text-lg bg-black rounded-md tracking-widest'>
-            <Logo className=' h-5 w-5'/>
-            <div>
-                <span className=' text-[#61d1bf]'>Pro</span>
-                <span className=' text-white'>track</span>
-            </div>
-        </div>
-    );
-}
+
 const InitialHeader:React.FC = () => {
   const hideBottomBar = useSelector((state:RootState) => state.booleans.isChatOpen);
   useEffect(()=>{
@@ -41,7 +36,7 @@ const InitialHeader:React.FC = () => {
   },[hideBottomBar])
   return (
     <>
-        <div className=' max-sm:hidden px-4 w-full py-3 flex justify-around mr-[60px] border-b'>
+        <div className=' max-sm:hidden bg-card px-4 w-full py-3 flex justify-around mr-[60px] border-b'>
             <Logo0/>
             <div className=' flex gap-4'>
                 {

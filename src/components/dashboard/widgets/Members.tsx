@@ -38,7 +38,7 @@ const Members = () => {
   return (
       <div className=' w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-5'>
         <Card className=' max-sm:shadow-none max-sm:!border-none'>
-          <CardHeader>
+          <CardHeader className=' max-sm:!gap-0'>
             <h2 className='text-lg font-semibold'>Team Members</h2>
             <p className='text-sm text-muted-foreground'>Meet your team members.</p>
           </CardHeader>
@@ -77,7 +77,7 @@ const Members = () => {
         </Card>
 
         <Card className=' max-sm:shadow-none max-sm:!border-none'>
-          <CardHeader>
+          <CardHeader className=' max-sm:!gap-0'>
             <h2 className='text-lg font-semibold'>Supervisors</h2>
               <p className='text-sm text-muted-foreground'>Meet your project Supervisors and guides.</p>
           </CardHeader>

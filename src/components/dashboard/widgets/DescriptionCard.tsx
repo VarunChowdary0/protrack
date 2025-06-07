@@ -9,7 +9,7 @@ const DescriptionCard = () => {
     <Card className='w-fit h-fit max-sm:shadow-none max-sm:!border-none'>
         <CardHeader style={{
           zIndex: 1000
-        }} className=' bg-primary-foreground max-sm:py-3 max-sm:pt-4 max-sm:!gap-0 sticky max-sm:top-0'>
+        }} className=' dark:bg-primary-foreground max-sm:py-3 max-sm:pt-4 max-sm:!gap-0 sticky max-sm:top-0'>
           <h2 className='text-2xl font-bold'>Dashboard</h2>
           <p className='text-sm text-muted-foreground'>Welcome to your dashboard!</p>
         </CardHeader>
@@ -27,8 +27,8 @@ const DescriptionCard = () => {
                 <Badge>Machine Learning</Badge>
               </div>
               <div className=' hidden max-sm:block bg-secondary w-full h-0.5 my-5'></div>
-              <Card className=' max-sm:!pt-0 relative !shadow-none !border-0'>
-                <CardContent className=' max-sm:!pt-0 flex flex-col space-y-3 p-4'>
+              <Card className=' max-sm:!pt-0 relative max-sm:px-0 !shadow-none !border-0'>
+                <CardContent className='  max-sm:!py-0 flex flex-col space-y-3 max-sm:px-0 p-4'>
                   <div>
                     <h3 className=' text-lg font-semibold'>Problem Statement</h3>
                     <p className=' text-sm max-w-2xl text-muted-foreground'>Traditional methods of digitizing documents, such as manual transcription, are time-consuming,
@@ -39,8 +39,8 @@ retrieval. Existing OCR systems, while effective in some cases, often struggle w
                   <table >
                     <tbody>
                         <tr >
-                        <td className=' pr-10'>Course Code</td>
-                        <td className=' pr-10 max-sm:text-xs'>
+                        <td className=' pr-10 max-sm:text-xs'>Course Code</td>
+                        <td className=' pr-10 '>
                             <Badge className=' bg-blue-500 text-white'>CDCAA1</Badge>
                         </td>
                         </tr>
@@ -67,7 +67,7 @@ retrieval. Existing OCR systems, while effective in some cases, often struggle w
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter className=' absolute bottom-0 px-4 py-3 max-sm:left-0 right-0'>
+                <CardFooter className=' max-sm:p-0 max-sm:mt-2 absolute bottom-0 px-4 py-3 max-sm:left-0 right-0'>
                   <div className=' flex gap-2 justify-between items-center'>
                     <MapPin size={16}/>
                     <span className=' text-sm max-sm:text-xs text-muted-foreground'>Institute of Aeronautical Engineering</span>
