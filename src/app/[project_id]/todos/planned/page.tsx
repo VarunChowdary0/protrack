@@ -9,7 +9,7 @@ const page = () => {
         .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
         .filter(task => task.isPlanned )
       }
-      title='Important Tasks'
+      title='My Plans'
     />
   )
 }
