@@ -8,7 +8,9 @@ export const users = pgTable("users", {
     lastname: text("last_name").notNull(),
     email: text("email").notNull().unique(),
     password: text("password").notNull(),
-    organizationId: text("organization_id").references(() => organizations.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id").references(() => organizations.id, { onDelete: "cascade" })
+                                            .notNull()
+                                            .default('1'), // made nullable with default empty string
     role: text("role").notNull().$type<UserRole>().default(UserRole.USER), // default role is USER
     createdAt: text("created_at").default(new Date().toISOString()).notNull(),
     updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),

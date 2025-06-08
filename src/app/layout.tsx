@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ProviderAll from "@/components/ProviderAll";
+import { getServerSession } from "next-auth"
 
 
 const geistSans = Geist({
@@ -42,18 +43,18 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">  {/* <--- allow 'dark' class here */}
+    <html lang="en" className="scroll-smooth">
       <meta name="theme-color" content="#ffffff"></meta>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ProviderAll>
+        <ProviderAll session={await getServerSession()}>
           {children}
         </ProviderAll>
       </body>

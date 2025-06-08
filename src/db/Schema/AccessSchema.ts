@@ -60,4 +60,6 @@ export const access = pgTable("accessTable",{
                     .default(true), // all users have access to chat they are part of`
     createGroups: boolean("createGroups")
                     .default(false), // for organization manager / user [individual user can create groups]
+    manageGroups: boolean("manageGroups")
+                    .default(true), // all users have access to groups they are part of
 })

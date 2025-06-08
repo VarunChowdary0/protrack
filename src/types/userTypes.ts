@@ -1,3 +1,5 @@
+import { Access } from "./accessType";
+
 export enum UserRole {
     ADMIN = "admin",
     USER = "user",
@@ -8,16 +10,17 @@ export enum UserRole {
 
 export interface User {
     id: string;
-    firatname: string;
+    firstname: string;
     lastname: string;
     email: string;
     organizationId: string;
     role: UserRole;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
     isActive: boolean;
     isEmailVerified?: boolean;
     isPhoneVerified?: boolean;
+    access: Access;
     phoneNumber?: string; // Optional, as not all users may have a phone number
     profilePicture?: string; // Optional, as not all users may have a profile picture
     lastLogin?: string; // Optional, as not all users may have a last login timestamp
