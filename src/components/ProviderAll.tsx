@@ -1,24 +1,33 @@
 "use client";
 
-
 import store from '@/redux/store';
-import React from 'react'
-import { Provider } from "react-redux";
-import ToggleTheame from './ui/ToggleTheame';
+import React from 'react';
+import { Provider as ReduxProvider } from "react-redux";
+import ToggleTheme from './ui/ToggleTheame';
 import { TooltipProvider } from './ui/tooltip';
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
+import SessionSync from './Auth/SessionSync';
+import { SessionProvider, SessionProviderProps } from 'next-auth/react';
 
-
-const ProviderAll = ({ children }: { children: React.ReactNode }) => {
+const ProviderAll = ({ 
+  children,
+  session
+}: { 
+  children: React.ReactNode;
+  session?: SessionProviderProps['session'];
+}) => {
   return (
-      <Provider store={store}>
+    <SessionProvider session={session}>
+      <ReduxProvider store={store}>
         <TooltipProvider>
-          <ToggleTheame />
+          <ToggleTheme />
           <Toaster />
+          <SessionSync />
           {children}
         </TooltipProvider>
-      </Provider>
-  )
-}
+      </ReduxProvider>
+    </SessionProvider>
+  );
+};
 
-export default ProviderAll
+export default ProviderAll;

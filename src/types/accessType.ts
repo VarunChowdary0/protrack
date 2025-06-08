@@ -1,0 +1,33 @@
+import { UserRole } from "./userTypes";
+
+export interface Access{
+    userRole: UserRole,
+    createOrganization: boolean,
+    accessOrganization: boolean,
+    manageOrganization: boolean,
+    createOrganizationManagers: boolean,
+    accessOrganizationManagers: boolean,
+    createOrganizationUsers: boolean,
+    accessOrganizationUsers: boolean,
+    accessProjects: boolean,
+    createProjects: boolean,
+    editProjects: boolean,
+    deleteProjects: boolean,
+    accessTeam: boolean,
+    mapTeam: boolean,
+    accessTimeline: boolean,
+    manageTimeline: boolean,
+    accessActivities: boolean,
+    manageActivities: boolean,
+    accessResources: boolean,
+    manageResources: boolean,
+    deleteResources: boolean,
+    accessTasks: boolean,
+    hold_cancle_tasks: boolean;
+    assignTasks: boolean,
+    accessCalendar: boolean,
+    manageCalendar: boolean,
+    accessChat: boolean,
+    createGroups: boolean,
+    manageGroups: boolean,
+}

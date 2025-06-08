@@ -22,6 +22,27 @@
       "when": 1749322425248,
       "tag": "0002_shocking_rockslide",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1749367995501,
+      "tag": "0003_dry_hairball",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1749388503773,
+      "tag": "0004_worried_malice",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1749391478392,
+      "tag": "0005_magenta_hammerhead",
+      "breakpoints": true
     }
   ]
 }
