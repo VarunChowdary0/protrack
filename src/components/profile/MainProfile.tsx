@@ -35,22 +35,23 @@ import UserOrganization from './widgets/UserOrganization'
 import { Tooltip, TooltipContent } from '../ui/tooltip'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
 import Logout from '../Auth/Logout'
+import { Badge } from '../ui/badge'
 
 const MainProfile: React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth);
 
   return (
     <div className="container max-sm:pb-20 max-md:bg-card max-sm:px-4 mx-auto py-8 space-y-6">
-        <UserOrganization organizationId='2' />
+        <UserOrganization organizationId={auth?.user?.organizationId || "1"} />
 
       {/* Profile Header */}
       <UserDescription user={auth.user as UserType} />
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Personal Information */}
-        <Card className=' max-sm:shadow-none'>
+        <Card className=' max-sm:shadow-none max-sm:border-0 max-sm:!p-2 max-sm:gap-4'>
           <CardHeader className=' max-sm:px-3'>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex font-semibold items-center gap-2">
               <User className="h-5 w-5" />
               Personal Information
             </CardTitle>
@@ -59,7 +60,9 @@ const MainProfile: React.FC = () => {
             <div className=' flex items-center justify-between'>
                 <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className=' max-sm:max-w-[270px] truncate'>{auth.user?.email}</span>
+                    <Badge>
+                      <span className=' max-sm:text-xs max-sm:max-w-[270px] truncate'>{auth.user?.email}</span>
+                    </Badge>
                 </div>
                 <div className=' w-4 h-4 flex items-center justify-center  '>
                   {auth.user?.isEmailVerified ? 
@@ -83,7 +86,7 @@ const MainProfile: React.FC = () => {
                 </div>
             </div>
             <div className=' flex items-center justify-between'>
-                <div className="flex items-center gap-2">
+                <div className="flex max-sm:text-xs items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <span>{auth.user?.phoneNumber || 'Not provided'}</span>
                 </div>
@@ -112,14 +115,14 @@ const MainProfile: React.FC = () => {
         </Card>
 
         {/* Settings */}
-        <Card className='max-sm:shadow-none'>
-          <CardHeader>
+        <Card className='max-sm:shadow-none max-sm:border-0 max-sm:!p-2 max-sm:gap-0'>
+          <CardHeader className='max-sm:px-3'>
             <CardTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
               Settings
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className='max-sm:px-3 '>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="appearance">
                 <AccordionTrigger>
