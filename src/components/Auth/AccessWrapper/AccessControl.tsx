@@ -3,17 +3,19 @@
 import { LoaderCircle } from 'lucide-react';
 import { useSession, getSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setAuthData, clearAuthData } from '@/redux/reducers/AuthReducer';
 import { redirect, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { TriangleAlertIcon } from 'lucide-react';
+import { RootState } from '@/redux/store';
 
 const AccessControl = ({children}: {children: React.ReactNode}) => {
   const session = useSession();
   const path = usePathname();
   const dispatch = useDispatch();
   const [countdown, setCountdown] = useState(5);
+  const authTokenn = useSelector((state:RootState) => state.auth);
 
   useEffect(() => {
     if(!session || session.status === "unauthenticated"){
@@ -32,9 +34,10 @@ const AccessControl = ({children}: {children: React.ReactNode}) => {
       ) {
         console.log("Session Sync: 'access' missing. Refreshing session...");
         const freshSession = await getSession();
-        if (freshSession?.user) {
-          dispatch(setAuthData(freshSession.user));
-          console.log("Session Sync: Fresh session fetched", freshSession.user);
+          if (freshSession?.user) {
+            dispatch(setAuthData(freshSession.user));
+            console.log("Session Sync: Fresh session fetched", freshSession.user);
+
         }
       } else if (session.status === "authenticated" && session.data?.user) {
         dispatch(setAuthData(session.data.user));
@@ -43,8 +46,14 @@ const AccessControl = ({children}: {children: React.ReactNode}) => {
         dispatch(clearAuthData());
         console.log("Session Sync: User data cleared from Redux");
       }
+    };
+    handleSession();
 
-      if (session.data?.user?.id?.length === 0 && !path.endsWith("/onboarding")) {
+  }, [session, path]);
+
+  useEffect(() => {
+    if(!authTokenn || !authTokenn.user) return;
+      if (authTokenn.user.id?.length === 0 && !path.endsWith("/onboarding")) {
         console.log("Session Sync: New user detected, redirecting to onboarding");
         toast.warning(`Redirecting in ${countdown} seconds...`, {
           description: "Please complete your profile to get started.",
@@ -72,19 +81,20 @@ const AccessControl = ({children}: {children: React.ReactNode}) => {
         }, 1000);
 
         return () => clearInterval(timer);
-      }
-    };
-
-    handleSession();
-  }, [session, path]);
-
-    if(session.status === "loading"){
-        return (
-            <div className=' w-screen h-screen flex items-center justify-center'>
-                <LoaderCircle className='animate-spin text-primary' />
-            </div>
-        );
     }
+    if(path.endsWith("/onboarding") && session.status === "authenticated" && authTokenn.user.id.length > 0){
+        console.log("Session Sync: User already onboarded, redirecting to dashboard");
+        redirect("/u");
+    }
+  },[authTokenn,path]);
+
+  if(session.status === "loading"){
+      return (
+          <div className=' w-screen h-screen flex items-center justify-center'>
+              <LoaderCircle className='animate-spin text-primary' />
+          </div>
+      );
+  }
   return (
     <>
         {children}
