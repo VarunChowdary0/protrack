@@ -1,4 +1,5 @@
 import { FileType } from "./timelineType";
+import { User } from "./userTypes";
 
 export interface InboxAttachment{
     id: string;
@@ -6,6 +7,13 @@ export interface InboxAttachment{
     inboxIs: string;
     type: FileType;
     size: number; // Size in bytes
+}
+export enum InboxItemType{
+    INVITE ='invite',
+    MESSAGE ='message',
+    NOTIFICATION ='notification',
+    TASK ='task',
+    COMMENT ='comment',
 }
 
 export interface Inbox {
@@ -16,11 +24,13 @@ export interface Inbox {
     projectId: string; // ID of the project
     title: string; // Title of the inbox item
     description: string; // Description of the inbox item
-    type: string; // Type of inbox item (e.g., message, notification)
+    type: InboxItemType;
     seenAt: string; // Timestamp when the item was seen
     isArchived: boolean; // Whether the inbox item is archived
     isDeleted: boolean; // Whether the inbox item is deleted
     isStarred: boolean; // Whether the inbox item is starred
     timestamp: string; // Timestamp when the item was created
     updatedAt: string; // Timestamp when the item was last updated
+    fromUser?: Partial<User>; 
+    attachments?: InboxAttachment[]; // Optional attachments for the inbox item
 }

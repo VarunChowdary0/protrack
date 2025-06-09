@@ -15,7 +15,8 @@ export enum FileType{
     IMAGE = "image",
     VIDEO = "video",
     AUDIO = "audio",
-    OTHER = "other"
+    OTHER = "other",
+    ZIP = "zip",
 }
 
 export interface DocumentType{

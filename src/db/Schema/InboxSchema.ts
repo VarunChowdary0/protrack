@@ -2,6 +2,7 @@ import { boolean, pgTable, text } from "drizzle-orm/pg-core";
 import { participants } from "./ParticipantSchema";
 import { users } from "./UserSchema";
 import { projects } from "./ProjectSchema";
+import { InboxItemType } from "@/types/inboxType";
 
 export const inbox = pgTable("inbox", {
     id: text("id").primaryKey(),
@@ -11,7 +12,7 @@ export const inbox = pgTable("inbox", {
     projectId: text("project_id").references(() => projects.id, { onDelete: 'cascade' }),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    type: text("type").notNull(), // Type of inbox item (e.g., message, notification)
+    type: text("type").$type<InboxItemType>().default(InboxItemType.MESSAGE), 
     seenAt: text("seen_at").default(""),
     isArchived: boolean("is_archived").default(false).notNull(), // Whether the inbox item is archived
     isDeleted: boolean("is_deleted").default(false).notNull(), // Whether the inbox item is deleted
