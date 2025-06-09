@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import ChangeThemeColor from '@/lib/ChangeThemeColor'
-import { ArchiveRestore, CheckIcon, Loader, Search, StarIcon } from 'lucide-react'
+import { ArchiveRestore, BellRingIcon, ChartLine, CheckCircle, CheckIcon, Clock, Loader, LucideMessageCirclePlus, Search, StarIcon } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -24,11 +24,12 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { type Inbox } from '@/types/inboxType'
+import { InboxItemType, type Inbox } from '@/types/inboxType'
 import { mockInboxItems } from '../inboxMockData'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tooltip,TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
+import { TaskStatus } from '@/types/taskTypes'
 
 
 const ContentsMapper:React.FC = () => {
@@ -152,16 +153,16 @@ const ContentsMapper:React.FC = () => {
         <CardHeader style={{
                         zIndex: 1000,
                     }} className=' w-full rounded-t-2xl max-sm:px-3 sticky top-0 
-         dark:bg-primary-foreground gap-0 bg-background !py-4 '>
+         dark:bg-primary-foreground gap-0 bg-background flex items-center !py-2 max-sm:!py-1 '>
             <div className=' gap-3 flex items-center w-full py-2'>
-                <div className=' relative'>
-                    <Search size={14} className=' absolute top-2.5 left-3'/>
+                <div className=' relative w-full max-w-[400px]'>
+                    <Search size={16} className=' absolute top-3 left-3'/>
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         type='text'
                         placeholder='Search inbox.. '
-                        className=' w-fit rounded-full pl-8'
+                        className=' max-sm:w-full !py-5 rounded-full pl-10'
                     />
                 </div>
                { selectedRows.length > 0 
@@ -220,7 +221,7 @@ const ContentsMapper:React.FC = () => {
                                                 {item?.fromUser?.firstname?.[0]?.toUpperCase()}{item?.fromUser?.lastname?.[0]?.toUpperCase()}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <div className=' absolute -right-10 max-[1090px]:hidden top-1'>
+                                        {/* <div className=' absolute -right-8 max-[1090px]:hidden top-1'>
                                             {
                                                 <StarIcon 
                                                     onClick={()=>handleStarToggle(item.id)}
@@ -230,16 +231,16 @@ const ContentsMapper:React.FC = () => {
                                                     fill={item.isStarred ? "currentColor" : "none"}
                                                 />
                                             }
-                                        </div>
+                                        </div> */}
                                     </TableCell>
                                     <TableCell className=' font-semibold !w-fit max-w-[150px] pr-3 truncate !pt-4 align-top'>
                                         <div className='w-full'>
                                             <p className=' truncate '>{item.title}</p>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="max-w-[400px]">
+                                    <TableCell className="max-w-[550px]">
                                         <div className='flex flex-col gap-1'>
-                                            <p className='break-words line-clamp-2 whitespace-pre-wrap'>{item.description}</p>
+                                            <p className='break-words line-clamp-2 text-muted-foreground whitespace-pre-wrap'>{item.description}</p>
                                             <div className='flex items-center gap-2 flex-wrap'>
                                                 {
                                                     item?.attachments?.map((attachment) => (
@@ -247,14 +248,30 @@ const ContentsMapper:React.FC = () => {
                                                             <Badge variant={item.seenAt.length!==0?"secondary":"default"} className={item.seenAt.length!==0 ? " text-muted-foreground" : ""}>{attachment.name}</Badge>
                                                         </div>
                                                     ))
-                                                }
+                                                }         
                                             </div>
                                         </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        {
+                                                item.type !== InboxItemType.MESSAGE &&
+                                                <Badge variant={"outline"} className=' !px-0 w-5 h-5 flex items-center justify-center rounded-full capitalize'>
+                                                    {item.type === InboxItemType.INVITE && <LucideMessageCirclePlus/>}
+                                                    {item.type === InboxItemType.NOTIFICATION && <BellRingIcon className=' text-teal-500'/>}
+                                                    {item.type === InboxItemType.TASK && 
+                                                            (
+                                                                item?.task?.status === TaskStatus.PENDING && <Clock className=' text-orange-500'/>
+                                                                || item?.task?.status === TaskStatus.IN_PROGRESS && <ChartLine className=' text-blue-400'/>
+                                                                || item?.task?.status === TaskStatus.COMPLETED && <CheckCircle className=' text-green-500'/>
+                                                            )
+                                                    }
+                                                </Badge>
+                                            }
                                     </TableCell>
                                     <TableCell className="text-right text-xs !pr-4 dark:font-semibold">
                                         <div className=' flex items-center justify-end gap-3 '>
                                             {formatDate(item.timestamp)}
-                                            <div className='  max-[1090px]:block hidden top-1'>
+                                            <div className='  max-[1090px]:block h0idden top-1'>
                                                 <Tooltip>
                                                     <TooltipTrigger>
                                                         {
@@ -330,12 +347,26 @@ const ContentsMapper:React.FC = () => {
                             <CardHeader className={` ${item.seenAt.length!==0 && " text-muted-foreground"} flex !px-0 items-center justify-between`}>
                                 <div className='flex items-center gap-2'>
                                     <h3 className='text-md font-semibold '>{item.title}</h3>
+                                    {
+                                        item.type !== InboxItemType.MESSAGE &&
+                                        <Badge variant={'outline'} className=' !px-0 w-5 h-5 flex items-center justify-center rounded-full capitalize'>
+                                            {item.type === InboxItemType.INVITE && <LucideMessageCirclePlus/>}
+                                            {item.type === InboxItemType.NOTIFICATION && <BellRingIcon className=' text-teal-500'/>}
+                                            {item.type === InboxItemType.TASK && 
+                                                    (
+                                                        item?.task?.status === TaskStatus.PENDING && <Clock className=' text-orange-500'/>
+                                                        || item?.task?.status === TaskStatus.IN_PROGRESS && <ChartLine className=' text-blue-400'/>
+                                                        || item?.task?.status === TaskStatus.COMPLETED && <CheckCircle className=' text-green-500'/>
+                                                    )
+                                            }
+                                        </Badge>
+                                    }
                                 </div>
                                 <span className='text-xs dark:font-semibold '>{formatDate(item.timestamp)}</span>
                             </CardHeader>
                             <CardContent className=' !px-0 '>
                                 <div className=' flex items-end'>
-                                    <p className={`text-xs ${item.seenAt.length!==0 && " !text-muted-foreground"} line-clamp-2  leading-tight`}>{item.description}</p>
+                                    <p className={`text-xs !text-muted-foreground line-clamp-2  leading-tight`}>{item.description}</p>
                                     <span>
                                         <StarIcon 
                                             onClick={()=>handleStarToggle(item.id)}

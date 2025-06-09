@@ -1,5 +1,5 @@
 import { boolean, pgTable, text } from "drizzle-orm/pg-core";
-import { organizations } from "./Organization.Schema";
+import { organizations } from "./OrganizationSchema";
 import { UserRole, UserStatus } from "@/types/userTypes";
 
 export const users = pgTable("users", {
