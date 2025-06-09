@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, EyeOff, Lock, Mail, UserLockIcon } from 'lucide-react';
+import { CheckCircle, Eye, EyeOff, Lock, Mail, UserLockIcon } from 'lucide-react';
 import React, { useState } from 'react'
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
         phoneNumber: string;
         organizationId: string;
         profilePicture: string;
+        isEmailVerified?: boolean;
       } ;
     handleInputChange: (field: string, value: string) => void;
 }
@@ -33,7 +34,15 @@ const EmailSecurity:React.FC<Props> = ({
 
             <div className="space-y-4">
               <div>
-                <Label className=" mb-2" htmlFor="email">Email Address *</Label>
+                <Label className=" mb-2" htmlFor="email">Email Address 
+                  
+                  {
+                    formData?.isEmailVerified ?
+                    <CheckCircle className=' w-3 h-3 text-green-500'/>:
+                    <span className="text-red-500"> *</span>
+                  }
+
+                </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input

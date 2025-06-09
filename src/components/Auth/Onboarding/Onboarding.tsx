@@ -19,11 +19,13 @@ import { RootState } from "@/redux/store";
 import NamePic from "./widgets/NamePic";
 import EmailSecurity from "./widgets/EmailSecurity";
 import ContactInfo from "./widgets/ContactInfo";
-import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 import Logo0 from "@/components/headers/Logo0";
+import { RefreshToken } from "@/lib/RefreshToken";
+import { redirect } from "next/navigation";
 
-const Onboarding = () => {
+
+const Onboarding:React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<{
@@ -38,11 +40,11 @@ const Onboarding = () => {
     isEmailVerified?: boolean;
   }>({
     firstname: auth.user?.firstname || "",
-    lastname: "",
+    lastname: auth.user?.lastname || "",
     email: auth.user?.email || "",
     password: "",
     confirmPassword: "",
-    phoneNumber: "",
+    phoneNumber: auth.user?.phoneNumber || "",
     organizationId: "1",
     profilePicture: auth.user?.profilePicture || "",
   });
@@ -107,20 +109,18 @@ const Onboarding = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log("Form submitted:", formData);
     axios.post("/api/register/user", formData)
-    .then((response) => {
+    .then(async (response) => {
       console.log("Onboarding successful:", response.data);
       if(response.status === 201){
-        signOut({ callbackUrl: "/login" });
+        await RefreshToken(formData.email)
         toast.success("Onboarding completed successfully!",{
-          description: "logging you out...",
+          description: "Loading your dashboard...",
           duration: 3000,
-          onDismiss: () => {
-            window.location.href = "/login";
-          }
         });
+        redirect("/u");
       }
     })
     .catch((error) => {
@@ -183,13 +183,14 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex items-center justify-center p-4 ">
       <div className=" fixed top-4 left-3">
         <Logo0/>
       </div>
-      <Card className="w-full max-w-md rounded-xl shadow-lg">
+      <Card className="w-full max-w-md rounded-xl bg-transparent border-none shadow-none">
+
         {/* Progress Steps */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-gray-200">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => {
               const Icon = step.icon;
@@ -232,7 +233,7 @@ const Onboarding = () => {
         {/* Step Content */}
         <CardContent className="px-6 py-8">{renderStepContent()}</CardContent>
         {/* Navigation */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
+        <div className="px-6 py-4 border-gray-200 flex justify-between">
           <Button
             variant="outline"
             onClick={prevStep}
@@ -258,7 +259,10 @@ const Onboarding = () => {
           ) : (
             <Button
               onClick={handleSubmit}
-              className="flex items-center space-x-2 px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all duration-200"
+              className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r
+               from-[#736bf6] to-[#61d2d4]  hover:from-[#75fafd]
+                hover:to-[#736bf6] text-white rounded-lg transition-colors  
+                duration-300 shadow-md hover:shadow-lg  hover:scale-105"
             >
               <CheckCircle className="h-4 w-4" />
               <span>Complete Setup</span>

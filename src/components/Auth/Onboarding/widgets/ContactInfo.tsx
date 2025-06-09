@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CheckCircle, Phone } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import React from 'react'
 
 interface Props {
@@ -43,7 +43,7 @@ const ContactInfo:React.FC<Props> = ({
             </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start space-x-3">
                 <CheckCircle className="h-5 w-5  text-green-600 mt-0.5" />
                 <div>
@@ -54,7 +54,7 @@ const ContactInfo:React.FC<Props> = ({
                 </p>
                 </div>
             </div>
-            </div>
+            </div> */}
         </div>
     </div>
   )

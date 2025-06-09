@@ -1,8 +1,10 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Camera, User } from 'lucide-react'
-import Image from 'next/image';
+import { User } from 'lucide-react'
 import React from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+
 
 interface Props {
     formData:{
@@ -19,13 +21,26 @@ interface Props {
 }
 const NamePic:React.FC<Props> = ({formData,handleInputChange}) => {
   return (
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-2">Welcome! Let&apos;s get started</h2>
-              <p className="text-muted-foreground">Tell us a bit about yourself</p>
-            </div>
+          <Card className=" border-none shadow-none">
+            <CardHeader className="flex items-center flex-col space-y-4">
+              <div className=" rounded-full flex items-center justify-center bg-muted">
+                  <Avatar className="h-20 w-20">
+                      <AvatarImage 
+                          src={formData?.profilePicture || ''} 
+                          alt={`${formData?.firstname} ${formData?.lastname}`}
+                      />
+                      <AvatarFallback>
+                          {formData?.firstname?.[0]?.toUpperCase()}{formData?.lastname?.[0]?.toUpperCase()}
+                      </AvatarFallback>
+                  </Avatar>
+              </div>
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold mb-2">Welcome! Let&apos;s get started</h2>
+                <p className="text-muted-foreground">Tell us a bit about yourself</p>
+              </div>
+            </CardHeader>
 
-            <div className="space-y-4">
+            <CardContent className="space-y-4">
               <div>
                 <Label className=" mb-2" htmlFor="firstname">First Name *</Label>
                 <div className="relative">
@@ -55,34 +70,8 @@ const NamePic:React.FC<Props> = ({formData,handleInputChange}) => {
                   />
                 </div>
               </div>
-
-              <div>
-                <Label className=" mb-2" htmlFor="profilePicture">Profile Picture (Optional)</Label>
-                <div className="flex items-end flex-col space-y-4">
-                  <div className=" rounded-full flex items-center justify-center bg-muted">
-                    {formData.profilePicture ? (
-                      <Image
-                        src={formData.profilePicture}
-                        alt="Profile"
-                        width={100}
-                        height={100}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <Camera className="h-6 w-6 text-muted-foreground" />
-                    )}
-                  </div>
-                  <Input
-                    id="profilePicture"
-                    type="url"
-                    value={formData.profilePicture}
-                    onChange={(e) => handleInputChange("profilePicture", e.target.value)}
-                    placeholder="Profile picture URL"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>  )
+            </CardContent>
+          </Card>  )
 }
 
 export default NamePic

@@ -137,7 +137,8 @@ const ProjectCards = () => {
       <div className="max-w-7xl mx-auto">
         <div style={{zIndex:1000}}
          className=' sticky max-sm:p-3  max-sm:py-0 max-sm:bg-primary-foreground top-0 flex flex-col'>
-          <div className="mb-0 bg-card dark:bg-[#0a0a0a] max-md:pt-5  max-sm:bg-primary-foreground max-sm:px-4 max-sm:pt-4 ">
+          <div className="mb-0 dark:max-sm:bg-primary-foreground bg-card dark:bg-[#0a0a0a]
+          max-md:pt-5 max-sm:px-4 max-sm:pt-4 ">
             <h1 className="text-3xl flex items-center gap-2 font-bold mb-2 max-sm:text-xl max-md:mb-0">
               <Boxes/>
               My Projects
