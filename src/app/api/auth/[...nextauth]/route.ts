@@ -15,31 +15,59 @@ const handler = NextAuth({
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        refresh : { label: "Refresh", type: "boolean" },
       },
       async authorize(credentials): Promise<User | null> {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        try{
-            const res = await axios.post(`${baseURL}/api/auth/login`, {
-              email: credentials.email,
-              password: credentials.password,
-              mode: "Credentials",
-            });
-          if (res.status === 200) {
-            if(res.data.message === "login successful"){
-              const user = res.data.UserData as User;
-              return user;
+        if(credentials?.refresh){
+            console.log("Refreshing user session");
+            try{
+              const res = await axios.post(`${baseURL}/api/auth/login`, {
+                email: credentials.email,
+                mode: "OAuth",
+              });
+            if (res.status === 200) {
+              if(res.data.message === "login successful"){
+                const user = res.data.UserData as User;
+                return user;
+              }
+              else{
+                throw new Error(res.data.message || "Invalid credentials");
+              }
             }
-            else{
-              throw new Error(res.data.message || "Invalid credentials");
-            }
+            return null;
           }
-          return null;
+          catch (error) {
+            console.error("Error during authorization:", error);
+            throw new Error("Authorization failed. Please check your credentials.");
+          }
         }
-        catch (error) {
-          console.error("Error during authorization:", error);
-          throw new Error("Authorization failed. Please check your credentials.");
+        else{
+          if (!credentials?.email || !credentials?.password) return null;
+  
+          try{
+              const res = await axios.post(`${baseURL}/api/auth/login`, {
+                email: credentials.email,
+                password: credentials.password,
+                mode: "Credentials",
+              });
+            if (res.status === 200) {
+              if(res.data.message === "login successful"){
+                const user = res.data.UserData as User;
+                return user;
+              }
+              else{
+                throw new Error(res.data.message || "Invalid credentials");
+              }
+            }
+            return null;
+          }
+          catch (error) {
+            console.error("Error during authorization:", error);
+            throw new Error("Authorization failed. Please check your credentials.");
+          }
         }
+
+        return null; // Return null if no user is found
       },
     }),
     GitHubProvider({
@@ -67,12 +95,12 @@ const handler = NextAuth({
         token.user = user as User;
         return token;
       }
-
+      console.log("JWT callback triggered");
       return token;
     },
 
   async session({ session, token }) {
-
+    console.log("Session callback triggered");
     // Ensure we only run the OAuth fetch if needed
     if (!token.user?.access && token.email) {
       try {
@@ -144,8 +172,7 @@ const handler = NextAuth({
     if (token.user) {
       session.user = token.user as User;
     }
-
-    // console.log("Final session object:", session);
+    // console.log("Session object:", session);
     return session;
   }
   },
