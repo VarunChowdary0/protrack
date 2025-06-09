@@ -12,7 +12,7 @@ import { User, UserStatus } from '@/types/userTypes'
 import { useState } from 'react'
 import axios from 'axios'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ChevronDown, Circle, CircleDot, Clock, EyeOff, MinusCircle, Moon } from 'lucide-react'
+import { CheckCircle, ChevronDown, Circle, CircleDot, Clock, EyeOff, MinusCircle, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { RefreshToken } from '@/lib/RefreshToken'
@@ -103,19 +103,21 @@ const UserDescription: React.FC<UserProp> = ({ user }) => {
                         {user?.firstname?.[0]?.toUpperCase()}{user?.lastname?.[0]?.toUpperCase()}
                     </AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
-                    <CardTitle className="text-2xl">
-                        {user?.firstname} {user?.lastname}
+                <div className=" flex flex-col gap-3 flex-1">
+                    <CardTitle >
+                        <span className=' text-2xl max-sm:text-md'>
+                            {user?.firstname} {user?.lastname}
+                        </span>
+                       {(user?.isEmailVerified || user?.isPhoneVerified) &&
+                        <Badge className="ml-2 !px-0.5 w-4 h-4 bg-secondary-foreground capitalize">
+                            <CheckCircle className=''/>
+                        </Badge>}
                     </CardTitle>
                     <CardDescription>
-                        {user?.role}
+                        <Badge className="ml-2 capitalize">
+                            {user?.role}
+                        </Badge>
                     </CardDescription>
-                    <div className="flex gap-2 mt-2 flex-wrap">
-                        <Badge variant="outline">{user?.access?.userRole}</Badge>
-                        {user?.isEmailVerified && 
-                            <Badge variant="default">Verified</Badge>
-                        }
-                    </div>
                 </div>
             </CardHeader>
             <CardContent className="flex items-end justify-end w-full">
@@ -123,7 +125,7 @@ const UserDescription: React.FC<UserProp> = ({ user }) => {
                     <DropdownMenuTrigger asChild>
                         <Button 
                             variant="outline" 
-                            className="capitalize w-fit"
+                            className="capitalize w-fit max-sm:!py-1 max-sm:text-xs max-sm:shadow-none"
                             disabled={isUpdating}
                         >
                             <span className="mr-2">
