@@ -137,7 +137,7 @@ const ProjectCards = () => {
       <div className="max-w-7xl mx-auto">
         <div style={{zIndex:1000}}
          className=' sticky max-sm:p-3  max-sm:py-0 max-sm:bg-primary-foreground top-0 flex flex-col'>
-          <div className="mb-0 max-sm:bg-primary-foreground max-sm:px-4 max-sm:pt-4 ">
+          <div className="mb-0 bg-card dark:bg-[#0a0a0a] max-md:pt-5  max-sm:bg-primary-foreground max-sm:px-4 max-sm:pt-4 ">
             <h1 className="text-3xl flex items-center gap-2 font-bold mb-2 max-sm:text-xl max-md:mb-0">
               <Boxes/>
               My Projects
@@ -145,7 +145,7 @@ const ProjectCards = () => {
             <p className=" text-muted-foreground max-sm:hidden">Manage and track your project progress</p>
           </div>
           <div  
-                className=' py-3 dark:max-sm:bg-primary-foreground dark:bg-[#0a0a0a] '>
+                className=' py-3 dark:max-sm:bg-primary-foreground bg-card dark:bg-[#0a0a0a] '>
               <div className="relative mt-3 max-sm:mt-0 max-sm:mx-4">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2" />
                   <Input

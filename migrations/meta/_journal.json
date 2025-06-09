@@ -43,6 +43,13 @@
       "when": 1749391478392,
       "tag": "0005_magenta_hammerhead",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1749449442849,
+      "tag": "0006_real_talkback",
+      "breakpoints": true
     }
   ]
 }

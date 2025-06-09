@@ -1,6 +1,6 @@
 import { boolean, pgTable, text } from "drizzle-orm/pg-core";
 import { organizations } from "./Organization.Schema";
-import { UserRole } from "@/types/userTypes";
+import { UserRole, UserStatus } from "@/types/userTypes";
 
 export const users = pgTable("users", {
     id: text("id").primaryKey(),
@@ -11,6 +11,7 @@ export const users = pgTable("users", {
     organizationId: text("organization_id").references(() => organizations.id, { onDelete: "cascade" })
                                             .notNull()
                                             .default('1'), // made nullable with default empty string
+    userStatus: text("user_status").$type<UserStatus>().default(UserStatus.AVAILABLE),
     role: text("role").notNull().$type<UserRole>().default(UserRole.USER), // default role is USER
     createdAt: text("created_at").default(new Date().toISOString()).notNull(),
     updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),

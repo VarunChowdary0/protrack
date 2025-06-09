@@ -3,11 +3,11 @@
 import store from '@/redux/store';
 import React from 'react';
 import { Provider as ReduxProvider } from "react-redux";
-import ToggleTheme from './ui/ToggleTheame';
 import { TooltipProvider } from './ui/tooltip';
 import { Toaster } from "@/components/ui/sonner";
-import SessionSync from './Auth/SessionSync';
 import { SessionProvider, SessionProviderProps } from 'next-auth/react';
+import AccessControl from './Auth/AccessWrapper/AccessControl';
+import ToggleTheme from './ui/ToggleTheame';
 
 const ProviderAll = ({ 
   children,
@@ -20,10 +20,11 @@ const ProviderAll = ({
     <SessionProvider session={session}>
       <ReduxProvider store={store}>
         <TooltipProvider>
-          <ToggleTheme />
           <Toaster />
-          <SessionSync />
-          {children}
+          <AccessControl>
+          <ToggleTheme/>
+            {children}
+          </AccessControl>
         </TooltipProvider>
       </ReduxProvider>
     </SessionProvider>

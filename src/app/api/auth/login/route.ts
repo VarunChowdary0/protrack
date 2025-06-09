@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { access } from "@/db/Schema/AccessSchema";
 import { users } from "@/db/Schema/UserSchema";
-import { User } from "@/types/userTypes";
+import { User, UserStatus } from "@/types/userTypes";
 import { and, eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -12,7 +12,6 @@ export async function POST(req: Request) {
             password: string;
             mode: "OAuth" | "Credentials";
         } = body;
-        // console.log(body);
         let res;
         if(mode === "OAuth"){
             if(!email){
@@ -55,7 +54,6 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "User not found" }));
         }
 
-
         const [accessData] = await db.select().from(access).where(eq(access.userRole, res[0].role)).limit(1);
         const sanitizedAccess = {
           ...accessData,
@@ -89,14 +87,12 @@ export async function POST(req: Request) {
           manageGroups: accessData?.manageGroups ?? false,
         };
 
-        // console.log(accessData)
-
-
         const UserData:User = {
             id: res[0].id,
             firstname: res[0].firstname,
             lastname: res[0].lastname,
             email: res[0].email,
+            status: res[0].userStatus || UserStatus.AVAILABLE,
             profilePicture: res[0].profilePicture || "",
             phoneNumber: res[0].phoneNumber || "",
             isEmailVerified: res[0].isEmailVerified || false,

@@ -8,6 +8,16 @@ export enum UserRole {
     SUPER_ADMIN = "super_admin",
 }
 
+export enum UserStatus {
+    AVAILABLE = "available",
+    BUSY = "busy",
+    DONOT_DISTURB = "do no disturb",
+    BRB = "be right back",
+    APPEAR_AWAY = "appear away",
+    APPEAR_OFFLINE = "appear offline",
+    OFFLINE = "offline",
+}
+
 export interface User {
     id: string;
     firstname: string;
@@ -21,6 +31,7 @@ export interface User {
     isEmailVerified?: boolean;
     isPhoneVerified?: boolean;
     access: Access;
+    status?: UserStatus; 
     phoneNumber?: string; // Optional, as not all users may have a phone number
     profilePicture?: string; // Optional, as not all users may have a profile picture
     lastLogin?: string; // Optional, as not all users may have a last login timestamp

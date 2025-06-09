@@ -3,11 +3,16 @@
 import ChangeThemeColor from '@/lib/ChangeThemeColor';
 import { setDarkMode } from '@/redux/reducers/BooleanReducer';
 import { RootState } from '@/redux/store';
-import { MoonIcon, SunIcon } from 'lucide-react';
+import { Label } from '@radix-ui/react-label';
+import { Moon } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Switch } from '../ui/switch'
 
-const ToggleTheme: React.FC = () => {
+interface cup {
+  controls?: boolean;
+}
+const ToggleTheme:React.FC<cup> = ({controls = false}) => {
   const dispatch = useDispatch();
   const isDarkMode = useSelector((state:RootState)=> state.booleans.isDarkMode);
   // Initialize theme on mount
@@ -28,15 +33,21 @@ const ToggleTheme: React.FC = () => {
     console.log("Toggle theme clicked");
     dispatch(setDarkMode(!isDarkMode));
   };
+  if(!controls) return null; // If controls prop is false, do not render the component
 
   return (
-    <div onClick={toggleTheme} className='fixed right-3 top-3 z-50'>
-      {isDarkMode ? (
-        <SunIcon className='h-6 w-6 text-yellow-400 cursor-pointer hover:text-yellow-500 transition-colors duration-200' />
-      ) : (
-        <MoonIcon className='h-6 w-6 text-gray-800 cursor-pointer hover:text-gray-900 transition-colors duration-200' />
-      )}
-    </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+            <Moon className="h-4 w-4" />
+            <Label htmlFor="dark-mode">Dark Mode</Label>
+        </div>
+        <Switch 
+          id="dark-mode" 
+          checked={isDarkMode}
+          onCheckedChange={() => toggleTheme()}
+        />
+      </div>
+     
   );
 };
 
