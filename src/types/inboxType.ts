@@ -1,3 +1,6 @@
+import { CalendarType } from "./calendarType";
+import { Invitation } from "./invitationType";
+import { Task } from "./taskTypes";
 import { FileType } from "./timelineType";
 import { User } from "./userTypes";
 
@@ -10,10 +13,9 @@ export interface InboxAttachment{
 }
 export enum InboxItemType{
     INVITE ='invite',
-    MESSAGE ='message',
-    NOTIFICATION ='notification',
+    MESSAGE ='message', // normal message
+    NOTIFICATION ='notification', // for notifyiing users about events calendar
     TASK ='task',
-    COMMENT ='comment',
 }
 
 export interface Inbox {
@@ -24,7 +26,18 @@ export interface Inbox {
     projectId: string; // ID of the project
     title: string; // Title of the inbox item
     description: string; // Description of the inbox item
+
     type: InboxItemType;
+    // type  == invite
+    inviteId: string;
+    invitation? : Invitation;
+    // type == task
+    taskId?: string; // Optional task
+    task?: Task;
+    // type == notification
+    calendarId?: string; // Optional calendar
+    calendarEvent?: CalendarType;
+
     seenAt: string; // Timestamp when the item was seen
     isArchived: boolean; // Whether the inbox item is archived
     isDeleted: boolean; // Whether the inbox item is deleted

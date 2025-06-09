@@ -1,8 +1,11 @@
-import React from 'react'
+import OrganizationPage from '@/components/Organization/OrganizationPage'
+import React, { Suspense } from 'react'
 
 const page = () => {
   return (
-    <div>ORGANIZATION</div>
+    <Suspense>
+      <OrganizationPage/>
+    </Suspense>
   )
 }
 
