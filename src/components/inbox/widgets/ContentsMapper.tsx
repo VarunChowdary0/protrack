@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import ChangeThemeColor from '@/lib/ChangeThemeColor'
-import { Loader } from 'lucide-react'
+import { ArchiveRestore, CheckIcon, Loader, Search, StarIcon } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -23,192 +23,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-
-
-const mockData = [
-    {
-        id: 88,
-        senderId: 10,
-        title: "Today's Invoice",   
-        description: "Please review your invoice for the month of September.",
-        attcachments: [
-            {
-                id: 1,
-                name: "Invoice_September.pdf",
-                type: "application/pdf",
-                size: "1.2 MB"
-            }
-        ],
-        timestamp: "2025-06-05T10:00:00Z",
-        seenAt: "",
-        isArchived: false,
-        isStarred: false,
-        isDeleted: false,
-    },
-    {
-        id: 1,
-        senderId: 1,
-        title: "Review your invoice",
-        description: "Please review your invoice for the month of September.",
-        attcachments: [
-            {
-                id: 1,
-                name: "Invoice_September.pdf",
-                type: "application/pdf",
-                size: "1.2 MB"
-            }
-        ],
-        timestamp: "2025-05-29T10:00:00Z",
-        seenAt: "",
-        isArchived: false,
-        isStarred: false,
-        isDeleted: false,
-    },
-    {
-        id: 2,
-        senderId: 2,
-        title: "Meeting Agenda - Next Week",
-        description: "Please find attached the agenda for the upcoming team meeting.",
-        attcachments: [
-            {
-                id: 2,
-                name: "Agenda_June.pdf",
-                type: "application/pdf",
-                size: "850 KB"
-            }
-        ],
-        timestamp: "2025-06-01T15:30:00Z",
-        seenAt: "2025-06-02T08:45:00Z",
-        isArchived: false,
-        isStarred: true,
-        isDeleted: false,
-    },
-    {
-        id: 3,
-        senderId: 3,
-        title: "Performance Review Summary",
-        description: "Your quarterly performance review summary is now available.",
-        attcachments: [],
-        timestamp: "2025-05-28T12:15:00Z",
-        seenAt: "",
-        isArchived: false,
-        isStarred: false,
-        isDeleted: false,
-    },
-    {
-        id: 4,
-        senderId: 4,
-        title: "Holiday Announcement",
-        description: "The office will remain closed on 14th June due to public holiday.",
-        attcachments: [],
-        timestamp: "2025-06-03T09:00:00Z",
-        seenAt: "2025-06-03T09:45:00Z",
-        isArchived: true,
-        isStarred: false,
-        isDeleted: false,
-    },
-    {
-        id: 5,
-        senderId: 5,
-        title: "System Maintenance Notification",
-        description: "Scheduled system maintenance will occur this Saturday from 1 AM to 3 AM.",
-        attcachments: [],
-        timestamp: "2025-06-04T18:30:00Z",
-        seenAt: "",
-        isArchived: false,
-        isStarred: false,
-        isDeleted: true,
-    },
-    {
-        id: 6,
-        senderId: 6,
-        title: "Project Update Required",
-        description: "Please update the project timeline and upload the latest report.",
-        attcachments: [
-            {
-                id: 3,
-                name: "Timeline_Update.xlsx",
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                size: "320 KB"
-            }
-        ],
-        timestamp: "2025-06-05T07:45:00Z",
-        seenAt: "2025-06-05T08:15:00Z",
-        isArchived: false,
-        isStarred: true,
-        isDeleted: false,
-    },
-    {
-        id: 7,
-        senderId: 7,
-        title: "Client Feedback - Action Needed",
-        description: "Client has provided feedback on the recent deployment. Please review and act accordingly.",
-        attcachments: [
-            {
-                id: 4,
-                name: "Client_Feedback.docx",
-                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                size: "500 KB"
-            }
-        ],
-        timestamp: "2025-06-02T11:20:00Z",
-        seenAt: "2025-06-02T12:00:00Z",
-        isArchived: false,
-        isStarred: false,
-        isDeleted: false,
-    },
-    {
-        id: 8,
-        senderId: 8,
-        title: "Weekly Newsletter",
-        description: "Check out what's new this week in your organization.",
-        attcachments: [],
-        timestamp: "2025-06-05T06:00:00Z",
-        seenAt: "",
-        isArchived: false,
-        isStarred: false,
-        isDeleted: false,
-    },
-    {
-        id: 9,
-        senderId: 9,
-        title: "Password Expiration Notice",
-        description: "Your password will expire in 5 days. Please update it to avoid access issues.Your password will expire in 5 days. Please update it to avoid access issues.Your password will expire in 5 days. Please update it to avoid access issues.Your password will expire in 5 days. Please update it to avoid access issues.",
-        attcachments: [],
-        timestamp: "2025-06-04T13:15:00Z",
-        seenAt: "",
-        isArchived: false,
-        isStarred: false,
-        isDeleted: false,
-    },
-    {
-        id: 10,
-        senderId: 10,
-        title: "Travel Reimbursement Approved",
-        description: "Your travel reimbursement has been approved. See attached receipt summary.",
-        attcachments: [
-            {
-                id: 5,
-                name: "Reimbursement_Receipt.pdf",
-                type: "application/pdf",
-                size: "450 KB"
-            }
-        ],
-        timestamp: "2025-06-01T17:50:00Z",
-        seenAt: "2025-06-01T18:10:00Z",
-        isArchived: false,
-        isStarred: true,
-        isDeleted: false,
-    }
-];
-
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { type Inbox } from '@/types/inboxType'
+import { mockInboxItems } from '../inboxMockData'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Tooltip,TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 
 const ContentsMapper:React.FC = () => {
-    const [selectedRows, setSelectedRows] = React.useState<number[]>([]);
+    const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
+    const [search,setSearch] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
-    const handleRowSelection = (id: number) => {
+    const handleRowSelection = (id: string) => {
         setSelectedRows((prev) => {
             if (prev.includes(id)) {
                 return prev.filter((rowId) => rowId !== id);
@@ -218,14 +46,7 @@ const ContentsMapper:React.FC = () => {
         });
     };
 
-    const isRowSelected = (id: number): boolean => selectedRows.includes(id);
-    // const handleCheckboxChange = (checked: boolean, id: number) => {
-    //     if (checked) {
-    //         setSelectedRows((prev) => [...prev, id]);
-    //     } else {
-    //         setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
-    //     }
-    // };
+    const isRowSelected = (id: string): boolean => selectedRows.includes(id);
 
     React.useEffect(() => {
         if(isDarkMode){
@@ -233,13 +54,27 @@ const ContentsMapper:React.FC = () => {
         }
     }, [isDarkMode]);
 
-    const [inboxMessages, setInboxMessages] = React.useState([] as typeof mockData);
+    const [inboxMessages, setInboxMessages] = React.useState<Inbox[]>([]);
     React.useEffect(() => {
         setIsLoading(true);
         // Simulate fetching data from an API
-        setInboxMessages(mockData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+        setInboxMessages(mockInboxItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
         setIsLoading(false);
     }, []);
+
+    const filterInboxItems = inboxMessages.filter((item) => {
+        const searchTerm = search.toLowerCase();
+        return (
+            item.title.toLowerCase().includes(searchTerm) ||
+            item.description.toLowerCase().includes(searchTerm) ||
+            item?.fromUser?.firstname?.toLowerCase().includes(searchTerm) ||
+            item?.fromUser?.lastname?.toLowerCase().includes(searchTerm) ||
+            item.type.toLowerCase().includes(searchTerm) ||
+            item.attachments?.some((attachment) =>
+                attachment.name.toLowerCase().includes(searchTerm)
+            ) && !item.isArchived && !item.isDeleted
+        );
+    });
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -290,67 +125,157 @@ const ContentsMapper:React.FC = () => {
             return <></>;
         }
     }
+
+    const handleStarToggle = (id: string) => {
+        setInboxMessages((prevMessages) =>
+            prevMessages.map((message) =>
+                message.id === id
+                    ? { ...message, isStarred: !message.isStarred }
+                    : message
+            )
+        );  
+    }
+
+    const archiveSelectedRows = () => {
+        setInboxMessages((prevMessages) =>
+            prevMessages.map((message) =>
+                selectedRows.includes(message.id)
+                    ? { ...message, isArchived: true }
+                    : message
+            )
+        );
+        setSelectedRows([]);
+    };
     
   return (
-    <Card className=' max-w-6xl max-sm:pb-20 max-sm:!pt-0 max-sm:!rounded-none max-sm:min-h-screen !gap-0 !w-full'>
+    <Card className=' max-w-7xl max-sm:pb-20  !pt-0 max-sm:!pt-0 max-sm:!rounded-none max-sm:min-h-screen !gap-0 !w-full'>
         <CardHeader style={{
                         zIndex: 1000,
-                    }} className=' w-full max-sm:px-3 sticky top-0 
+                    }} className=' w-full rounded-t-2xl max-sm:px-3 sticky top-0 
          dark:bg-primary-foreground gap-0 bg-background !py-4 '>
-            <div className='flex flex-col gap-0 '>
-                <h2 className='text-2xl font-semibold'>Inbox</h2>
-                <p className='text-muted-foreground max-sm:hidden'>Here you can find all your messages and notifications.</p>
-            </div>
+            <div className=' gap-3 flex items-center w-full py-2'>
+                <div className=' relative'>
+                    <Search size={14} className=' absolute top-2.5 left-3'/>
+                    <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        type='text'
+                        placeholder='Search inbox.. '
+                        className=' w-fit rounded-full pl-8'
+                    />
+                </div>
+               { selectedRows.length > 0 
+               && <Tooltip>
+                    <TooltipTrigger>
+                        <Button onClick={archiveSelectedRows} size={'sm'} variant={'secondary'} >
+                            <ArchiveRestore/>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent 
+                        style={{ zIndex: 2000 }} 
+                        className=' !w-fit !text-xs'>
+                        Archive Selected
+                    </TooltipContent>
+                </Tooltip>}
+            </div>            
         </CardHeader>
-        {/* <hr className=' mb-4 mx-5 max-sm:hidden'/> */}
-        <CardContent className='  max-sm:!px-0'>
+        <CardContent className=' min-h-[70vh] max-sm:!px-0'>
             <div className=' !px-0 overflow-hidden max-sm:hidden !rounded-md !border'>
                 <Table>
                     <TableBody>
                         {
-                            inboxMessages.map((message)=>      
+                            filterInboxItems.map((item)=>      
                                 <TableRow className={`  
-                                ${isRowSelected(message.id) ? 
+                                ${isRowSelected(item.id) ? 
                                     " dark:bg-secondary-foreground/20 bg-blue-100 hover:bg-blue-100 dark:hover:bg-secondary-foreground/20" 
                                     :
-                                    `${message.seenAt.length!==0 && " text-muted-foreground bg-secondary/15" + "hover:bg-secondary/5  "}` }
-                             cursor-pointer`}                              
-                            //  onDoubleClick={() => handleRowSelection(message.id)}
-                                    key={message.id}>
-                                    <TableCell
-                                        className=' group'
-                                        onClick={()=>handleRowSelection(message.id)}>
+                                    `${item.seenAt.length!==0 && " text-muted-foreground bg-secondary/15" + "hover:bg-secondary/5  "}` }
+                             cursor-pointer`}
+                             onClick={()=>{
+                            if(selectedRows.length > 0){
+                                        handleRowSelection(item.id);
+                                    }
+                                }}                  
+                                    key={item.id}>
+                                    <TableCell className=' relative flex gap-2 !w-fit '>
                                         <div className=' p-2  rounded-full h-8 w-8 flex items-center justify-center 
-                                        bg-transparent transition-all dark:group-hover:bg-[#393939] 
-                                        group-hover:bg-blue-50 group-hover:border dark:group-hover:border-0 duration-300'>
+                                        bg-transparent transition-all dark:hover:bg-[#393939] 
+                                        hover:bg-blue-50 hover:border dark:hover:border-0 duration-300'
+                                        onClick={()=>handleRowSelection(item.id)}>
                                             <Checkbox
-                                                checked={isRowSelected(message.id)}
+                                                checked={isRowSelected(item.id)}
                                                 onCheckedChange={(checked) => {
-                                                    handleRowSelection(message.id);
+                                                    handleRowSelection(item.id);
                                                     console.log("Checkbox checked:", checked);
                                                 }}
                                                 onClick={(e) => e.stopPropagation()}
                                             />
                                         </div>
+                                        <Avatar>
+                                            <AvatarImage 
+                                                src={item.fromUser?.profilePicture}
+                                                alt={`User ${item.fromUser?.firstname} Avatar`}
+                                            />
+                                            <AvatarFallback>
+                                                {item?.fromUser?.firstname?.[0]?.toUpperCase()}{item?.fromUser?.lastname?.[0]?.toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className=' absolute -right-10 max-[1090px]:hidden top-1'>
+                                            {
+                                                <StarIcon 
+                                                    onClick={()=>handleStarToggle(item.id)}
+                                                    size={16} 
+                                                    className={`absolute top-3 right-2 cursor-pointer
+                                                    ${item.isStarred ? "text-yellow-400" : "text-muted-foreground"}`}
+                                                    fill={item.isStarred ? "currentColor" : "none"}
+                                                />
+                                            }
+                                        </div>
                                     </TableCell>
-                                    <TableCell className=' font-semibold !w-fit max-w-[230px]'>
-                                        <p className='max-w-[240px]'>{message.title}</p>
+                                    <TableCell className=' font-semibold !w-fit max-w-[150px] pr-3 truncate !pt-4 align-top'>
+                                        <div className='w-full'>
+                                            <p className=' truncate '>{item.title}</p>
+                                        </div>
                                     </TableCell>
                                     <TableCell className="max-w-[400px]">
                                         <div className='flex flex-col gap-1'>
-                                            <p className='break-words line-clamp-2 whitespace-pre-wrap'>{message.description}</p>
+                                            <p className='break-words line-clamp-2 whitespace-pre-wrap'>{item.description}</p>
                                             <div className='flex items-center gap-2 flex-wrap'>
                                                 {
-                                                    message.attcachments.map((attachment) => (
+                                                    item?.attachments?.map((attachment) => (
                                                         <div key={attachment.id} className=' text-xs text-muted-foreground'>
-                                                            <Badge variant={message.seenAt.length!==0?"secondary":"default"} className={message.seenAt.length!==0 ? " text-muted-foreground" : ""}>{attachment.name}</Badge>
+                                                            <Badge variant={item.seenAt.length!==0?"secondary":"default"} className={item.seenAt.length!==0 ? " text-muted-foreground" : ""}>{attachment.name}</Badge>
                                                         </div>
                                                     ))
                                                 }
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right text-xs dark:font-semibold">{formatDate(message.timestamp)}</TableCell>
+                                    <TableCell className="text-right text-xs !pr-4 dark:font-semibold">
+                                        <div className=' flex items-center justify-end gap-3 '>
+                                            {formatDate(item.timestamp)}
+                                            <div className='  max-[1090px]:block hidden top-1'>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        {
+                                                            <StarIcon 
+                                                                onClick={()=>handleStarToggle(item.id)}
+                                                                size={16} 
+                                                                className={` cursor-pointer
+                                                                ${item.isStarred ? "text-yellow-400" : "text-muted-foreground"}`}
+                                                                fill={item.isStarred ? "currentColor" : "none"}
+                                                            />
+                                                        }
+                                                    </TooltipTrigger>
+                                                    <TooltipContent 
+                                                        style={{ zIndex: 2000 }} 
+                                                        className=' !w-fit !text-xs'>
+                                                        {item.isStarred ? "Unstar" : "Star"}
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </div>
+                                        </div>
+                                    </TableCell>
                                 </TableRow>
                             )
                         }
@@ -360,8 +285,8 @@ const ContentsMapper:React.FC = () => {
             <Load/>
             <div className=' mt-3 hidden max-sm:flex flex-col gap-0 select-none'>
                 {
-                  inboxMessages.map((message)=>
-                    <div key={message.id} 
+                  filterInboxItems.map((item)=>
+                    <div key={item.id} 
                         onTouchStart={() => {
                             touchStartTimeRef.current = Date.now();
                         }}
@@ -370,41 +295,65 @@ const ContentsMapper:React.FC = () => {
                             const duration = touchEndTime - (touchStartTimeRef.current ?? 0);
 
                             if (duration >= LONG_PRESS_THRESHOLD) {
-                            handleRowSelection(message.id);
+                            handleRowSelection(item.id);
                             }
                         }}
-                //   onDoubleClick={()=>handleRowSelection(message.id)} 
-className={` py-4 ${isRowSelected(message.id) ? " dark:bg-secondary-foreground/20 bg-blue-100 " : "dark:hover:bg-secondary hover:bg-blue-50"}  transition-all flex px-3 gap-3 items-start`}>
+                        onClick={()=>{
+                            if(selectedRows.length > 0){
+                                handleRowSelection(item.id);
+                            }
+                        }}
+                        className={` py-4 ${isRowSelected(item.id) ? " dark:bg-secondary-foreground/20 bg-blue-100 " :
+                             "dark:hover:bg-secondary hover:bg-blue-50/50"}  transition-all flex px-3 gap-3 items-start 
+                             ${item.seenAt.length!==0 && " dark:bg-black/15 bg-[#00000007]"}
+                             `}>
                         <div className='flex items-center justify-between mt-4'>
-                            <Checkbox
-                                checked={isRowSelected(message.id)}
-                                onCheckedChange={(checked) => {
-                                    handleRowSelection(message.id);
-                                    console.log("Checkbox checked:", checked);
-                                }}
-                            />
+
+                            <Avatar className=''>
+                                {
+                                    isRowSelected(item.id) ?
+                                    <CheckIcon/>
+                                    :
+                                    <>
+                                        <AvatarImage 
+                                            src={item.fromUser?.profilePicture}
+                                            alt={`User ${item.fromUser?.firstname} Avatar`}/>
+                                        <AvatarFallback className="text-black dark:text-black">
+                                            {item?.fromUser?.firstname?.[0]?.toUpperCase()}{item?.fromUser?.lastname?.[0]?.toUpperCase()}
+                                        </AvatarFallback>
+                                    </>
+                                }
+                            </Avatar>
+                            
                         </div>
-                        <Card className=' !border-0 w-full !p-0 !bg-transparent !py-0 !px-0 !gap-0 !shadow-none'>
-                            <CardHeader className={` ${message.seenAt.length!==0 && " text-muted-foreground"} flex !px-0 items-center justify-between`}>
+                        <Card className={` !border-0 w-full !p-0  !bg-transparent !py-0 !px-0 !gap-0 !shadow-none`}>
+                            <CardHeader className={` ${item.seenAt.length!==0 && " text-muted-foreground"} flex !px-0 items-center justify-between`}>
                                 <div className='flex items-center gap-2'>
-                                    {/* <span className='text-md rounded-full bg-secondary px-2 font-bold'>i</span> */}
-                                    <h3 className='text-md font-semibold pl-3.5'>{message.title}</h3>
+                                    <h3 className='text-md font-semibold '>{item.title}</h3>
                                 </div>
-                                <span className='text-xs dark:font-semibold '>{formatDate(message.timestamp)}</span>
+                                <span className='text-xs dark:font-semibold '>{formatDate(item.timestamp)}</span>
                             </CardHeader>
                             <CardContent className=' !px-0 '>
-                                <p className={`text-xs ${message.seenAt.length!==0 && " !text-muted-foreground"} line-clamp-2  leading-tight`}>{message.description}</p>
+                                <div className=' flex items-end'>
+                                    <p className={`text-xs ${item.seenAt.length!==0 && " !text-muted-foreground"} line-clamp-2  leading-tight`}>{item.description}</p>
+                                    <span>
+                                        <StarIcon 
+                                            onClick={()=>handleStarToggle(item.id)}
+                                            size={16} 
+                                            className={` cursor-pointer 
+                                            ${item.isStarred ? "text-yellow-400" : "text-muted-foreground"}`}
+                                            fill={item.isStarred ? "currentColor" : "none"}
+                                        />
+                                    </span>
+                                </div>
                                 {
-                                    message.attcachments.length > 0 && (
+                                    Array.isArray(item?.attachments) && item.attachments.length > 0 && (
                                         <div className='mt-2 flex flex-wrap gap-2'>
                                             {
-                                                message.attcachments.map((attachment:{
-                                                    id: number;
-                                                    name: string;
-                                                    type: string;
-                                                    size: string;
-                                                }) => (
-                                                    <Badge key={attachment.id} className={`text-xs ${message.seenAt.length!==0 && " !opacity-40"} `}>
+                                                item.attachments.map((attachment) => (
+                                                    <Badge key={attachment.id} 
+                                                    className={`text-xs ${item.seenAt.length!==0 &&
+                                                     " !opacity-40"} `}>
                                                         {attachment.name} - {attachment.size}
                                                     </Badge>
                                                 ))
