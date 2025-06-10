@@ -1,15 +1,21 @@
 export enum InvitationAction {
-    JOIN_ORGANIZATION = "join_organization",
-    JOIN_ORGANIZATION_AS_MANAGER = "join_organization_as_manager",
-    ACCEPT_EXTERNAL_PROJECT_INVITATION = "accept_external_project_invitation"
+    INVITE_ORGANIZATION = "invite_organization",
+    EXTERNAL_PROJECT_INVITATION = "external_project_invitation"
 }
 
 export enum OrganizationUserRole{
-    MANAGER = "manager",
-    MEMBER = "member",
-    ADMIN = "admin",
+    MANAGER = "organization_manager",
+    MEMBER = "organization_user",
+    // ADMIN = "admin",
     CLIENT = "client",
 }
+
+export enum InvitationStatus {
+    PENDING = "pending",
+    ACCEPTED = "accepted",
+    DECLINED = "declined"
+}
+
 export interface Invitation{
     id: string;
     formId: string;
@@ -19,7 +25,10 @@ export interface Invitation{
     message: string; // invitation message
     action: InvitationAction; // e.g., accept, decline, etc.
     org_id?: string; // organization id if the invitation is for an organization
+    projectId?: string; // project id if the invitation is for a project
     role: OrganizationUserRole; // e.g., manager, member, admin, client
     createdAt: string; // ISO date string
     updatedAt: string; // ISO date string
+    mappedAt?: string; // ISO date string, when the invitation was mapped to an inbox entry
+    status: InvitationStatus; // e.g., pending, accepted, declined
 }

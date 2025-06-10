@@ -7,7 +7,7 @@ import { User } from "./userTypes";
 export interface InboxAttachment{
     id: string;
     name: string;
-    inboxIs: string;
+    inboxId: string;
     type: FileType;
     size: number; // Size in bytes
 }

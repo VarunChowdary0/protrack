@@ -113,6 +113,20 @@
       "when": 1749504950562,
       "tag": "0015_uneven_lockheed",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1749556809087,
+      "tag": "0016_sudden_puppet_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1749580054671,
+      "tag": "0017_zippy_jubilee",
+      "breakpoints": true
     }
   ]
 }
