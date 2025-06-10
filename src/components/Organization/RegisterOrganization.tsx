@@ -22,7 +22,9 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { Organization } from '@/types/organizationType'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import axios from 'axios'
+import axiosInstance from '@/config/AxiosConfig'
+import NotFound from '../NotFound'
+import Logo0 from '../headers/Logo0'
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -80,7 +82,7 @@ const auth = useSelector((state: RootState) => state.auth)
         updatedAt: new Date().toISOString(),
         membersCount: 1, // Starting with owner
       }
-    axios.post("/api/register/org", organizationData )
+    axiosInstance.post("/api/register/org", organizationData )
     .then(() => {
         toast.success("Organization created successfully!")
         router.push(`/org/${values.slug}`)
@@ -95,127 +97,141 @@ const auth = useSelector((state: RootState) => state.auth)
 
   // const slugValue = form.watch('slug')
 
-  return (
-    <div className="container max-w-3xl mx-auto py-8 space-y-6">
-      <Card className="border-none gap-8 !bg-transparent shadow-none">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Create Organization</CardTitle>
-          <CardDescription>
-            Set up your organization profile to start managing projects and team collaboration.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Alert variant={'destructive'} className="mb-6">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Important</AlertTitle>
-            <AlertDescription>
-              Organization details cannot be changed without contacting support. Please review carefully before submitting.
-            </AlertDescription>
-          </Alert>
+  
+  if(auth.user?.access.createOrganization){
+    return (
+      <div className="container max-w-3xl mx-auto py-8 space-y-6">
+        <div className=' fixed top-4 left-4'>
+          <Logo0/>
+        </div>
+        <Card className="border-none gap-8 !bg-transparent shadow-none">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Create Organization</CardTitle>
+            <CardDescription>
+              Set up your organization profile to start managing projects and team collaboration.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant={'destructive'} className="mb-6">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Important</AlertTitle>
+              <AlertDescription>
+                Organization details cannot be changed without contacting support. Please review carefully before submitting.
+              </AlertDescription>
+            </Alert>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Organization Name</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Building2 className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input className="pl-8" placeholder="Enter organization name" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Organization Name</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Building2 className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input className="pl-8" placeholder="Enter organization name" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Organization URL(SLUG)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Link2 className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          className="pl-8" 
-                          placeholder="organization-url" 
-                          {...field}
-                          onChange={(e) => {
-                            const value = e.target.value.toLowerCase()
-                              .replace(/\s+/g, '-')
-                              .replace(/[^a-z0-9-]/g, '')
-                            field.onChange(value)
-                          }}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Organization URL(SLUG)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Link2 className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            className="pl-8" 
+                            placeholder="organization-url" 
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value.toLowerCase()
+                                .replace(/\s+/g, '-')
+                                .replace(/[^a-z0-9-]/g, '')
+                              field.onChange(value)
+                            }}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="logo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo URL (Optional)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <ImageIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          className="pl-8" 
-                          placeholder="https://example.com/logo.png" 
+                <FormField
+                  control={form.control}
+                  name="logo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Logo URL (Optional)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <ImageIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            className="pl-8" 
+                            placeholder="https://example.com/logo.png" 
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Describe your organization..." 
+                          className="min-h-[100px] resize-none" 
                           {...field} 
                         />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe your organization..." 
-                        className="min-h-[100px] resize-none" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end">
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Organization'
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
-  )
+                />
+
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      'Create Organization'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+  else{
+    return (
+        !auth.user?.id ?
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mt-20 text-muted-foreground" />
+        :
+        <NotFound/>
+    )
+  }
 }
 
 export default RegisterOrganization

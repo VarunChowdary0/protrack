@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Table,
@@ -25,17 +25,25 @@ import {
 } from "@/components/ui/pagination"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { InboxItemType, type Inbox } from '@/types/inboxType'
-import { mockInboxItems } from '../inboxMockData'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tooltip,TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { TaskStatus } from '@/types/taskTypes'
-
+import axiosInstance from '@/config/AxiosConfig'
+import InvitationViewer from './InvitationViewer'
 
 const ContentsMapper:React.FC = () => {
     const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
     const [search,setSearch] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
+    const [viewItem, setViewItem] = React.useState<Inbox | null>(null);
     const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
     const handleRowSelection = (id: string) => {
         setSelectedRows((prev) => {
@@ -56,11 +64,24 @@ const ContentsMapper:React.FC = () => {
     }, [isDarkMode]);
 
     const [inboxMessages, setInboxMessages] = React.useState<Inbox[]>([]);
-    React.useEffect(() => {
+
+    const loadInboxItems = async () => {
         setIsLoading(true);
-        // Simulate fetching data from an API
-        setInboxMessages(mockInboxItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
-        setIsLoading(false);
+        axiosInstance.get("/api/get/inbox")
+            .then((response)=>{
+                console.log(response.data);
+                setInboxMessages(response.data.sort((a: { timestamp: string | number | Date }, b: { timestamp: string | number | Date }) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+            })
+            .catch((error)=>{
+                console.log(error);
+            })
+            .finally(()=>{
+                setIsLoading(false);
+            });
+    }
+    React.useEffect(() => {
+        loadInboxItems();
+        // setInboxMessages(mockInboxItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
     }, []);
 
     const filterInboxItems = inboxMessages.filter((item) => {
@@ -113,12 +134,20 @@ const ContentsMapper:React.FC = () => {
 
     const touchStartTimeRef = useRef<number | null>(null);
     const LONG_PRESS_THRESHOLD = 500; // in milliseconds
+    const handleItemChange = (id: string, data: { status: string; seenAt?: string }) => {
+        //update the inbox item state with the new data
+        setInboxMessages((prevMessages) =>
+            prevMessages.map((message) =>
+                message.id === id ? { ...message, ...data } : message
+            )
+        );
+    }
 
     const Load = () => {
         if (isLoading) {
             return (
                 <div className=' w-full h-[60vh] flex items-center justify-center'>
-                    <Loader className=' animate-spin text-secondary' size={32} />
+                    <Loader className=' animate-spin ' size={32} />
                 </div>
             );
         }
@@ -128,13 +157,23 @@ const ContentsMapper:React.FC = () => {
     }
 
     const handleStarToggle = (id: string) => {
-        setInboxMessages((prevMessages) =>
-            prevMessages.map((message) =>
-                message.id === id
-                    ? { ...message, isStarred: !message.isStarred }
-                    : message
-            )
-        );  
+        axiosInstance.post("/api/manage/inbox/start_item", {
+            inboxId: id,
+            star: !inboxMessages.find((message) => message.id === id)?.isStarred
+        })
+        .then((response) => {
+            console.log("Star toggled successfully:", response.data);
+            setInboxMessages((prevMessages) =>
+                prevMessages.map((message) =>
+                    message.id === id
+                        ? { ...message, isStarred: !message.isStarred }
+                        : message
+                )
+            );  
+        })
+        .catch((error) => {
+            console.error("Error toggling star:", error);
+        });
     }
 
     const archiveSelectedRows = () => {
@@ -146,9 +185,14 @@ const ContentsMapper:React.FC = () => {
             )
         );
         setSelectedRows([]);
-    };
-    
-  return (
+    }
+    useEffect(()=>{
+        if (viewItem) {
+            const updatedItem = inboxMessages.find(item => item.id === viewItem.id);
+            setViewItem(updatedItem || null);
+        }
+    },[inboxMessages])
+    return (
     <Card className=' max-w-7xl max-sm:pb-20  !pt-0 max-sm:!pt-0 max-sm:!rounded-none max-sm:min-h-screen !gap-0 !w-full'>
         <CardHeader style={{
                         zIndex: 1000,
@@ -193,8 +237,11 @@ const ContentsMapper:React.FC = () => {
                                     `${item.seenAt.length!==0 && " text-muted-foreground bg-secondary/15" + "hover:bg-secondary/5  "}` }
                              cursor-pointer`}
                              onClick={()=>{
-                            if(selectedRows.length > 0){
+                                    if(selectedRows.length > 0){
                                         handleRowSelection(item.id);
+                                    }
+                                    else{
+                                        setViewItem(item);
                                     }
                                 }}                  
                                     key={item.id}>
@@ -253,7 +300,8 @@ const ContentsMapper:React.FC = () => {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        {
+                                        <div className=' flex items-center justify-end gap-2'>
+                                            {
                                                 item.type !== InboxItemType.MESSAGE &&
                                                 <Badge variant={"outline"} className=' !px-0 w-5 h-5 flex items-center justify-center rounded-full capitalize'>
                                                     {item.type === InboxItemType.INVITE && <LucideMessageCirclePlus/>}
@@ -267,6 +315,10 @@ const ContentsMapper:React.FC = () => {
                                                     }
                                                 </Badge>
                                             }
+                                            <span className=' text-xs'>
+                                                {item.type === InboxItemType.TASK && "T"}
+                                            </span>
+                                        </div>
                                     </TableCell>
                                     <TableCell className="text-right text-xs !pr-4 dark:font-semibold">
                                         <div className=' flex items-center justify-end gap-3 '>
@@ -318,6 +370,9 @@ const ContentsMapper:React.FC = () => {
                         onClick={()=>{
                             if(selectedRows.length > 0){
                                 handleRowSelection(item.id);
+                            }
+                            else{
+                                setViewItem(item);
                             }
                         }}
                         className={` py-4 ${isRowSelected(item.id) ? " dark:bg-secondary-foreground/20 bg-blue-100 " :
@@ -420,6 +475,27 @@ const ContentsMapper:React.FC = () => {
                 </PaginationContent>
             </Pagination>
         </CardFooter>
+        <Dialog open={viewItem !== null} onOpenChange={(open) => !open && setViewItem(null)}>
+            <DialogContent style={{
+            zIndex:2000,
+            width: '100%',
+            maxWidth: '90vw'
+            }} className="max-h-[90vh] max-sm:!px-0 w-fit overflow-y-auto">
+            <DialogHeader>
+            <DialogTitle className=' !text-2xl capitalize !font-bold'>{viewItem?.title}</DialogTitle>
+            <DialogDescription>
+            {
+                viewItem &&
+                <InvitationViewer 
+                    invitation={viewItem}
+                    handleStarToggle={handleStarToggle}
+                    handleItemChange={handleItemChange}
+                />
+            }
+            </DialogDescription>
+            </DialogHeader>
+            </DialogContent>
+        </Dialog>
     </Card>
   )
 }

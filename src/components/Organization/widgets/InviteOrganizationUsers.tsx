@@ -31,8 +31,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Invitation, InvitationAction, OrganizationUserRole } from '@/types/invitationType'
-import { useParams } from 'next/navigation'
+import { Invitation, InvitationAction, InvitationStatus, OrganizationUserRole } from '@/types/invitationType'
 import { 
   Table, 
   TableBody, 
@@ -43,12 +42,12 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
-import { Loader2, Mail, Plus, RefreshCw, Trash2, UserPlus } from 'lucide-react'
+import { CheckCheck, Clock, Loader2, LucideCrown, Mail, Plus, RefreshCw, Trash2, UserPlus, XIcon } from 'lucide-react'
 import { toast } from 'sonner'
-import { Organization } from '@/types/organizationType'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
-import axios from 'axios'
+import axiosInstance from '@/config/AxiosConfig'
+import { Tooltip,TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 const inviteFormSchema = z.object({
   toEmail: z.string().email({
@@ -63,14 +62,15 @@ const inviteFormSchema = z.object({
   }),
 })
 
-const InviteManager = () => {
-  const { ord_id } = useParams()
+interface Props{
+  orgId: string;
+}
+const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
   const [invitations, setInvitations] = React.useState<Invitation[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [isInviting, setIsInviting] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [org,setOrg] = React.useState<Organization | null>(null);
-  const auth = useSelector((state: RootState) => state.auth)
+  const auth = useSelector((state: RootState) => state.auth);
 
   const form = useForm<z.infer<typeof inviteFormSchema>>({
     resolver: zodResolver(inviteFormSchema),
@@ -82,70 +82,66 @@ const InviteManager = () => {
     },
   })
 
-  const fetchOrganization = async () => {
-    try {
-      const response = await fetch(`/api/get/org?slug=${ord_id}`)
-      if (!response.ok) throw new Error('Failed to fetch organization')
-      const data = await response.json()
-      setOrg(data)
-    } catch (error) {
-      console.error('Error fetching organization:', error)
-      toast.error('Failed to load organization details')
-    }
-  }
+
   const fetchInvitations = async (id:string) => {
+    console.log("Fetching invitations for org:", id)
+    setIsLoading(true);
     try {
-      const response = await fetch(`/api/get/org/invitations?orgId=${id}`)
-      if (!response.ok) throw new Error('Failed to fetch invitations')
-      const data = await response.json()
-      setInvitations(data)
+      const response = await axiosInstance.get(`/api/get/org/invitations`, {
+        params: { orgId: id }
+      });
+      setInvitations(response.data);
     } catch (error) {
-      console.error('Error fetching invitations:', error)
-      toast.error('Failed to load invitations')
+      console.error('Error fetching invitations:', error);
+      toast.error('Failed to load invitations');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   React.useEffect(() => {
-    fetchOrganization();
-  }, [ord_id]);
+    fetchInvitations(orgId);
+  },[orgId]);
+
   React.useEffect(() => {
-    if(org?.id){
-        fetchInvitations(org.id);
+    if(auth.user?.access.createOrganizationManagers){
+      form.setValue("role", OrganizationUserRole.MANAGER);
+      // form.setValue("")
     }
-  },[org]);
+  },[auth,invitations])
 
   const onSubmit = async (values: z.infer<typeof inviteFormSchema>) => {
     setIsInviting(true)
-    try {
-      const response = await fetch('/api/manage/send_invitation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...values,
-          org_id: org?.id,
-          fromId: auth.user?.id,
-          action: InvitationAction.JOIN_ORGANIZATION,
-        }),
+    axiosInstance.post('/api/manage/send_invitation', {
+        ...values,
+        org_id: orgId,
+        fromId: auth.user?.id,
+        action: InvitationAction.INVITE_ORGANIZATION,
       })
-
-      if (!response.ok) throw new Error('Failed to send invitation')
-
-      toast.success('Invitation sent successfully')
-      setDialogOpen(false)
-      form.reset()
-      fetchInvitations(org?.id || ""); // Refresh the invitations list
-    } catch (error) {
-      console.error('Error sending invitation:', error)
-      toast.error('Failed to send invitation')
-    } finally {
-      setIsInviting(false)
-    }
+      .then((res)=>{
+        console.log(res.data.message);
+        toast.success('Invitation sent successfully',
+          {
+            description: res.data.message || "Invitation sent successfully",
+          }
+        )
+      })
+      .catch((error) => {
+        console.error('Error sending invitation:', error);
+        toast.error('Failed to send invitation', {
+          description: error.response?.data?.error || "An error occurred while sending the invitation",
+        });
+      })
+    .finally(() => {
+      setIsInviting(false);
+      setDialogOpen(false);
+      form.reset();
+      fetchInvitations(orgId || "");
+    });
   }
 
   const handleDeleteInvitation = async (invitationId: string) => {
-    axios.delete("/api/manage/revoke_invitation", {
+    axiosInstance.delete("/api/manage/revoke_invitation", {
         data: { invitationId }
     })
     .then(() => {
@@ -162,7 +158,7 @@ const InviteManager = () => {
 
   const getRoleBadgeVariant = (role: OrganizationUserRole) => {
     switch (role) {
-      case OrganizationUserRole.ADMIN: return "default"
+      // case OrganizationUserRole.ADMIN: return "default"
       case OrganizationUserRole.MANAGER: return "secondary"
       case OrganizationUserRole.CLIENT: return "outline"
       default: return "secondary"
@@ -175,25 +171,44 @@ const InviteManager = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xl">Organization Invitations</CardTitle>
-            <CardDescription>Manage member invitations for your organization</CardDescription>
+            <CardDescription>Manage member invitations for the organization</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={()=>fetchInvitations(org?.id || '')}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
+            {
+              isLoading ?
+                <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+                :
+              <Button variant="outline" size="sm" onClick={()=>fetchInvitations(orgId || '')}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            }
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Invite Member
+                  Invite {
+                    auth.user?.access.createOrganizationUsers
+                      ? "Member"
+                      : "Manager"
+                  }
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Invite New Member</DialogTitle>
+                  <DialogTitle className=' flex items-center gap-2'>
+                    {
+                    auth.user?.access.createOrganizationUsers 
+                      ? <UserPlus/>
+                      :<LucideCrown/>
+                  }
+                    Invite New {
+                    auth.user?.access.createOrganizationUsers
+                      ? "Member"
+                      : "Manager"
+                  }</DialogTitle>
                   <DialogDescription>
-                    Send an invitation to join your organization
+                    Send an invitation to join the organization
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -214,30 +229,37 @@ const InviteManager = () => {
                         </FormItem>
                       )}
                     />
-                    <FormField
+                    {
+                      auth.user?.access.createOrganizationUsers ? 
+                      <FormField
                       control={form.control}
                       name="role"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Role</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a role" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {Object.values(OrganizationUserRole).map((role) => (
-                                <SelectItem key={role} value={role}>
-                                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                            <FormLabel>Role</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {Object.values(OrganizationUserRole)
+                                .filter(role=> role !== OrganizationUserRole.MANAGER
+                                ).map((role) => (
+                                  <SelectItem key={role} value={role}>
+                                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      :
+                      <Badge variant={"default"}>Manager</Badge>
+                    }
                     <FormField
                       control={form.control}
                       name="subject"
@@ -297,19 +319,22 @@ const InviteManager = () => {
             <p>No invitations sent yet</p>
           </div>
         ) : (
-          <Table>
+          <Table className=' mybar '>
             <TableHeader>
               <TableRow>
                 <TableHead>Invited Email</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Subject</TableHead>
+                <TableHead>Created</TableHead>
                 <TableHead>Sent</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {invitations.map((invitation) => (
-                <TableRow key={invitation.id}>
+                <TableRow className={` ${invitation.status === InvitationStatus.ACCEPTED ? " bg-green-200/10 hover:bg-green-200/20" : 
+                  invitation.status === InvitationStatus.DECLINED ? " bg-red-200/10 hover:bg-red-200/20" : ""
+                }`} key={invitation.id}>
                   <TableCell>{invitation.toEmail}</TableCell>
                   <TableCell>
                     <Badge variant={getRoleBadgeVariant(invitation.role)}>
@@ -318,10 +343,39 @@ const InviteManager = () => {
                   </TableCell>
                   <TableCell>{invitation.subject}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {format(new Date(invitation.createdAt), 'MMM d, yyyy')}
+                    {format(new Date(invitation.createdAt), 'MMM d, yyyy, h:mm a')}
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">Pending</Badge>
+                  <TableCell className=' max-w-[80px]'>
+                    {
+                      invitation.mappedAt ?
+                      <div className=' w-full  pl-[20%]'>
+                        <Tooltip>
+                            <TooltipTrigger>
+                            {invitation.status === InvitationStatus.ACCEPTED ? (
+                              <CheckCheck className="h-4 w-4 mr-1 text-blue-500" />
+                            ) : invitation.status === InvitationStatus.DECLINED ? (
+                              <XIcon className="h-4 w-4 mr-1 text-red-500" />
+                            ) : (
+                              <CheckCheck className="h-4 w-4 mr-1 text-muted-foreground" />
+                            )}
+                            </TooltipTrigger>
+                          <TooltipContent>
+                            Sent to inbox
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      :
+                       <div className=' w-full  pl-[20%]'>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Clock className="h-4 w-4 mr-1" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Waiting for user Registation
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    }
                   </TableCell>
                   <TableCell>
                     <Button onClick={()=>handleDeleteInvitation(invitation.id)} size={"sm"}
@@ -340,4 +394,4 @@ const InviteManager = () => {
   )
 }
 
-export default InviteManager;
+export default InviteOrganizaionUsers;

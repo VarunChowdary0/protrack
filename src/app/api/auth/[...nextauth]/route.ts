@@ -19,7 +19,7 @@ const handler = NextAuth({
       },
       async authorize(credentials): Promise<User | null> {
         if(credentials?.refresh){
-            console.log("Refreshing user session");
+            // console.log("Refreshing user session");
             try{
               const res = await axios.post(`${baseURL}/api/auth/login`, {
                 email: credentials.email,
@@ -95,12 +95,12 @@ const handler = NextAuth({
         token.user = user as User;
         return token;
       }
-      console.log("JWT callback triggered");
+      // console.log("JWT callback triggered");
       return token;
     },
 
   async session({ session, token }) {
-    console.log("Session callback triggered");
+    // console.log("Session callback triggered");
     // Ensure we only run the OAuth fetch if needed
     if (!token.user?.access && token.email) {
       try {

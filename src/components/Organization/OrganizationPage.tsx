@@ -4,51 +4,51 @@ import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Building2, CalendarDays, Users2 } from 'lucide-react'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from '@/components/ui/badge'
 import { Organization } from '@/types/organizationType'
-import { User } from '@/types/userTypes'
 import { format } from 'date-fns'
-import axios from 'axios'
-import InviteManager from './widgets/InviteManager'
+import axiosInstance from '@/config/AxiosConfig'
+import { signOut } from 'next-auth/react'
+import OrganizationMembers from './widgets/OrganizationMembers'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import InviteOrganizaionUsers from './widgets/InviteOrganizationUsers'
 
-interface OrgUser extends User {
-  roleInOrg: 'OWNER' | 'ADMIN' | 'MEMBER'
-  joinedAt: string
-}
 
 const OrganizationPage = () => {
   const { ord_id } = useParams()
   const [organization, setOrganization] = React.useState<Organization | null>(null)
-  const [users, setUsers] = React.useState<OrgUser[]>([])
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(true);
+  const auth = useSelector((state:RootState)=> state.auth);
 
     React.useEffect(() => {
-        const fetchOrgData = async () => {
-            try {
-                const orgResponse = await axios.get(`/api/get/org?slug=${ord_id}`)
-                const orgData = orgResponse.data
-                setOrganization(orgData)
-                const usersResponse = await axios.get(`/api/get/org/users?orgId=${orgData.id}`)
-                const usersData = usersResponse.data
-                setUsers(usersData)
-            } catch (error) {
-                console.error('Error fetching organization data:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
+      const fetchOrgData = async () => {
+        axiosInstance.get(`/api/get/org?slug=${ord_id}`)
+        .then((orgResponse) => {
+        const orgData = orgResponse.data
+        setOrganization(orgData)
+        })
+        .catch((error)=>{
+          if(error.response?.status === 404) {
+          console.error("No organization:", error.response.data.action)
+          if(error.response.data.action === "LOGOUT") {
+            signOut({
+            callbackUrl: "/login",
+            redirect: true
+            });
+          }
+          }
+          else {
+          console.error("Error fetching organization:", error)
+          }
+        })
+        .finally(()=>{
+        setLoading(false)
+        })
+      }
 
-        if (ord_id) {
-            fetchOrgData()
-        }
+      if (ord_id) {
+        fetchOrgData()
+      }
     }, [ord_id])
 
   if (loading) {
@@ -86,7 +86,7 @@ const OrganizationPage = () => {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <CardTitle className="text-2xl font-bold">{organization.name}</CardTitle>
+            <CardTitle className="text-2xl max-sm:text-lg capitalize font-bold">{organization.name}</CardTitle>
             <CardDescription className="mt-2 text-base">
               {organization.description}
             </CardDescription>
@@ -108,62 +108,16 @@ const OrganizationPage = () => {
         </CardHeader>
       </Card>
 
-      {/* Members List */}
-      <Card className='max-sm:border-none max-sm:shadow-none'>
-        <CardHeader>
-          <CardTitle>Organization Members</CardTitle>
-          <CardDescription>
-            List of all members and their roles in the organization
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.profilePicture} />
-                      <AvatarFallback>
-                        {user.firstname[0]}{user.lastname[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{user.firstname} {user.lastname}</p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={
-                      user.roleInOrg === 'OWNER' ? 'default' :
-                      user.roleInOrg === 'ADMIN' ? 'secondary' : 'outline'
-                    }>
-                      {user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    { user.joinedAt ? format(new Date(user.joinedAt), 'MMM d, yyyy') : "-"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={user.isActive ? "default" : "destructive"}>
-                      {user.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      <InviteManager/>
+      {
+          auth.user?.access?.accessOrganizationUsers &&
+            <OrganizationMembers organization={organization}/>
+      }
+      {/* Invite Manager */}
+      {
+          (auth.user?.access.createOrganizationUsers ||
+         auth.user?.access.createOrganizationManagers) &&
+          <InviteOrganizaionUsers orgId={organization.id}/>
+      } 
     </div>
   )
 }

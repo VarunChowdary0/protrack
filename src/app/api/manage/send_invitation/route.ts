@@ -1,15 +1,36 @@
 import { db } from "@/db/drizzle";
 import { invitations } from "@/db/Schema/InvitationSchema";
-import { users } from "@/db/Schema/UserSchema";
-import { createInboxEntry } from "@/lib/inbox";
-import { InboxItemType } from "@/types/inboxType";
-import { eq } from "drizzle-orm";
+import { getUser } from "@/lib/GetUser";
+import MapInvitation from "@/lib/MapInvitation";
+import { InvitationAction, OrganizationUserRole } from "@/types/invitationType";
 import {v4 as uuid} from "uuid";
 
-export async function POST(req:Request) {
+export async function POST(req:Request) { 
     try{
+        // validate, only admin: invite to be manager
+        // validate, only manager: invite to be member
+        // normal user can invite to a project
+
+        // authenticate
+        const authHeader = req.headers.get("Authorization");
+        if(!authHeader || !authHeader.startsWith("USER_ID ")) {
+            return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+        const userId = authHeader.split(" ")[1];
+        const reqFromUser = await getUser(userId);
+        if(!reqFromUser.user.id){
+            return new Response(JSON.stringify({ error: "User not found",
+             action: "LOGOUT" }), {
+                status: 404,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        //-- permission check
         const body = await req.json();
-        console.log(body)
         const {
             fromId,
             toEmail,
@@ -23,6 +44,29 @@ export async function POST(req:Request) {
             
             role
         } = body;
+
+        if (action === InvitationAction.INVITE_ORGANIZATION && 
+            role === OrganizationUserRole.MANAGER){
+            // check if the user is an admin
+            if(!reqFromUser.user.access?.createOrganizationManagers){
+                return new Response(JSON.stringify({ error: "You do not have permission to invite organization managers" }), {
+                    status: 403,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+        }
+        else if (action === InvitationAction.INVITE_ORGANIZATION){
+            // check if the user is a manager
+            if(!reqFromUser.user.access?.createOrganizationUsers){
+                return new Response(JSON.stringify({ error: "You do not have permission to invite organization members / clients " }), {
+                    status: 403,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+        } // else if (action === InvitationAction.INVITE_PROJECT) normal user can invite to a project
+
+        // --------
+            
         if (!fromId || !toEmail || !subject || !message || !action || !org_id || !role) {
             return new Response(JSON.stringify({ error: "Missing required fields" }), {
                 status: 400,
@@ -35,7 +79,7 @@ export async function POST(req:Request) {
             id: invitationId,
             formId: fromId,
             toEmail: toEmail,
-            invitited_to: " be"+ role + " in your organization",
+            invitedTo: " be"+ role + " in your organization",
             subject,
             message,
             action,
@@ -45,40 +89,52 @@ export async function POST(req:Request) {
             projectRole: projrctRole || null // Optional, default to null if not provided
         }).returning();
 
-        const user = await db.select()
-                            .from(users)
-                            .where(eq(users.email, toEmail));
-        if (user.length > 0) {
-            const inboxEntry = {
-                fromId: NewInvitation.formId || "",
-                participantId: "",
-                userId: user[0].id || "",
-                projectId: NewInvitation.projectId || "",
-                title: NewInvitation.subject || "Invitation",
-                description: NewInvitation.message || "You have been invited to join the organization",
-                type: InboxItemType.INVITE,
-                inviteId: NewInvitation.id || "",
-                taskId: null, // Optional, default to null if not provided
-                calendarId: null, // Optional, default to null if not provided
-            };
-            try{
-                const inboxItem = await createInboxEntry(inboxEntry);
-                if(inboxItem){
-                     await db.update(invitations).set({mappedAt: new Date().toISOString()}).where(eq(invitations.id, NewInvitation.id));
-                     return new Response(JSON.stringify({ message: "Invitation sent successfully", invitationId }), {
-                        status: 201,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
-            }
-            catch(error){
-                console.error("Error creating inbox entry:", error);
-                return new Response(JSON.stringify({ error: "Failed to create inbox entry" }), {
-                    status: 500,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
+        const mapper = await MapInvitation({
+            id: NewInvitation.id || "",
+            toEmail: NewInvitation.toEmail || "",
+            formId: NewInvitation.formId || "",
+            projectId: NewInvitation.projectId || "",
+            subject: NewInvitation.subject || "Invitation",
+            message: NewInvitation.message || "You have been invited to join the organization",
+        });
+        
+        if(mapper){
+            return new Response(JSON.stringify({ message: "Invitation sent successfully", invitationId }), {
+                status: 201,
+                headers: { "Content-Type": "application/json" },
+            });
         }
+        // if (user) {
+        //     const inboxEntry = {
+        //         fromId: NewInvitation.formId || "",
+        //         participantId: "",
+        //         userId: user.id || "",
+        //         projectId: NewInvitation.projectId || "",
+        //         title: NewInvitation.subject || "Invitation",
+        //         description: NewInvitation.message || "You have been invited to join the organization",
+        //         type: InboxItemType.INVITE,
+        //         inviteId: NewInvitation.id || "",
+        //         taskId: null, // Optional, default to null if not provided
+        //         calendarId: null, // Optional, default to null if not provided
+        //     };
+        //     try{
+        //         const inboxItem = await createInboxEntry(inboxEntry);
+        //         if(inboxItem){
+        //              await db.update(invitations).set({mappedAt: new Date().toISOString()}).where(eq(invitations.id, NewInvitation.id));
+        //              return new Response(JSON.stringify({ message: "Invitation sent successfully", invitationId }), {
+        //                 status: 201,
+        //                 headers: { "Content-Type": "application/json" },
+        //             });
+        //         }
+        //     }
+        //     catch(error){
+        //         console.error("Error creating inbox entry:", error);
+        //         return new Response(JSON.stringify({ error: "Failed to create inbox entry" }), {
+        //             status: 500,
+        //             headers: { "Content-Type": "application/json" },
+        //         });
+        //     }
+        // }
 
         return new Response(JSON.stringify({ message: "Invitation saved, not mapped", invitationId }), {
             status: 201,
