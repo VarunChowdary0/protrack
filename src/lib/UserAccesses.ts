@@ -36,6 +36,7 @@ import { UserRole } from "@/types/userTypes";
     const orgUser: Access = {
       ...userAccess,
       userRole: UserRole.ORG_USER,
+      accessOrganizationUsers: true
     };
 
     const orgManager: Access = {

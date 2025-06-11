@@ -1,6 +1,7 @@
 import { db } from "@/db/drizzle";
 import { invitations } from "@/db/Schema/InvitationSchema";
 import { getUser } from "@/lib/GetUser";
+import { UserRole } from "@/types/userTypes";
 import { eq } from "drizzle-orm";
 
 export async function GET(req: Request) {
@@ -45,14 +46,20 @@ export async function GET(req: Request) {
 
         // Fetch users by organization ID from the database
         console.log(orgId)
-        const users = await db.select().from(invitations).where(eq(invitations.org_id, orgId));
-
-        if (users.length === 0) {
-            return new Response(JSON.stringify({ error: "No invitations found  in organization" }), {
-                status: 404,
+        if(reqFromUser.user.organizationId !== orgId && reqFromUser.user.role !== UserRole.ADMIN){
+            return new Response(JSON.stringify({ error: "Unauthorized access to organization invitations" }), {
+                status: 403,
                 headers: { "Content-Type": "application/json" },
             });
         }
+        const users = await db.select().from(invitations).where(eq(invitations.org_id, orgId));
+
+        // if (users.length === 0) {
+        //     return new Response(JSON.stringify({ error: "No invitations found  in organization" }), {
+        //         status: 404,
+        //         headers: { "Content-Type": "application/json" },
+        //     });
+        // }
 
         return new Response(JSON.stringify(users), {
             status: 200,

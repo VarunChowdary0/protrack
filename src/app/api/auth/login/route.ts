@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { access } from "@/db/Schema/AccessSchema";
 import { users } from "@/db/Schema/UserSchema";
-import { User, UserRole, UserStatus } from "@/types/userTypes";
+import { User, UserStatus } from "@/types/userTypes";
 import { and, eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -54,8 +54,8 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "User not found" }));
         }
 
-        console.log(res[0].role);
-        const [accessData] = await db.select().from(access).where(eq(access.userRole,UserRole.ORG_MANAGER)).limit(1);
+        // console.log(res[0].role);
+        const [accessData] = await db.select().from(access).where(eq(access.userRole,res[0].role)).limit(1);
         const sanitizedAccess = {
           ...accessData,
           createOrganization: accessData?.createOrganization ?? false,
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
           manageGroups: accessData?.manageGroups ?? false,
         };
 
-        console.log(accessData, sanitizedAccess);
+        // console.log(accessData, sanitizedAccess);
 
         const UserData:User = {
             id: res[0].id,

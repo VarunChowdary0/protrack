@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from '@/components/ui/badge'
-import { User, UserStatus } from '@/types/userTypes'
+import { User, UserRole, UserStatus } from '@/types/userTypes'
 import { format } from 'date-fns'
 import axiosInstance from '@/config/AxiosConfig'
 import { signOut } from 'next-auth/react'
@@ -130,11 +130,11 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({ organization 
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={
-                    user.roleInOrg === 'OWNER' ? 'default' :
-                    user.roleInOrg === 'ADMIN' ? 'secondary' : 'outline'
+                  <Badge className=' capitalize' variant={
+                    user.role === UserRole.ORG_MANAGER ? 'default' :
+                    user.role === UserRole.ORG_USER ? 'secondary' : 'outline'
                   }>
-                    {user.role}
+                    {user.role.replaceAll("_", " ").toLowerCase()}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">

@@ -1,13 +1,15 @@
+import { UserRole } from "./userTypes";
+
 export enum InvitationAction {
     INVITE_ORGANIZATION = "invite_organization",
     EXTERNAL_PROJECT_INVITATION = "external_project_invitation"
 }
 
 export enum OrganizationUserRole{
-    MANAGER = "organization_manager",
-    MEMBER = "organization_user",
+    MANAGER = UserRole.ORG_MANAGER,
+    MEMBER = UserRole.ORG_USER,
     // ADMIN = "admin",
-    CLIENT = "client",
+    // CLIENT = "client",
 }
 
 export enum InvitationStatus {

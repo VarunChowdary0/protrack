@@ -229,8 +229,8 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                       <span className="text-muted-foreground min-w-[100px] sm:min-w-[120px]">Organization ID:</span>
-                      <code className="text-xs px-2 py-1 rounded border bg-muted font-mono break-all">
-                        {invitationData?.org_id}
+                      <code className="text-xs px-2 py-1 rounded border truncate bg-muted font-mono break-all">
+                        {invitationData?.org_id ? invitationData.org_id.slice(0,8) + "x".repeat(invitationData.org_id.length - 8) : 'N/A'}
                       </code>
                     </div>
                   </div>

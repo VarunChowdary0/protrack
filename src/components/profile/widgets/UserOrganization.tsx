@@ -16,41 +16,41 @@ interface UserOrganizationProps {
 const UserOrganization: React.FC<UserOrganizationProps> = ({ organizationId }) => {
     const [organization, setOrganization] = React.useState<Organization>();
     const [loading, setLoading] = React.useState(true);
-
+    
     React.useEffect(() => {
         if (organizationId === "1") return;
-        
         const fetchOrgData = async () => {
             setLoading(true);
             axiosInstance.get(`/api/get/org?orgId=${organizationId}`)
-                .then((orgResponse) => {
-                    const orgData = orgResponse.data
-                    setOrganization(orgData)
-                })
-                .catch((error) => {
-                    if (error.response?.status === 404) {
-                        console.error("No organization:", error.response.data.action)
-                        if (error.response.data.action === "LOGOUT") {
-                            signOut({
-                                callbackUrl: "/login",
-                                redirect: true
-                            });
-                        }
+            .then((orgResponse) => {
+                const orgData = orgResponse.data
+                setOrganization(orgData)
+            })
+            .catch((error) => {
+                if (error.response?.status === 404) {
+                    console.error("No organization:", error.response.data.action)
+                    if (error.response.data.action === "LOGOUT") {
+                        signOut({
+                            callbackUrl: "/login",
+                            redirect: true
+                        });
                     }
-                    else {
-                        console.error("Error fetching organization:", error)
-                    }
-                })
-                .finally(() => {
-                    setLoading(false)
-                })
+                }
+                else {
+                    console.error("Error fetching organization:", error)
+                }
+            })
+            .finally(() => {
+                setLoading(false)
+            })
         }
-
+        
         if (organizationId) {
             fetchOrgData()
         }
     }, [organizationId])
-
+    
+    if (organizationId === "1") return;
     if (loading) {
         return (
             <Card className="max-sm:shadow-none max-sm:border-0 max-sm:rounded-none max-sm:border-b animate-pulse">
