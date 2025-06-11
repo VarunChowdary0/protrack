@@ -1,6 +1,7 @@
 import { db } from "@/db/drizzle";
 import { users } from "@/db/Schema/UserSchema";
 import { getUser } from "@/lib/GetUser";
+import { UserRole } from "@/types/userTypes";
 import { eq } from "drizzle-orm";
 
 export async function GET(req: Request) {
@@ -29,8 +30,8 @@ export async function GET(req: Request) {
 
         // -- permission check
         // console.log(reqFromUser)
-        console.log("User access:", reqFromUser.user.access?.accessOrganization , reqFromUser.user.role, reqFromUser.user.access?.userRole);
-        if(!reqFromUser.user.access?.accessOrganization) {
+        console.log("User access:", reqFromUser.user.access?.accessOrganizationUsers , reqFromUser.user.role, reqFromUser.user.access?.userRole);
+        if(!reqFromUser.user.access?.accessOrganizationUsers) {
             return new Response(JSON.stringify({ error: "Unauthorized access to organization" }), {
                 status: 403,
                 headers: { "Content-Type": "application/json" },
@@ -45,6 +46,13 @@ export async function GET(req: Request) {
                 headers: { "Content-Type": "application/json" },
             });
         }   
+
+        if(reqFromUser.user.organizationId !== orgId && reqFromUser.user.role !== UserRole.ADMIN) {
+            return new Response(JSON.stringify({ error: "Unauthorized access to organization users" }), {
+                status: 403,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
 
 
         const OrgUsers = await db.select().from(users).where(eq(users.organizationId, orgId));

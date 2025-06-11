@@ -160,7 +160,7 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
     switch (role) {
       // case OrganizationUserRole.ADMIN: return "default"
       case OrganizationUserRole.MANAGER: return "secondary"
-      case OrganizationUserRole.CLIENT: return "outline"
+      case OrganizationUserRole.MEMBER: return "outline"
       default: return "secondary"
     }
   }
@@ -173,20 +173,19 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
             <CardTitle className="text-xl">Organization Invitations</CardTitle>
             <CardDescription>Manage member invitations for the organization</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex max-sm:flex-col-reverse items-end justify-end gap-2">
             {
               isLoading ?
                 <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
                 :
-              <Button variant="outline" size="sm" onClick={()=>fetchInvitations(orgId || '')}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
+              <Button variant="outline" size="icon" className=' max-sm:!p-1' onClick={()=>fetchInvitations(orgId || '')}>
+                <RefreshCw className="h-4 w-4" />
               </Button>
             }
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm">
-                  <UserPlus className="h-4 w-4 mr-2" />
+                <Button size="sm" className=' max-sm:!py-0 max-sm:scale-75 max-sm:translate-x-5 max-sm:text-xs'>
+                  <UserPlus className="h-4 w-4 mr-2 max-sm:mr-0" />
                   Invite {
                     auth.user?.access.createOrganizationUsers
                       ? "Member"

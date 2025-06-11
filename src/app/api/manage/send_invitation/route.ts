@@ -86,7 +86,9 @@ export async function POST(req:Request) {
             org_id: org_id,
             role,
             projectId: projectId || null, // Optional, default to null if not provided
-            projectRole: projrctRole || null // Optional, default to null if not provided
+            projectRole: projrctRole || null, // Optional, default to null if not provided
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         }).returning();
 
         const mapper = await MapInvitation({

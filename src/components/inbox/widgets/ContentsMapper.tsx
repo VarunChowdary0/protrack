@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import ChangeThemeColor from '@/lib/ChangeThemeColor'
-import { ArchiveRestore, BellRingIcon, ChartLine, CheckCircle, CheckIcon, Clock, Loader, LucideMessageCirclePlus, Search, StarIcon } from 'lucide-react'
+import { ArchiveRestore, BellRingIcon, ChartLine, CheckCircle, CheckIcon, Clock, Loader2, LucideMessageCirclePlus, Search, StarIcon } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -147,7 +147,7 @@ const ContentsMapper:React.FC = () => {
         if (isLoading) {
             return (
                 <div className=' w-full h-[60vh] flex items-center justify-center'>
-                    <Loader className=' animate-spin ' size={32} />
+                    <Loader2 className=' animate-spin ' size={32} />
                 </div>
             );
         }
@@ -157,7 +157,7 @@ const ContentsMapper:React.FC = () => {
     }
 
     const handleStarToggle = (id: string) => {
-        axiosInstance.post("/api/manage/inbox/start_item", {
+        axiosInstance.post("/api/manage/inbox/star_item", {
             inboxId: id,
             star: !inboxMessages.find((message) => message.id === id)?.isStarred
         })
@@ -223,6 +223,21 @@ const ContentsMapper:React.FC = () => {
                     </TooltipContent>
                 </Tooltip>}
             </div>            
+
+            <Tooltip>
+                <TooltipTrigger>
+                    <div onClick={loadInboxItems} className={` ${isLoading && " animate-spin "} p-2 rounded-full hover:bg-secondary`}>
+                        <svg viewBox="0 0 24 24" className="h-5 w-5">
+                                <path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
+                        </svg>
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent 
+                    style={{ zIndex: 2000 }} 
+                    className=' !w-fit !text-xs'>
+                    Refresh Inbox
+                </TooltipContent>
+            </Tooltip>
         </CardHeader>
         <CardContent className=' min-h-[70vh] max-sm:!px-0'>
             <div className=' !px-0 overflow-hidden max-sm:hidden !rounded-md !border'>

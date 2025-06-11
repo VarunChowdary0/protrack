@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         });
     }
     catch (error) {
-        console.error("Error in POST /manage/inbox/start_item:", error);
+        console.error("Error in POST /manage/inbox/star_item:", error);
         return new Response(JSON.stringify({ error: "Internal Server Error" }), {
             status: 500,
             headers: { "Content-Type": "application/json" },

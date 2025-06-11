@@ -45,6 +45,8 @@ export async function createInboxEntry(data: InboxInput) {
     inviteId,
     taskId,
     calendarId,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 
   const [createdInboxEntry] = await db.insert(inbox).values(newInboxEntry).returning();

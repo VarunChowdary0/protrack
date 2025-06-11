@@ -1,9 +1,9 @@
 "use client"
 import { useParams } from 'next/navigation'
 import React from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Building2, CalendarDays, Users2 } from 'lucide-react'
+import { Building2, CalendarDays, Loader2Icon, Users2 } from 'lucide-react'
 import { Organization } from '@/types/organizationType'
 import { format } from 'date-fns'
 import axiosInstance from '@/config/AxiosConfig'
@@ -12,6 +12,8 @@ import OrganizationMembers from './widgets/OrganizationMembers'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import InviteOrganizaionUsers from './widgets/InviteOrganizationUsers'
+import NotFound from '../NotFound'
+import { UserRole } from '@/types/userTypes'
 
 
 const OrganizationPage = () => {
@@ -53,24 +55,22 @@ const OrganizationPage = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 animate-pulse">
-        <div className="space-y-6">
-          <div className="h-32 bg-muted rounded-lg"></div>
-          <div className="h-64 bg-muted rounded-lg"></div>
-        </div>
+      <div className="w-screen h-screen flex items-center justify-center">
+        <Loader2Icon className="h-8 w-8 animate-spin"/>
       </div>
     )
   }
 
   if (!organization) {
     return (
-      <div className="container mx-auto py-8">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center h-32">
-            <p className="text-muted-foreground">Organization not found</p>
-          </CardContent>
-        </Card>
-      </div>
+      <NotFound />
+      // <div className="container mx-auto py-8">
+      //   <Card>
+      //     <CardContent className="flex flex-col items-center justify-center h-32">
+      //       <p className="text-muted-foreground">Organization not found</p>
+      //     </CardContent>
+      //   </Card>
+      // </div>
     )
   }
 
@@ -107,15 +107,23 @@ const OrganizationPage = () => {
           </div>
         </CardHeader>
       </Card>
-
       {
-          auth.user?.access?.accessOrganizationUsers &&
-            <OrganizationMembers organization={organization}/>
+        auth.user?.access?.accessOrganizationUsers &&
+        (
+          auth.user.role === UserRole.ADMIN 
+          // able to access the same org 
+          || auth.user.organizationId === organization.id
+        ) &&
+        <OrganizationMembers organization={organization}/>
       }
       {/* Invite Manager */}
       {
-          (auth.user?.access.createOrganizationUsers ||
-         auth.user?.access.createOrganizationManagers) &&
+        (auth.user?.access.createOrganizationUsers ||
+          auth.user?.access.createOrganizationManagers) && (
+            auth.user.role === UserRole.ADMIN 
+            // able to access the same org 
+            || auth.user.organizationId === organization.id
+          ) &&
           <InviteOrganizaionUsers orgId={organization.id}/>
       } 
     </div>
