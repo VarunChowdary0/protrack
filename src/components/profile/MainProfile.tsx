@@ -36,6 +36,7 @@ import { Tooltip, TooltipContent } from '../ui/tooltip'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
 import Logout from '../Auth/Logout'
 import { Badge } from '../ui/badge'
+import NotificationRequest from '../noti/notification'
 
 const MainProfile: React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth);
@@ -175,6 +176,7 @@ const MainProfile: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      <NotificationRequest/>
         <Logout />
     </div>
   )
