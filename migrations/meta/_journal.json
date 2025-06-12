@@ -127,6 +127,20 @@
       "when": 1749580054671,
       "tag": "0017_zippy_jubilee",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1749731887991,
+      "tag": "0018_public_old_lace",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1749733289161,
+      "tag": "0019_same_misty_knight",
+      "breakpoints": true
     }
   ]
 }
