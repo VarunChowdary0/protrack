@@ -3,6 +3,7 @@ import { inbox } from "@/db/Schema/InboxSchema";
 import { invitations } from "@/db/Schema/InvitationSchema";
 import { participants } from "@/db/Schema/ParticipantSchema";
 import { users } from "@/db/Schema/UserSchema";
+import send_Notification from "@/lib/SendNotification";
 import { InvitationAction, InvitationStatus } from "@/types/invitationType";
 import { and, eq } from "drizzle-orm";
 
@@ -21,12 +22,15 @@ export async function POST(req: Request) {
 
         const {
             inboxId,
+            fromUserId,
+            users_email,
             action,
             inviteId,
             role,
             orgId,
             projectId,
-            status
+            status,
+            slug
         } = data;
 
         if(!inboxId || !action || !role) {
@@ -65,6 +69,30 @@ export async function POST(req: Request) {
                     organizationId: orgId,
                     role: role
                 }).where(eq(users.id, userId));
+                await send_Notification({
+                    userId: fromUserId,
+                    title: "Invitation Accepted",
+                    body: `✔️ ${users_email} has accepted your invitation to join the organization ${orgId} as ${role}.`,
+                    data: {
+                        inviteId: inviteId,
+                        orgId: orgId,
+                        role: role
+                    },
+                    url: slug ? `/org/${slug}` : "/admin/organizations"
+                })
+            }
+            else{
+                await send_Notification({
+                    userId: fromUserId,
+                    title: "Invitation Rejected",
+                    body: `⚠️ ${users_email} has rejected your invitation to join the organization ${orgId} as ${role}.`,
+                    data: {
+                        inviteId: inviteId,
+                        orgId: orgId,
+                        role: role
+                    },
+                    url: slug ? `/org/${slug}` : "/admin/organizations"
+                })
             }
 
             await db.update(invitations).set({

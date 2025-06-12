@@ -20,12 +20,12 @@ self.addEventListener('push', function (event) {
       actions: [
         {
           action: 'view',
-          title: '👀 View',
+          title: 'View',
           icon: '/icons/view-icon.png',
         },
         {
           action: 'dismiss',
-          title: '❌ Dismiss',
+          title: 'Dismiss',
           icon: '/icons/dismiss-icon.png',
         },
       ],

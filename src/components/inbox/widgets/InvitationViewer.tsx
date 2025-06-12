@@ -73,12 +73,15 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
 
   const handleInvitationAction = async (action:InvitationStatus) => {
     axiosInstance.post('/api/manage/inbox/handle_invitation', {
+      fromUserId: invitation.fromUser?.id || "",
+      users_email: invitation.invitation?.toEmail || "",
       inboxId: invitation?.id,
       action: invitationData?.action,
       inviteId: invitationData?.id,
       role: invitationData?.role || OrganizationUserRole.MEMBER,
       orgId: invitationData?.org_id,
       projectId: "",
+      slug: organization?.slug || "",
       status: action
     }).then(async (response) => {
       console.log('Invitation action response:', response.data);
