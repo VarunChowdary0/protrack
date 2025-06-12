@@ -14,8 +14,8 @@ import { Badge } from '@/components/ui/badge'
 import { User, UserRole, UserStatus } from '@/types/userTypes'
 import { format } from 'date-fns'
 import axiosInstance from '@/config/AxiosConfig'
-import { signOut } from 'next-auth/react'
 import { Circle, CircleDot, Clock, EyeOff, MinusCircle, Moon } from 'lucide-react'
+import SignOutWrapper from '@/lib/SignOutWrapper'
 
 
 interface OrganizationMembersProps {
@@ -54,7 +54,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({ organization 
                     setUsers([])
                     console.error("No users found for this organization:", error.response.data.action)
                     if(error.response.data.action === "LOGOUT") {
-                    signOut({
+                    SignOutWrapper({
                     callbackUrl: "/login",
                     redirect: true
                     });

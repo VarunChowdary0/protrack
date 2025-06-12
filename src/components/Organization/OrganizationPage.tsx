@@ -7,13 +7,13 @@ import { Building2, CalendarDays, Loader2Icon, Users2 } from 'lucide-react'
 import { Organization } from '@/types/organizationType'
 import { format } from 'date-fns'
 import axiosInstance from '@/config/AxiosConfig'
-import { signOut } from 'next-auth/react'
 import OrganizationMembers from './widgets/OrganizationMembers'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import InviteOrganizaionUsers from './widgets/InviteOrganizationUsers'
 import NotFound from '../NotFound'
 import { UserRole } from '@/types/userTypes'
+import SignOutWrapper from '@/lib/SignOutWrapper'
 
 
 const OrganizationPage = () => {
@@ -33,7 +33,7 @@ const OrganizationPage = () => {
           if(error.response?.status === 404) {
           console.error("No organization:", error.response.data.action)
           if(error.response.data.action === "LOGOUT") {
-            signOut({
+            SignOutWrapper({
             callbackUrl: "/login",
             redirect: true
             });

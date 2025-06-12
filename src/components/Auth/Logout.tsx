@@ -1,10 +1,10 @@
 "use client"
 import React from 'react'
-import { signOut } from "next-auth/react";
 import { Button } from '../ui/button';
 import { useDispatch } from 'react-redux';
 import { clearAuthData } from '@/redux/reducers/AuthReducer';
 import { LogOut } from 'lucide-react';
+import SignOutWrapper from '@/lib/SignOutWrapper';
 
 
 const Logout:React.FC = () => {
@@ -14,7 +14,9 @@ const Logout:React.FC = () => {
             variant="destructive"
             className="w-fit"
             onClick={() => {
-                signOut({ callbackUrl: "/login" })
+                SignOutWrapper({
+                    callbackUrl: "/login"
+                })
                 dispatch(clearAuthData());
             }}>
         Logout

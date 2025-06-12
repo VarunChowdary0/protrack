@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge"
 import Link from 'next/link'
 import axiosInstance from '@/config/AxiosConfig'
 import { Organization } from '@/types/organizationType'
-import { signOut } from 'next-auth/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Building2, ExternalLink, Users } from 'lucide-react'
+import SignOutWrapper from '@/lib/SignOutWrapper'
 
 interface UserOrganizationProps {
     organizationId: string;
@@ -30,7 +30,7 @@ const UserOrganization: React.FC<UserOrganizationProps> = ({ organizationId }) =
                 if (error.response?.status === 404) {
                     console.error("No organization:", error.response.data.action)
                     if (error.response.data.action === "LOGOUT") {
-                        signOut({
+                        SignOutWrapper({
                             callbackUrl: "/login",
                             redirect: true
                         });
