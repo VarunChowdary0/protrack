@@ -15,7 +15,7 @@ const ProviderAll = ({
 }: { 
   children: React.ReactNode;
   session?: SessionProviderProps['session'];
-}) => {
+}) => {    
   return (
     <SessionProvider session={session}>
       <ReduxProvider store={store}>

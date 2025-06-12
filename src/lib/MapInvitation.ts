@@ -5,6 +5,7 @@ import { createInboxEntry } from "./inbox";
 import { Invitation } from "@/types/invitationType";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/Schema/UserSchema";
+import send_Notification from "./SendNotification";
 
 const MapInvitation = async (NewInvitation: Partial<Invitation>):  Promise<boolean>=> {
     if(!NewInvitation.toEmail) {
@@ -36,6 +37,38 @@ const MapInvitation = async (NewInvitation: Partial<Invitation>):  Promise<boole
                     .where(
                         eq(invitations.id, NewInvitation.id)
                     );
+            let notificationSent = false;
+            const maxRetries = 3;
+            for (let i = 0; i < maxRetries && !notificationSent; i++) {
+                try {
+                    notificationSent = await send_Notification({
+                        userId: user[0].id || "",
+                        title: NewInvitation.subject || "Invitation",
+                        body: NewInvitation.message || "You have been invited to join the organization",
+                        url: `u/inbox`,
+                        requireInteraction: true,
+                        data: {
+                            type: InboxItemType.INVITE,
+                            inviteId: NewInvitation.id || "",
+                        },
+                        tag: `invite-${NewInvitation.id}`,
+                        renotify: true,
+                        silent: false,
+                        vibrate: [200, 100, 200],
+                        timestamp: Date.now(),
+                        actions: [
+                            { action: "accept", title: "Accept", icon: "/icons/accept.png" },
+                            { action: "decline", title: "Decline", icon: "/icons/decline.png" }
+                        ]
+                    });
+                    if (!notificationSent) {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+                    }
+                } catch (error) {
+                    console.error(`Notification retry ${i + 1} failed:`, error);
+                    if (i === maxRetries - 1) return false;
+                }
+            }
             return true;
         }
         return false;

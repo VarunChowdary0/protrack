@@ -52,7 +52,7 @@ export async function getUser(
         access: [userAccess,orgUser,orgManager,admin]
                     .filter(access => access.userRole === user[0].role)[0]
     }
-    console.log("Access User:", accessUser.access?.userRole);
+    // console.log("Access User:", accessUser.access?.userRole);
     if (!user[0]) {
         throw new Error("User not found");
     }

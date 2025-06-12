@@ -35,12 +35,11 @@ export const metadata: Metadata = {
       url: "https://saivarun.vercel.app",
     },
   ],
-    themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#1f1f1f" }
-  ],
+  //   themeColor: [
+  //   { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  //   { media: "(prefers-color-scheme: dark)", color: "#1f1f1f" }
+  // ],
   description: "Protrack is a full-stack project management platform tailored for colleges and organizations. It enables efficient tracking of project phases, team collaboration, supervisor involvement, real-time chat, notifications, and event scheduling — all in one centralized system.",
-  manifest: "/site.webmanifest",
 };
 
 export default async function RootLayout({

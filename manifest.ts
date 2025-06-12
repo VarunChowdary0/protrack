@@ -1,0 +1,27 @@
+import type { MetadataRoute } from 'next'
+ 
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+  name: "ProTrack",
+  short_name: "PTrack",
+  description: "Protrack is a full-stack project management platform tailored for colleges and organizations. It enables efficient tracking of project phases, team collaboration, supervisor involvement, real-time chat, notifications, and event scheduling — all in one centralized system.",
+  start_url: "/u",
+  display: "standalone",
+  orientation: "portrait",
+  background_color: "#ffffff",
+  theme_color: "#ffffff",
+  icons: [
+    {
+      src: "/logo.png",
+      sizes: "192x192",
+      type: "image/png"
+    },
+    {
+      src: "/favicon.ico",
+      sizes: "512x512",
+      type: "image/png"
+    }
+  ]
+}
+
+}

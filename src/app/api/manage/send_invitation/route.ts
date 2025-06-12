@@ -106,37 +106,7 @@ export async function POST(req:Request) {
                 headers: { "Content-Type": "application/json" },
             });
         }
-        // if (user) {
-        //     const inboxEntry = {
-        //         fromId: NewInvitation.formId || "",
-        //         participantId: "",
-        //         userId: user.id || "",
-        //         projectId: NewInvitation.projectId || "",
-        //         title: NewInvitation.subject || "Invitation",
-        //         description: NewInvitation.message || "You have been invited to join the organization",
-        //         type: InboxItemType.INVITE,
-        //         inviteId: NewInvitation.id || "",
-        //         taskId: null, // Optional, default to null if not provided
-        //         calendarId: null, // Optional, default to null if not provided
-        //     };
-        //     try{
-        //         const inboxItem = await createInboxEntry(inboxEntry);
-        //         if(inboxItem){
-        //              await db.update(invitations).set({mappedAt: new Date().toISOString()}).where(eq(invitations.id, NewInvitation.id));
-        //              return new Response(JSON.stringify({ message: "Invitation sent successfully", invitationId }), {
-        //                 status: 201,
-        //                 headers: { "Content-Type": "application/json" },
-        //             });
-        //         }
-        //     }
-        //     catch(error){
-        //         console.error("Error creating inbox entry:", error);
-        //         return new Response(JSON.stringify({ error: "Failed to create inbox entry" }), {
-        //             status: 500,
-        //             headers: { "Content-Type": "application/json" },
-        //         });
-        //     }
-        // }
+        
 
         return new Response(JSON.stringify({ message: "Invitation saved, not mapped", invitationId }), {
             status: 201,
