@@ -78,7 +78,7 @@ const OrganizationPage = () => {
     <div className="container mx-auto max-md:bg-card min-h-screen py-8 space-y-6">
       {/* Organization Overview */}
       <Card className=' max-sm:border-none max-sm:shadow-none'>
-        <CardHeader className="flex flex-row max-sm:border-none max-sm:shadow-none items-start gap-4">
+        <CardHeader className="flex flex-row max-sm:flex-col max-sm:border-none max-sm:shadow-none items-start gap-4">
           <Avatar className="h-20 w-20">
             <AvatarImage src={organization.logo} />
             <AvatarFallback className="bg-primary">

@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
-import { CheckCheck, Clock, Loader2, LucideCrown, Mail, Plus, RefreshCw, Trash2, UserPlus, XIcon } from 'lucide-react'
+import { CheckCheck, Clock, Loader2, LucideCrown, Mail, Plus, RefreshCw, Search, Trash2, UserPlus, XIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
@@ -71,6 +71,8 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
   const [isInviting, setIsInviting] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const auth = useSelector((state: RootState) => state.auth);
+
+  const [searchTerm, setSearchTerm] = React.useState("");
 
   const form = useForm<z.infer<typeof inviteFormSchema>>({
     resolver: zodResolver(inviteFormSchema),
@@ -156,6 +158,8 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
     )
   }
 
+
+
   const getRoleBadgeVariant = (role: OrganizationUserRole) => {
     switch (role) {
       // case OrganizationUserRole.ADMIN: return "default"
@@ -165,146 +169,170 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
     }
   }
 
+  const filteredInvitations = invitations.filter((invitation) =>
+    invitation.toEmail.toLowerCase().includes(searchTerm.toLowerCase())
+  ).sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
-    <Card>
-      <CardHeader>
+    <Card className=' pt-0'>
+      <CardHeader className=' sticky rounded-t-2xl top-0 pt-5 pb-2 bg-[#171717] z-40'>
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xl">Organization Invitations</CardTitle>
-            <CardDescription>Manage member invitations for the organization</CardDescription>
-          </div>
-          <div className="flex max-sm:flex-col-reverse items-end justify-end gap-2">
-            {
-              isLoading ?
-                <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
-                :
-              <Button variant="outline" size="icon" className=' max-sm:!p-1' onClick={()=>fetchInvitations(orgId || '')}>
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            }
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className=' max-sm:!py-0 max-sm:scale-75 max-sm:translate-x-5 max-sm:text-xs'>
-                  <UserPlus className="h-4 w-4 mr-2 max-sm:mr-0" />
-                  Invite {
-                    auth.user?.access.createOrganizationUsers
-                      ? "Member"
-                      : "Manager"
-                  }
+          <div className=' w-full flex items-center justify-between'>
+            <div>
+              <CardTitle className="text-xl">Organization Invitations</CardTitle>
+              <CardDescription>Manage member invitations for the organization</CardDescription>
+            </div>
+            <div className="flex max-sm:flex-col-reverse items-end justify-end gap-2">
+              {
+                isLoading ?
+                  <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+                  :
+                <Button variant="outline" size="icon" className=' max-sm:!p-1' onClick={()=>fetchInvitations(orgId || '')}>
+                  <RefreshCw className="h-4 w-4" />
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className=' flex items-center gap-2'>
-                    {
-                    auth.user?.access.createOrganizationUsers 
-                      ? <UserPlus/>
-                      :<LucideCrown/>
-                  }
-                    Invite New {
-                    auth.user?.access.createOrganizationUsers
-                      ? "Member"
-                      : "Manager"
-                  }</DialogTitle>
-                  <DialogDescription>
-                    Send an invitation to join the organization
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="toEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Mail className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-8" placeholder="member@example.com" {...field} />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {
-                      auth.user?.access.createOrganizationUsers ? 
+              }
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className=' max-sm:!py-0 max-sm:scale-75 max-sm:translate-x-5 max-sm:text-xs'>
+                    <UserPlus className="h-4 w-4 mr-2 max-sm:mr-0" />
+                    Invite
+                    
+                    <span className=' max-sm:hidden'>
+                     {
+                      auth.user?.access.createOrganizationUsers
+                        ? "Member"
+                        : "Manager"
+                    }
+                    </span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle className=' flex items-center gap-2'>
+                      {
+                      auth.user?.access.createOrganizationUsers 
+                        ? <UserPlus/>
+                        :<LucideCrown/>
+                    }
+                      Invite New {
+                      auth.user?.access.createOrganizationUsers
+                        ? "Member"
+                        : "Manager"
+                    }</DialogTitle>
+                    <DialogDescription>
+                      Send an invitation to join the organization
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                       <FormField
-                      control={form.control}
-                      name="role"
-                      render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Role</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a role" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Object.values(OrganizationUserRole)
-                                .filter(role=> role !== OrganizationUserRole.MANAGER
-                                ).map((role) => (
-                                  <SelectItem key={role} value={role}>
-                                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                        control={form.control}
+                        name="toEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email Address</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Mail className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input className="pl-8" placeholder="member@example.com" {...field} />
+                              </div>
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      :
-                      <Badge variant={"default"}>Manager</Badge>
-                    }
-                    <FormField
-                      control={form.control}
-                      name="subject"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Subject</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="message"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Message</FormLabel>
-                          <FormControl>
-                            <Textarea {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <DialogFooter>
-                      <Button type="submit" disabled={isInviting}>
-                        {isInviting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Send Invitation
-                          </>
+                      {
+                        auth.user?.access.createOrganizationUsers ? 
+                        <FormField
+                        control={form.control}
+                        name="role"
+                        render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Role</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a role" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {Object.values(OrganizationUserRole)
+                                  .filter(role=> role !== OrganizationUserRole.MANAGER
+                                  ).map((role) => (
+                                    <SelectItem key={role} value={role}>
+                                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        :
+                        <Badge variant={"default"}>Manager</Badge>
+                      }
+                      <FormField
+                        control={form.control}
+                        name="subject"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Subject</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
+                      />
+                      <FormField
+                        control={form.control}
+                        name="message"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Message</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <Button type="submit" disabled={isInviting}>
+                          {isInviting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Send Invitation
+                            </>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
+
+          </div>
+          <div className=' relative'>
+            <Search className=' absolute top-1.5 left-2 text-muted-foreground'/>
+            <Input
+              placeholder="Search invitations..."
+              className="max-w-sm pl-10"
+              onChange={(e) => {  
+                setSearchTerm(e.target.value);
+              }
+              }
+            />
         </div>
       </CardHeader>
       <CardContent>
@@ -330,9 +358,9 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {invitations.map((invitation) => (
-                <TableRow className={` ${invitation.status === InvitationStatus.ACCEPTED ? " bg-green-200/10 hover:bg-green-200/20" : 
-                  invitation.status === InvitationStatus.DECLINED ? " bg-red-200/10 hover:bg-red-200/20" : ""
+              {filteredInvitations.map((invitation) => (
+                <TableRow className={` ${invitation.status === InvitationStatus.ACCEPTED ? " " : 
+                  invitation.status === InvitationStatus.DECLINED ? " bg-[#4e000010] hover:bg-[#4e000020]" : ""
                 }`} key={invitation.id}>
                   <TableCell>{invitation.toEmail}</TableCell>
                   <TableCell>

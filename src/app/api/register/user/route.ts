@@ -34,6 +34,8 @@ export async function POST(req: Request) {
       profilePicture,
       phoneNumber,
       isEmailVerified,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
 
     // look for waiting invitations for this email

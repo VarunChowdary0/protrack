@@ -38,6 +38,7 @@ import { Tooltip,TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { TaskStatus } from '@/types/taskTypes'
 import axiosInstance from '@/config/AxiosConfig'
 import InvitationViewer from './InvitationViewer'
+import { format, isToday, isYesterday, isThisYear, parseISO } from 'date-fns';
 
 const ContentsMapper:React.FC = () => {
     const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
@@ -99,38 +100,23 @@ const ContentsMapper:React.FC = () => {
     });
 
     const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const yesterday = new Date(now);
-        yesterday.setDate(now.getDate() - 1);
+        const date = parseISO(dateString); // Converts ISO string to Date
 
-        // Same day
-        if (date.toDateString() === now.toDateString()) {
-            return date.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-            });
+        if (isToday(date)) {
+            return format(date, 'hh:mm a'); // e.g., 06:29 PM
         }
 
-        // Yesterday
-        if (date.toDateString() === yesterday.toDateString()) {
+        if (isYesterday(date)) {
             return 'Yesterday';
         }
 
-        // Different year
-        if (date.getFullYear() !== now.getFullYear()) {
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short'
-            });
+        if (!isThisYear(date)) {
+            return format(date, 'MMM yyyy'); // e.g., Jun 2024
         }
 
-        // Same year, different day
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        });
+        return format(date, 'MMM d'); // e.g., Jun 13
     };
+
 
     const touchStartTimeRef = useRef<number | null>(null);
     const LONG_PRESS_THRESHOLD = 500; // in milliseconds
@@ -432,7 +418,10 @@ const ContentsMapper:React.FC = () => {
                                         </Badge>
                                     }
                                 </div>
-                                <span className='text-xs dark:font-semibold '>{formatDate(item.timestamp)}</span>
+                                <span className='text-xs dark:font-semibold '>
+                                    {formatDate(item.timestamp)}
+                                    {/* {new Date(item.timestamp).toDateString()} */}
+                                </span>
                             </CardHeader>
                             <CardContent className=' !px-0 '>
                                 <div className=' flex items-end'>
@@ -497,7 +486,7 @@ const ContentsMapper:React.FC = () => {
             maxWidth: '90vw'
             }} className="max-h-[90vh] max-sm:!px-0 w-fit overflow-y-auto">
             <DialogHeader>
-            <DialogTitle className=' !text-2xl capitalize !font-bold'>{viewItem?.title}</DialogTitle>
+            <DialogTitle className=' !text-2xl capitalize max-sm:!text-shadow-md !font-bold'>{viewItem?.title}</DialogTitle>
             <DialogDescription>
             {
                 viewItem &&

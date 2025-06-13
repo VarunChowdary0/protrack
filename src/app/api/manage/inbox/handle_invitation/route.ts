@@ -70,7 +70,7 @@ export async function POST(req: Request) {
                     role: role
                 }).where(eq(users.id, userId));
                 await send_Notification({
-                    userId: fromUserId,
+                    userIds: [fromUserId],
                     title: "Invitation Accepted",
                     body: `✔️ ${users_email} has accepted your invitation to join the organization ${orgId} as ${role}.`,
                     data: {
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
             }
             else{
                 await send_Notification({
-                    userId: fromUserId,
+                    userIds: [fromUserId],
                     title: "Invitation Rejected",
                     body: `⚠️ ${users_email} has rejected your invitation to join the organization ${orgId} as ${role}.`,
                     data: {

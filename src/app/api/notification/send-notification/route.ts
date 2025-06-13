@@ -5,9 +5,9 @@ import send_Notification from "@/lib/SendNotification";
 export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
-    const { userId } = payload;
+    const { userIds } = payload;
 
-    if (!userId) {
+    if (!userIds) {
       return new Response(JSON.stringify({ error: "User ID is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },

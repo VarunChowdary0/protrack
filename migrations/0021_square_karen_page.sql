@@ -1,0 +1,27 @@
+ALTER TABLE "activities" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.652Z';--> statement-breakpoint
+ALTER TABLE "activities" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.652Z';--> statement-breakpoint
+ALTER TABLE "calendar" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.698Z';--> statement-breakpoint
+ALTER TABLE "calendar" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.698Z';--> statement-breakpoint
+ALTER TABLE "group_member" ALTER COLUMN "joined_at" SET DEFAULT '2025-06-13T12:59:24.740Z';--> statement-breakpoint
+ALTER TABLE "group_member" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.740Z';--> statement-breakpoint
+ALTER TABLE "group" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.739Z';--> statement-breakpoint
+ALTER TABLE "group" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.739Z';--> statement-breakpoint
+ALTER TABLE "messages" ALTER COLUMN "timestamp" SET DEFAULT '2025-06-13T12:59:24.754Z';--> statement-breakpoint
+ALTER TABLE "messages" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.754Z';--> statement-breakpoint
+ALTER TABLE "inbox" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.839Z';--> statement-breakpoint
+ALTER TABLE "inbox" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.839Z';--> statement-breakpoint
+ALTER TABLE "invitations" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.862Z';--> statement-breakpoint
+ALTER TABLE "invitations" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.862Z';--> statement-breakpoint
+ALTER TABLE "organizations" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.697Z';--> statement-breakpoint
+ALTER TABLE "organizations" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.697Z';--> statement-breakpoint
+ALTER TABLE "projects" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.643Z';--> statement-breakpoint
+ALTER TABLE "projects" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.644Z';--> statement-breakpoint
+ALTER TABLE "resources" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.884Z';--> statement-breakpoint
+ALTER TABLE "resources" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.884Z';--> statement-breakpoint
+ALTER TABLE "tasks" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.906Z';--> statement-breakpoint
+ALTER TABLE "tasks" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.906Z';--> statement-breakpoint
+ALTER TABLE "time_lines" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.800Z';--> statement-breakpoint
+ALTER TABLE "time_lines" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.800Z';--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "created_at" SET DEFAULT '2025-06-13T12:59:24.697Z';--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "updated_at" SET DEFAULT '2025-06-13T12:59:24.697Z';--> statement-breakpoint
+ALTER TABLE "notification" ADD COLUMN "is_active" boolean DEFAULT true;

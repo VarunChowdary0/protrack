@@ -146,13 +146,10 @@ const MainProfile: React.FC = () => {
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <Switch id="email-notifications" />
+                    <Label className=' text-muted-foreground' htmlFor="email-notifications">Email Notifications</Label>
+                    <Switch disabled id="email-notifications" />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="push-notifications">Push Notifications</Label>
-                    <Switch id="push-notifications" />
-                  </div>
+                  <NotificationRequest showControls/>
                 </AccordionContent>
               </AccordionItem>
 
@@ -176,7 +173,6 @@ const MainProfile: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-      <NotificationRequest/>
         <Logout />
     </div>
   )

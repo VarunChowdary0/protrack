@@ -32,7 +32,6 @@ export async function createInboxEntry(data: InboxInput) {
   if (!fromId || !userId || !title || !description || !type) {
     throw new Error("Missing required fields");
   }
-
   const newInboxEntry = {
     id: crypto.randomUUID(),
     fromId,
@@ -45,9 +44,10 @@ export async function createInboxEntry(data: InboxInput) {
     inviteId,
     taskId,
     calendarId,
-    createdAt: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
+
 
   const [createdInboxEntry] = await db.insert(inbox).values(newInboxEntry).returning();
   return createdInboxEntry;

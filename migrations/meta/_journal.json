@@ -141,6 +141,20 @@
       "when": 1749733289161,
       "tag": "0019_same_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1749818576973,
+      "tag": "0020_special_sharon_carter",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1749819564976,
+      "tag": "0021_square_karen_page",
+      "breakpoints": true
     }
   ]
 }
