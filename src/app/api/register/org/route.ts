@@ -53,7 +53,9 @@ export async function POST(req:Request) { // olny admin can create organization
             name,
             description,
             logo: logo || "", // Optional, default to empty string if not provided
-            slug
+            slug,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         });
         return new Response(JSON.stringify(
                 { message: "Organization registered successfully" }

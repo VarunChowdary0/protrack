@@ -89,7 +89,7 @@ const UserOrganization: React.FC<UserOrganizationProps> = ({ organizationId }) =
     return (
         <Card className="max-sm:shadow-none max-sm:border-0 max-sm:!p-0 max-sm:rounded-none max-sm:border-b hover:shadow-lg transition-all duration-300 ">
             <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
+                <div className="flex items-start max-sm:flex-col space-x-4">
                     {/* Organization Avatar */}
                     <div className="relative group">
                         <Avatar className=' h-20 w-20' >

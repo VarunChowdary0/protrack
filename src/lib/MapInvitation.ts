@@ -42,7 +42,7 @@ const MapInvitation = async (NewInvitation: Partial<Invitation>):  Promise<boole
             for (let i = 0; i < maxRetries && !notificationSent; i++) {
                 try {
                     notificationSent = await send_Notification({
-                        userId: user[0].id || "",
+                        userIds: [user[0].id || ""],
                         title: NewInvitation.subject || "Invitation",
                         body: NewInvitation.message || "You have been invited to join the organization",
                         url: `u/inbox`,
