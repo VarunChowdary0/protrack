@@ -177,7 +177,7 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
 
   return (
     <Card className=' pt-0'>
-      <CardHeader className=' sticky rounded-t-2xl top-0 pt-5 pb-2 bg-[#171717] z-40'>
+      <CardHeader className=' sticky rounded-t-2xl top-0 pt-5 pb-2 bg-white dark:bg-[#171717] z-40'>
         <div className="flex items-center justify-between">
           <div className=' w-full flex items-center justify-between'>
             <div>
