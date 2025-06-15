@@ -3,6 +3,7 @@ import { users } from "./UserSchema";
 import { InvitationAction, InvitationStatus, OrganizationUserRole } from "@/types/invitationType";
 import { organizations } from "./OrganizationSchema";
 import { projects } from "./ProjectSchema";
+import { sql } from "drizzle-orm";
 
 export const invitations = pgTable("invitations", {
     id: text("id").primaryKey(),
@@ -19,8 +20,8 @@ export const invitations = pgTable("invitations", {
     projectId: text("project_id").references(() => projects.id, { onDelete: "no action" }),
     projectRole: text("project_role"), // lead, fe, be, sales , tester etc.
 
-    createdAt: text("created_at").default(new Date().toISOString()).notNull(),
-    updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 
     mappedAt: text("mappedAt").default(""), // date
     status: text("status").$type<InvitationStatus>().default(InvitationStatus.PENDING).notNull(), 

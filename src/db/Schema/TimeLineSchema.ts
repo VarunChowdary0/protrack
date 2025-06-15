@@ -1,6 +1,7 @@
 import { TimelineEventType } from "@/types/timelineType";
 import { integer, pgTable, text } from "drizzle-orm/pg-core";
 import { projects } from "./ProjectSchema";
+import { sql } from "drizzle-orm";
 
 export const timeLines = pgTable("time_lines", {
     id: text("id").primaryKey(),
@@ -12,6 +13,7 @@ export const timeLines = pgTable("time_lines", {
     totalDocuments: integer("total_documents").notNull(), 
     status: text("status").$type<TimelineEventType>().default(TimelineEventType.PENDING), 
     remarks: text("remarks").default(""),    
-    createdAt: text("created_at").default(new Date().toISOString()).notNull(), // Creation timestamp
-    updatedAt: text("updated_at").default(new Date().toISOString()).notNull() // Last update timestamp`
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+
 });

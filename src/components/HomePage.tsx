@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Bell, Globe, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle, Search, Boxes } from 'lucide-react';
+import { Bell, Globe, Calendar, User, CheckCircle, Clock, AlertCircle, XCircle, Search, Boxes, PlusIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import ChangeThemeColor from '@/lib/ChangeThemeColor';
 import { Input } from './ui/input';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 const ProjectCards = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -138,12 +139,32 @@ const ProjectCards = () => {
         <div style={{zIndex:1000}}
          className=' sticky max-sm:p-3  max-sm:py-0 max-sm:bg-primary-foreground top-0 flex flex-col'>
           <div className="mb-0 dark:max-sm:bg-primary-foreground bg-card dark:bg-[#0a0a0a]
-          max-md:pt-5 max-sm:px-4 max-sm:pt-4 ">
-            <h1 className="text-3xl flex items-center gap-2 font-bold mb-2 max-sm:text-xl max-md:mb-0">
-              <Boxes/>
-              My Projects
-            </h1>
-            <p className=" text-muted-foreground max-sm:hidden">Manage and track your project progress</p>
+          max-md:pt-5 max-sm:px-4 max-sm:pt-4 
+          flex  items-center justify-between ">
+            <div>
+              <h1 className="text-3xl flex items-center gap-2 font-bold mb-2 max-sm:text-xl max-md:mb-0">
+                <Boxes/>
+                My Projects
+              </h1>
+              <p className=" text-muted-foreground max-sm:hidden">Manage and track your project progress</p>
+            </div>
+            {/* <Link href={"/u/new"} className=' h-full w-fit group flex items-center flex-col hover:cursor-pointer
+             justify-center rounded-lg p-10 max-sm:p-3 border-dashed border-2'>
+                    <PlusCircle className=' group-hover:scale-110 transition-all'/>
+                    <p className=' text-xs text-muted-foreground'>Add new Project</p>
+            </Link> */}
+              <div className=' fixed bg-[#5abdf5] flex items-center justify-center h-13 w-13 bottom-20 max-sm:right-5 right-20 rounded-full p-3'>
+                <Tooltip>
+                  <TooltipTrigger>
+                      <Link href={"/u/new"} >
+                        <PlusIcon/>
+                      </Link>
+                  </TooltipTrigger>
+                  <TooltipContent className=' mb-10'>
+                    <p className='text-sm'>Add new Project</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
           </div>
           <div  
                 className=' py-3 dark:max-sm:bg-primary-foreground bg-card dark:bg-[#0a0a0a] '>

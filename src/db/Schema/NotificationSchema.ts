@@ -1,5 +1,6 @@
 import { pgTable, text, json, integer, boolean } from "drizzle-orm/pg-core";
 import { users } from "./UserSchema";
+import { sql } from "drizzle-orm";
 
 export const notifications = pgTable("notification", {
   id: text("id").primaryKey(),
@@ -7,5 +8,7 @@ export const notifications = pgTable("notification", {
   endpoint: text("endpoint"),
   failureCount: integer("failure_count").default(0),
   isActive: boolean("is_active").default(true),
-  notificationJson: json("notification_json").$type<PushSubscriptionJSON>() // use .$type<PushSubscriptionJSON>() if needed
+  notificationJson: json("notification_json").$type<PushSubscriptionJSON>(), // use .$type<PushSubscriptionJSON>() if needed
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+
 });

@@ -1,6 +1,7 @@
 import { pgTable, text } from "drizzle-orm/pg-core";
 import { projects } from "./ProjectSchema";
 import { activityStatus } from "@/types/activityType";
+import { sql } from "drizzle-orm";
 
 
 export const activities = pgTable("activities", {
@@ -15,6 +16,7 @@ export const activities = pgTable("activities", {
     title   : text("title").notNull(),
     description: text("description").notNull(),
     location: text("location").notNull(),
-    createdAt: text("created_at").default(new Date().toISOString()).notNull(),
-    updatedAt: text("updated_at").default(new Date().toISOString()).notNull() 
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+
 })

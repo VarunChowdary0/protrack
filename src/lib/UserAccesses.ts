@@ -11,7 +11,7 @@ import { UserRole } from "@/types/userTypes";
       createOrganizationUsers: false,
       accessOrganizationUsers: false,
       accessProjects: true,
-      createProjects: false,
+      createProjects: true,
       editProjects: false,
       deleteProjects: false,
       accessTeam: true,
@@ -36,6 +36,7 @@ import { UserRole } from "@/types/userTypes";
     const orgUser: Access = {
       ...userAccess,
       userRole: UserRole.ORG_USER,
+      createProjects: false,
       accessOrganizationUsers: true
     };
 

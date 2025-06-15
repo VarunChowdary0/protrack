@@ -2,6 +2,7 @@ import {text ,integer, pgTable, boolean} from "drizzle-orm/pg-core";
 import { projects } from "./ProjectSchema";
 import { participants } from "./ParticipantSchema";
 import { TaskStatus } from "@/types/taskTypes";
+import { sql } from "drizzle-orm";
 
 export const tasks = pgTable("tasks", {
     id: text("id").primaryKey(),
@@ -14,7 +15,7 @@ export const tasks = pgTable("tasks", {
     isPlanned: boolean("is_planned").notNull().default(false),
     isImportant: boolean("is_important").notNull().default(false), 
     status: text("status").$type<TaskStatus>().default(TaskStatus.PENDING).notNull(), // 
-    createdAt: text("created_at").default(new Date().toISOString()).notNull(),
-    updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
     priority: integer("priority").notNull().default(0),
 });
