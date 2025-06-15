@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { pgTable, text } from "drizzle-orm/pg-core";
 
 export const organizations = pgTable("organizations", {
@@ -6,6 +7,7 @@ export const organizations = pgTable("organizations", {
     description: text("description").notNull(),
     logo: text("logo").notNull(),
     slug: text("slug").notNull().unique(),
-    createdAt: text("created_at").default(new Date().toISOString()).notNull(),
-    updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+
 });

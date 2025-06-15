@@ -1,6 +1,7 @@
 import { boolean, pgTable, text } from "drizzle-orm/pg-core";
 import { users } from "./UserSchema";
 import { InboxItemType } from "@/types/inboxType";
+import { sql } from "drizzle-orm";
 
 export const inbox = pgTable("inbox", {
     id: text("id").primaryKey(),
@@ -23,6 +24,7 @@ export const inbox = pgTable("inbox", {
     isArchived: boolean("is_archived").default(false).notNull(), // Whether the inbox item is archived
     isDeleted: boolean("is_deleted").default(false).notNull(), // Whether the inbox item is deleted
     isStarred: boolean("is_starred").default(false).notNull(), // Whether the inbox item is starred 
-    timestamp: text("created_at").default(new Date().toISOString()).notNull(),
-    updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
+    timestamp: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+
 })

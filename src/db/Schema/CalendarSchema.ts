@@ -1,6 +1,7 @@
 import { pgTable, text } from "drizzle-orm/pg-core"
 import { participants } from "./ParticipantSchema";
 import { projects } from "./ProjectSchema";
+import { sql } from "drizzle-orm";
 
 export const calendar = pgTable("calendar", {
     id: text("id").primaryKey(),
@@ -9,6 +10,6 @@ export const calendar = pgTable("calendar", {
     date: text("date").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    createdAt: text("created_at").default(new Date().toISOString()).notNull(),
-    updatedAt: text("updated_at").default(new Date().toISOString()).notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });

@@ -12,6 +12,7 @@ axiosInstance.interceptors.request.use(
   async (config) => {
     const session = await getSession(); // getSession from next-auth/react
     if (session?.user?.id) {
+      // jwt -> encode : =>> decode, 
       config.headers.Authorization = `USER_ID ${session.user.id}`;
     }
     return config;
