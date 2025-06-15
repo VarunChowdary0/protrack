@@ -24,9 +24,6 @@ import {
   LucideMessageCirclePlus, 
   Search, 
   StarIcon,
-  Archive,
-  Trash2,
-  ArrowLeft
 } from 'lucide-react'
 import {
   Pagination,
@@ -38,24 +35,26 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Inbox, InboxItemType } from '@/types/inboxType'
+import { InboxItemType } from '@/types/inboxType'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { TaskStatus } from '@/types/taskTypes'
 import axiosInstance from '@/config/AxiosConfig'
-import InvitationViewer from './InvitationViewer'
+// import InvitationViewer from './InvitationViewer'
 import { format, isToday, isYesterday, isThisYear, parseISO } from 'date-fns'
-import {  fetchInboxItems, updateInboxItem } from '@/redux/reducers/InboxReducer'
+import {  fetchInboxItems, selectInboxItem, updateInboxItem } from '@/redux/reducers/InboxReducer'
+import Link from 'next/link'
 
 const ContentsMapper: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
     const [search, setSearch] = React.useState<string>("");
-    const [viewItem, setViewItem] = React.useState<Inbox | null>(null);
     const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
     const inboxMessages = useSelector((state: RootState) => state.inbox.items);
     const isLoading = !useSelector((state: RootState) => state.inbox.isLoaded);
+    const viewItem = useSelector((state: RootState) => state.inbox.selected);
+
     
     const handleRowSelection = (id: string) => {
         setSelectedRows((prev) => {
@@ -110,13 +109,6 @@ const ContentsMapper: React.FC = () => {
 
     const touchStartTimeRef = useRef<number | null>(null);
     const LONG_PRESS_THRESHOLD = 500;
-    
-    const handleItemChange = (id: string, data: { status: string; seenAt?: string }) => {
-            dispatch(updateInboxItem({
-                id,
-                ...data
-            }));
-    }
 
     const handleStarToggle = (id: string) => {
         axiosInstance.post("/api/manage/inbox/star_item", {
@@ -148,7 +140,8 @@ const ContentsMapper: React.FC = () => {
     useEffect(() => {
         if (viewItem) {
             const updatedItem = inboxMessages.find(item => item.id === viewItem.id);
-            setViewItem(updatedItem || null);
+            // setViewItem(updatedItem || null);
+            dispatch(selectInboxItem(updatedItem || null));
         }
     }, [inboxMessages])
 
@@ -210,7 +203,7 @@ const ContentsMapper: React.FC = () => {
                 <Table>
                     <TableBody>
                         {filterInboxItems.map((item) => (
-                            <TableRow 
+                            <TableRow
                                 key={item.id}
                                 className={`cursor-pointer transition-colors ${
                                     viewItem?.id === item.id ? 'bg-blue-50 dark:bg-blue-900/20' : 
@@ -223,12 +216,14 @@ const ContentsMapper: React.FC = () => {
                                     if (selectedRows.length > 0) {
                                         handleRowSelection(item.id);
                                     } else {
-                                        setViewItem(item);
+                                        // setViewItem(item);
+                                        dispatch(selectInboxItem(item));
                                     }
                                 }}
                             >
                                 <TableCell className="relative flex gap-2 !w-fit">
-                                    <div className="p-2 rounded-full h-8 w-8 flex items-center justify-center bg-transparent transition-all dark:hover:bg-[#393939] hover:bg-blue-50 hover:border dark:hover:border-0 duration-300"
+                                    <div
+                                     className="p-2 rounded-full h-8 w-8 flex items-center justify-center bg-transparent transition-all dark:hover:bg-[#393939] hover:bg-blue-50 hover:border dark:hover:border-0 duration-300"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleRowSelection(item.id);
@@ -249,12 +244,13 @@ const ContentsMapper: React.FC = () => {
                                     </Avatar>
                                 </TableCell>
                                 <TableCell className="font-semibold !w-fit max-w-[150px] pr-3 truncate !pt-4 align-top">
-                                    <div className="w-full">
+                                    <Link href={`inbox/${item.id}`}
+                                         className="w-full">
                                         <p className="truncate">{item.title}</p>
-                                    </div>
+                                    </Link>
                                 </TableCell>
                                 <TableCell className="max-w-[550px]">
-                                    <div className="flex flex-col gap-1">
+                                    <Link href={`inbox/${item.id}`} className="flex flex-col gap-1">
                                         <p className="break-words line-clamp-2 text-muted-foreground whitespace-pre-wrap">{item.description}</p>
                                         <div className="flex items-center gap-2 flex-wrap">
                                             {item?.attachments?.map((attachment) => (
@@ -265,7 +261,7 @@ const ContentsMapper: React.FC = () => {
                                                 </div>
                                             ))}         
                                         </div>
-                                    </div>
+                                    </Link>
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex items-center justify-end gap-2">
@@ -333,7 +329,8 @@ const ContentsMapper: React.FC = () => {
                             if (selectedRows.length > 0) {
                                 handleRowSelection(item.id);
                             } else {
-                                setViewItem(item);
+                                // setViewItem(item);
+                                dispatch(selectInboxItem(item));
                             }
                         }}
                     >
@@ -431,79 +428,15 @@ const ContentsMapper: React.FC = () => {
         </div>
     );
 
-    const renderEmailView = () => {
-        if (!viewItem) return null;
-
-        return (
-            <div className="flex-1 flex flex-col bg-background">
-                {/* Email Header */}
-                <div className="p-4 border-b bg-background sticky top-0 z-10">
-                    <div className="flex items-center gap-3">
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setViewItem(null)}
-                            className="sm:hidden"
-                        >
-                            <ArrowLeft size={16} />
-                        </Button>
-                        <h1 className="text-xl font-semibold truncate flex-1">{viewItem.title}</h1>
-                        <div className="flex items-center gap-2">
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="sm"
-                                        onClick={() => handleStarToggle(viewItem.id)}
-                                    >
-                                        <StarIcon 
-                                            size={16} 
-                                            className={viewItem.isStarred ? "text-yellow-400" : "text-muted-foreground"}
-                                            fill={viewItem.isStarred ? "currentColor" : "none"}
-                                        />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="!text-xs">
-                                    {viewItem.isStarred ? "Unstar" : "Star"}
-                                </TooltipContent>
-                            </Tooltip>
-                            <Button variant="ghost" size="sm">
-                                <Archive size={16} />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                                <Trash2 size={16} />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Email Content */}
-                <div className="flex-1 overflow-auto p-4">
-                    <InvitationViewer 
-                        invitation={viewItem}
-                        handleStarToggle={handleStarToggle}
-                        handleItemChange={handleItemChange}
-                    />
-                </div>
-            </div>
-        );
-    };
 
     return (
         <div className="flex h-screen max-w-full bg-background">
             {/* Main Content Area */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Inbox List - Show on mobile when no item selected, or always on desktop */}
-                <div className={`${viewItem ? 'hidden sm:flex' : 'flex'} ${viewItem ? 'sm:w-1/2 lg:w-2/5' : 'w-full'} flex-col border-r`}>
+                <div className={` flex w-full flex-col border-r`}>
                     {renderInboxList()}
                 </div>
-
-                {/* Email View - Show when item selected */}
-                {viewItem && (
-                    <div className={`${viewItem ? 'flex' : 'hidden'} flex-1`}>
-                        {renderEmailView()}
-                    </div>
-                )}
             </div>
         </div>
     );

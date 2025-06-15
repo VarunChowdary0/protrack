@@ -107,7 +107,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
   }
 
   return (
-    <div className="h-[70vh] overflow-y-auto">
+    <div className="h-[70vh] w-full overflow-y-auto">
       {/* Gmail-style toolbar - Mobile responsive */}
       <div className="border-b sticky top-0 z-10 bg-card">
         <div className="px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
@@ -157,7 +157,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
             <Loader2 className="h-8 w-8 mx-auto my-10 animate-spin text-muted-foreground" />
         </div>
     :
-    <div className="max-w-4xl mx-auto">
+    <div className=" mx-auto overflow-y-auto">
         {/* Gmail-style email header - Mobile responsive */}
         <div className="px-3 sm:px-6 py-3 sm:py-4 border-b">
           <div className="flex items-start gap-3 sm:gap-4">
@@ -182,7 +182,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
                   {invitationData?.createdAt && format(new Date(invitationData.createdAt), window.innerWidth < 640 ? 'MMM d, yyyy' : 'MMM d, yyyy, h:mm a')}
                 </span>
               </div>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <div className="flex flex-wrap flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium truncate max-w-[150px] sm:max-w-none">
                     {loading ? 'Loading...' : organization?.name || 'Organization'}
@@ -209,7 +209,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
             </div>
 
             {/* Organization card - Gmail style - Mobile responsive */}
-            <div className="border rounded-lg p-3 sm:p-4">
+            <div className="rounded-lg p-3 sm:p-4">
               <div className="flex items-start gap-3 sm:gap-4">
                 <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                   <AvatarFallback className="font-medium text-sm">

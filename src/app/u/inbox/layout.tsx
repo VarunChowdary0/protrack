@@ -20,21 +20,17 @@ import { fetchInboxItems } from '@/redux/reducers/InboxReducer'
 
 
 export default function InboxLayout({ children }: { children: React.ReactNode }) {
-    // const isLoading = !useSelector((state: RootState) => state.inbox.isLoaded);
-    // const [viewItem, setViewItem] = React.useState<Inbox | null>(null);
     const [sidebarCollapsed, setSidebarCollapsed] = React.useState<boolean>(false);
     const [currentView, setCurrentView] = React.useState<string>('inbox');
     const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
     const inboxMessages = useSelector((state: RootState) => state.inbox.items);
     const dispatch = useDispatch<AppDispatch>();
 
-
     React.useEffect(() => {
         if(isDarkMode){
             ChangeThemeColor("#171717");
         }
     }, [isDarkMode]);
-
 
     React.useEffect(() => {
         dispatch(fetchInboxItems());
