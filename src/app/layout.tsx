@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ProviderAll from "@/components/ProviderAll";
 import { getServerSession } from "next-auth"
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +56,7 @@ export default async function RootLayout({
       >
         <ProviderAll session={await getServerSession()}>
           {children}
+          <SpeedInsights />
         </ProviderAll>
       </body>
     </html>
