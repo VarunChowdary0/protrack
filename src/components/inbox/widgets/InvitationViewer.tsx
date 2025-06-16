@@ -110,11 +110,11 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
   }
 
   return (
-    <div className="h-[calc(100vh - 60px)] relative max-sm:mt-12 pt-2 max-sm:pt-0 max-sm:mb-20 w-full max-w-screen overflow-auto">
+    <div className="h-[calc(100vh - 60px)] relative max-sm:mt-12 max-sm:mb-20 w-full max-w-screen overflow-auto">
       {/* Gmail-style toolbar - Mobile responsive */}
       <div style={{
         zIndex: 2000
-      }} className="border-b max-sm:fixed top-0 left-0 right-0 z-10 bg-card">
+      }} className="border-b max-sm:fixed pt-2 max-sm:pt-0 top-0 left-0 right-0 z-10 bg-card">
         <div className="px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
           <div className="flex items-center gap-1 sm:gap-2">
             <Button onClick={()=> router.back()} variant="ghost" size="sm" className="p-1 sm:p-2">
