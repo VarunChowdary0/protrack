@@ -105,7 +105,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({ organization 
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
+        <Table className=' mybar'>
           <TableHeader>
             <TableRow>
               <TableHead>Member</TableHead>

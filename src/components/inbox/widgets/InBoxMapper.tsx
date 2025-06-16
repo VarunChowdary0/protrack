@@ -97,12 +97,11 @@ const InboxMapper: React.FC = () => {
     };
 
     const isRowSelected = (id: string): boolean => selectedRows.includes(id);
-
-    React.useEffect(() => {
+    useEffect(()=>{
         if(isDarkMode){
-            ChangeThemeColor("#0a0a0a");
+        ChangeThemeColor("#171717");
         }
-    }, [isDarkMode]);
+    },[isDarkMode])
 
     // Enhanced filter function based on current view
     const filterInboxItems = inboxMessages.filter((item) => {
@@ -364,7 +363,7 @@ const InboxMapper: React.FC = () => {
         return (
             <div className="flex-1 overflow-hidden">
                 {/* Search and Actions Header */}
-                <div className="px-4 py-3 border-b bg-background sticky top-0 z-10">
+                <div className="px-4 py-3 border-b bg-card sticky top-0 z-10">
                     <div className="flex items-center gap-3">
                         <div className="relative flex-1 max-w-[400px]">
                             <Search size={18} className="absolute  top-3 max-sm:hidden left-3" />
@@ -500,7 +499,7 @@ const InboxMapper: React.FC = () => {
                 </div>
 
                 {/* Mobile Inbox List */}
-                <div className="mt-3 flex max-sm:flex flex-col gap-0 select-none sm:hidden">
+                <div className="mt-0 flex max-sm:flex flex-col gap-0 select-none sm:hidden">
                     {filterInboxItems.map((item) => (
                         <div 
                             key={item.id}
