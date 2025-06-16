@@ -110,7 +110,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
   }
 
   return (
-    <div className="h-[calc(100vh - 60px)] relative max-sm:mt-12 mt-2 max-sm:mb-20 w-full max-w-screen overflow-auto">
+    <div className="h-[calc(100vh - 60px)] relative max-sm:mt-12 pt-2 max-sm:pt-0 max-sm:mb-20 w-full max-w-screen overflow-auto">
       {/* Gmail-style toolbar - Mobile responsive */}
       <div style={{
         zIndex: 2000
