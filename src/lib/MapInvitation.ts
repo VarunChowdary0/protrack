@@ -45,7 +45,7 @@ const MapInvitation = async (NewInvitation: Partial<Invitation>):  Promise<boole
                         userIds: [user[0].id || ""],
                         title: NewInvitation.subject || "Invitation",
                         body: NewInvitation.message || "You have been invited to join the organization",
-                        url: `u/inbox`,
+                        url: `u/mail/${NewInvitation.id}`,
                         requireInteraction: true,
                         data: {
                             type: InboxItemType.INVITE,

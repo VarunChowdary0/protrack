@@ -28,6 +28,8 @@ import Link from 'next/link'
 import { RefreshToken } from '@/lib/RefreshToken'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   invitation: Partial<Inbox>;
@@ -43,6 +45,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
   const [loading, setLoading] = useState(false)
   const invitationData = invitation.invitation;
   const auth = useSelector((state: RootState) => state.auth); 
+  const router = useRouter();
   useEffect(() => {
     const fetchOrganization = async () => {
       if (!invitationData?.org_id) return
@@ -107,34 +110,42 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
   }
 
   return (
-    <div className="h-[70vh] w-full overflow-y-auto">
+    <div className="h-[calc(100vh - 60px)] w-full max-w-screen overflow-auto">
       {/* Gmail-style toolbar - Mobile responsive */}
-      <div className="border-b sticky top-0 z-10 bg-card">
+      <div style={{
+        zIndex: 2000
+      }} className="border-b sticky top-0 z-10 bg-card">
         <div className="px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="sm" className="p-1 sm:p-2">
+            <Button onClick={()=> router.back()} variant="ghost" size="sm" className="p-1 sm:p-2">
               <ArrowLeft className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">Back</span>
             </Button>
-            <Button disabled variant="ghost" size="sm" className="p-1 sm:p-2">
-              <Archive className="h-4 w-4" />
+            <Button variant="ghost" size="sm">
+                <Archive size={16} />
             </Button>
-            <Button disabled variant="ghost" size="sm" className="p-1 sm:p-2">
-              <Trash2 className="h-4 w-4" />
+            <Button variant="ghost" size="sm">
+                <Trash2 size={16} />
             </Button>
-            <Button 
-              onClick={()=>handleStarToggle(invitation.id || "")}
-              variant="ghost" 
-              size="sm"
-              className="p-1 sm:p-2"
-            >
-              <StarIcon 
-                    size={16} 
-                    className={`cursor-pointer
-                    ${invitation.isStarred ? "text-yellow-400" : "text-muted-foreground"}`}
-                    fill={invitation.isStarred ? "currentColor" : "none"}
-                />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger>
+                  <Button 
+                      variant="ghost" 
+                      size="sm"
+                onClick={()=>handleStarToggle(invitation.id || "")}
+                  >
+                      <StarIcon 
+                          size={18} 
+                          className={`cursor-pointer
+                          ${invitation.isStarred ? "text-yellow-400" : "text-muted-foreground"}`}
+                          fill={invitation.isStarred ? "currentColor" : "none"}
+                      />
+                  </Button>
+              </TooltipTrigger>
+              <TooltipContent className="!text-xs">
+                  {invitation.isStarred ? "Unstar" : "Star"}
+              </TooltipContent>
+            </Tooltip>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <Button disabled variant="ghost" size="sm" className="p-1 sm:p-2">
@@ -170,7 +181,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <div className="flex items-start sm:items-center gap-2 flex-wrap">
-                  <h1 className="text-lg sm:text-xl font-normal leading-tight">
+                  <h1 className="text-lg sm:text-xl capitalize font-normal leading-tight">
                     {invitationData?.subject || 'Organization Invitation'}
                   </h1>
                   <Badge variant="secondary" className="text-xs">
@@ -212,7 +223,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
             <div className="rounded-lg p-3 sm:p-4">
               <div className="flex items-start gap-3 sm:gap-4">
                 <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-                  <AvatarFallback className="font-medium text-sm">
+                  <AvatarFallback className="font-medium text-sm capitalize">
                     {organization ? getInitials(organization.name) : 'ORG'}
                   </AvatarFallback>
                 </Avatar>
@@ -232,7 +243,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                       <span className="text-muted-foreground min-w-[100px] sm:min-w-[120px]">Organization ID:</span>
-                      <code className="text-xs px-2 py-1 rounded border truncate bg-muted font-mono break-all">
+                      <code className="text-xs px-2 py-1 w-fit rounded border truncate bg-muted font-mono break-all">
                         {invitationData?.org_id ? invitationData.org_id.slice(0,8) + "x".repeat(invitationData.org_id.length - 8) : 'N/A'}
                       </code>
                     </div>

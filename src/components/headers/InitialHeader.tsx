@@ -15,8 +15,8 @@ const items = [
     icon: Boxes
   },
   {
-    title: "Inbox",
-    url: "/u/inbox",
+    title: "Mails",
+    url: "/u/mail",
     icon: Inbox
   },
   {
