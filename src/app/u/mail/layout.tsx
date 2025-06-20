@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { fetchInboxItems } from '@/redux/reducers/InboxReducer'
 import Link from 'next/link'
+import ComposeMail from '@/components/inbox/widgets/ComposeMail'
 
 
 export default function InboxLayout({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,7 @@ export default function InboxLayout({ children }: { children: React.ReactNode })
     const [currentView, setCurrentView] = React.useState<string>('inbox');
     const isDarkMode = useSelector((state: RootState) => state.booleans.isDarkMode);
     const inboxMessages = useSelector((state: RootState) => state.inbox.items);
+    const [composeNew, setComposeNew] = React.useState<boolean>(false);
     const dispatch = useDispatch<AppDispatch>();
 
     React.useEffect(() => {
@@ -76,7 +78,7 @@ export default function InboxLayout({ children }: { children: React.ReactNode })
 
             {/* Compose Button */}
             <div className="p-4">
-                <Button disabled className={`${sidebarCollapsed && !isMobile ? 'w-8 h-8 p-0' : 'w-full'} transition-all`}>
+                <Button onClick={()=> setComposeNew(true)} className={`${sidebarCollapsed && !isMobile ? 'w-8 h-8 p-0' : 'w-full'} transition-all`}>
                     {sidebarCollapsed && !isMobile ? (
                         <LucideMessageCirclePlus size={16} />
                     ) : (
@@ -180,8 +182,11 @@ export default function InboxLayout({ children }: { children: React.ReactNode })
                 >
                     <Menu size={24} className=' h-fit w-fit' />
                 </Button>
-                
-                {children}
+                {composeNew?
+                    <ComposeMail
+                        closeCompose={() => setComposeNew(false)}
+                    />
+                :(children)}
             </div>
         </div>
     );

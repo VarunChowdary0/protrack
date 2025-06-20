@@ -181,3 +181,8 @@
 .mybar::-webkit-scrollbar-button {
   display: none;
 }
+
+pre {
+  font-family: inherit; /* Inherit from parent */
+  white-space: pre-wrap; /* Optional: allow wrapping if needed */
+}

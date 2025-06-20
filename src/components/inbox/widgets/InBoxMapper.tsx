@@ -25,7 +25,8 @@ import {
   Search, 
   StarIcon,
   Trash2,
-  Construction
+  Construction,
+  Mail
 } from 'lucide-react'
 import {
   Pagination,
@@ -174,8 +175,42 @@ const InboxMapper: React.FC = () => {
         });
     }
 
+    const handleArchiveItem = async (id: string,value: boolean) => {
+        axiosInstance.post("/api/manage/inbox/archive_item", {
+            inboxId: id,
+            archive: !inboxMessages.find((message) => message.id === id)?.isArchived
+        })
+        .then((response) => {
+            console.log("Item archived successfully:", response.data);
+            dispatch(updateInboxItem({
+                id,
+                isArchived: value
+            }));
+        })
+        .catch((error) => {
+            console.error("Error archiving item:", error);
+        });
+    }
+     const handleTrashItem = async (id: string, value: boolean) => {
+        axiosInstance.post("/api/manage/inbox/trash_item", {
+            inboxId: id,
+            trash: value
+        })
+        .then((response) => {
+            console.log("Item trashed successfully:", response.data);
+            dispatch(updateInboxItem({
+                id,
+                isDeleted: !viewItem?.isDeleted
+            }));
+        })
+        .catch((error) => {
+            console.error("Error trashing item:", error);
+        });
+    }
+
     const archiveSelectedRows = () => {
-        selectedRows.forEach((id) => {
+        selectedRows.forEach(async (id) => {
+            await handleArchiveItem(id, true);
             dispatch(updateInboxItem({
                 id,
                 isArchived: true
@@ -184,8 +219,10 @@ const InboxMapper: React.FC = () => {
         setSelectedRows([]);
     }
 
+
     const deleteSelectedRows = () => {
         selectedRows.forEach((id) => {
+            handleTrashItem(id, true);
             dispatch(updateInboxItem({
                 id,
                 isDeleted: true
@@ -195,7 +232,9 @@ const InboxMapper: React.FC = () => {
     }
 
     const restoreSelectedRows = () => {
-        selectedRows.forEach((id) => {
+        selectedRows.forEach(async (id) => {
+            handleTrashItem(id, false);
+            await handleArchiveItem(id, false);
             dispatch(updateInboxItem({
                 id,
                 isDeleted: false,
@@ -456,17 +495,16 @@ const InboxMapper: React.FC = () => {
                                     </TableCell>
                                     <TableCell>
                                         <Link href={`inbox/${item.id}`} className="flex items-center justify-end gap-2">
-                                            {item.type !== InboxItemType.MESSAGE && (
                                                 <Badge variant="outline" className="!px-0 w-5 h-5 flex items-center justify-center rounded-full capitalize">
                                                     {item.type === InboxItemType.INVITE && <LucideMessageCirclePlus/>}
                                                     {item.type === InboxItemType.NOTIFICATION && <BellRingIcon className="text-teal-500"/>}
+                                                    {item.type === InboxItemType.MESSAGE && <Mail className="text-indigo-500"/>}
                                                     {item.type === InboxItemType.TASK && (
                                                         (item?.task?.status === TaskStatus.PENDING && <Clock className="text-orange-500"/>) ||
                                                         (item?.task?.status === TaskStatus.IN_PROGRESS && <ChartLine className="text-blue-400"/>) ||
                                                         (item?.task?.status === TaskStatus.COMPLETED && <CheckCircle className="text-green-500"/>)
                                                     )}
                                                 </Badge>
-                                            )}
                                         </Link>
                                     </TableCell>
                                     <TableCell className="text-right text-xs !pr-4 dark:font-semibold">
@@ -546,19 +584,18 @@ const InboxMapper: React.FC = () => {
                             </div>
                             <Card className="!border-0 w-full !p-0 !bg-transparent !py-0 !px-0 !gap-0 !shadow-none">
                                 <CardHeader className={`${item.seenAt.length !== 0 && "text-muted-foreground"} flex !px-0 items-center justify-between`}>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-between w-[80%] gap-2">
                                         <h3 className="text-md font-semibold">{item.title}</h3>
-                                        {item.type !== InboxItemType.MESSAGE && (
-                                            <Badge variant="outline" className="!px-0 w-5 h-5 flex items-center justify-center rounded-full capitalize">
-                                                {item.type === InboxItemType.INVITE && <LucideMessageCirclePlus/>}
-                                                {item.type === InboxItemType.NOTIFICATION && <BellRingIcon className="text-teal-500"/>}
-                                                {item.type === InboxItemType.TASK && (
-                                                    (item?.task?.status === TaskStatus.PENDING && <Clock className="text-orange-500"/>) ||
-                                                    (item?.task?.status === TaskStatus.IN_PROGRESS && <ChartLine className="text-blue-400"/>) ||
-                                                    (item?.task?.status === TaskStatus.COMPLETED && <CheckCircle className="text-green-500"/>)
-                                                )}
-                                            </Badge>
-                                        )}
+                                        <Badge variant="outline" className="!px-0 w-5 h-5 flex items-center justify-center rounded-full capitalize">
+                                            {item.type === InboxItemType.INVITE && <LucideMessageCirclePlus/>}
+                                            {item.type === InboxItemType.NOTIFICATION && <BellRingIcon className="text-teal-500"/>}
+                                            {item.type === InboxItemType.MESSAGE && <Mail className="text-indigo-500"/>}
+                                            {item.type === InboxItemType.TASK && (
+                                                (item?.task?.status === TaskStatus.PENDING && <Clock className="text-orange-500"/>) ||
+                                                (item?.task?.status === TaskStatus.IN_PROGRESS && <ChartLine className="text-blue-400"/>) ||
+                                                (item?.task?.status === TaskStatus.COMPLETED && <CheckCircle className="text-green-500"/>)
+                                            )}
+                                        </Badge>
                                     </div>
                                     <span className="text-xs dark:font-semibold">
                                         {formatDate(item.timestamp)}

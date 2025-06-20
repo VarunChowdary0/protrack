@@ -12,7 +12,8 @@ import {
   MoreVertical,
   Trash2,
   Loader2,
-  StarIcon
+  StarIcon,
+  ArchiveRestore
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,13 +35,15 @@ import { useRouter } from 'next/navigation'
 interface Props {
   invitation: Partial<Inbox>;
   handleStarToggle: (id: string) => void;
+  handleTrashItem: (id: string) => void; // Optional function to handle trashing
+  handleArchiveItem: (id: string) => void; // Function to handle archiving 
   handleItemChange: (id: string, data : {
     status: InvitationStatus;
     seenAt?: string;
   }) => void; // Function to handle item change
 }
 
-const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleItemChange }) => {
+const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleTrashItem,handleArchiveItem,handleItemChange }) => {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(false)
   const invitationData = invitation.invitation;
@@ -121,11 +124,19 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
               <ArrowLeft className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">Back</span>
             </Button>
-            <Button variant="ghost" size="sm">
-                <Archive size={16} />
+            <Button onClick={()=> handleArchiveItem(invitation.id || "")} variant="ghost" size="sm">
+              {
+                invitation.isArchived ?
+                <ArchiveRestore size={16} className="text-yellow-500" /> :
+                <Archive size={16} className="text-muted-foreground" />
+              }
             </Button>
-            <Button variant="ghost" size="sm">
-                <Trash2 size={16} />
+            <Button onClick={() => handleTrashItem(invitation.id || "")} variant="ghost" size="sm">
+              {
+                invitation.isDeleted ? 
+                <Trash2 size={16} className="text-red-500" /> : 
+                <Trash2 size={16} className="text-muted-foreground" />
+              }
             </Button>
             <Tooltip>
               <TooltipTrigger>
@@ -164,7 +175,7 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleI
       </div>
 
       { loading ? 
-        <div className='flex items-center justify-center w-full h-full'>
+        <div className='flex items-center justify-center w-full h-full min-h-[70vh]'>
             <Loader2 className="h-8 w-8 mx-auto my-10 animate-spin text-muted-foreground" />
         </div>
         :

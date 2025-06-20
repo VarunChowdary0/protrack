@@ -20,7 +20,7 @@ const MapInvitation = async (NewInvitation: Partial<Invitation>):  Promise<boole
     const inboxEntry = {
         fromId: String(NewInvitation.formId) || "",
         participantId: "",
-        userId: user[0].id || "",
+        userIds: [user[0].id || ""],
         projectId:  NewInvitation.projectId ||"",
         title: String(NewInvitation.subject) || "Invitation",
         description: String(NewInvitation.message) || "You have been invited to join the organization",

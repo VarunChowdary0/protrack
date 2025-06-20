@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         }
         const userId = authHeader.split(" ")[1];
         const data = await req.json();
-        const { inboxId, star } = data;
+        const { inboxId, archive } = data;
 
         if (!inboxId) {
             return new Response(JSON.stringify({ error: "inbox id required" }), {
@@ -24,22 +24,20 @@ export async function POST(req: Request) {
 
         // mark inbox item as seen.
         await db.update(inbox).set({
-            isStarred: star || false, // Set the star status based on the request
+            isArchived: archive || false, // Set the archive status based on the request
         }).where(and(
             eq(inbox.id, inboxId),
             eq(inbox.userId, userId)
         ));
 
-        // Here you can add any additional logic needed to start the item
-        // For example, updating the status of the item or notifying other services
 
-        return new Response(JSON.stringify({ message: "Inbox item started successfully" }), {
+        return new Response(JSON.stringify({ message: "Inbox item archived successfully" }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
         });
     }
     catch (error) {
-        console.error("Error in POST /manage/inbox/star_item:", error);
+        console.error("Error in POST /manage/inbox/archive_item:", error);
         return new Response(JSON.stringify({ error: "Internal Server Error" }), {
             status: 500,
             headers: { "Content-Type": "application/json" },
