@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         }
         const userId = authHeader.split(" ")[1];
         const data = await req.json();
-        const { inboxId, star } = data;
+        const { inboxId } = data;
 
         if (!inboxId) {
             return new Response(JSON.stringify({ error: "inbox id required" }), {
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
         // mark inbox item as seen.
         await db.update(inbox).set({
-            isStarred: star || false, // Set the star status based on the request
+            seenAt: new Date().toISOString(),
         }).where(and(
             eq(inbox.id, inboxId),
             eq(inbox.userId, userId)

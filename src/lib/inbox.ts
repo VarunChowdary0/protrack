@@ -1,10 +1,11 @@
 import { db } from "@/db/drizzle";
 import { inbox } from "@/db/Schema/InboxSchema";
 import { InboxItemType } from "@/types/inboxType";
+
 interface InboxInput {
   fromId: string;
   participantId: string;
-  userId: string;
+  userIds: string[];
   projectId: string;
   title: string;
   description: string;
@@ -13,11 +14,12 @@ interface InboxInput {
   taskId?: string | null;
   calendarId?: string | null;
 }
+
 export async function createInboxEntry(data: InboxInput) {
   const {
     fromId,
     participantId,
-    userId,
+    userIds,
     projectId,
     title,
     description,
@@ -27,12 +29,13 @@ export async function createInboxEntry(data: InboxInput) {
     calendarId = null,
   } = data;
 
-  console.log(data);
-
-  if (!fromId || !userId || !title || !description || !type) {
+  if (!fromId || !userIds?.length || !title || !description || !type) {
     throw new Error("Missing required fields");
   }
-  const newInboxEntry = {
+
+  const now = new Date().toISOString();
+
+  const entries = userIds.map((userId) => ({
     id: crypto.randomUUID(),
     fromId,
     participantId,
@@ -44,11 +47,11 @@ export async function createInboxEntry(data: InboxInput) {
     inviteId,
     taskId,
     calendarId,
-    timestamp: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
+    timestamp: now,
+    updatedAt: now,
+  }));
 
+  const createdInboxEntries = await db.insert(inbox).values(entries).returning();
 
-  const [createdInboxEntry] = await db.insert(inbox).values(newInboxEntry).returning();
-  return createdInboxEntry;
+  return createdInboxEntries;
 }
