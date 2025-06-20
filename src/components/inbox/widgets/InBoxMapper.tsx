@@ -602,10 +602,10 @@ const InboxMapper: React.FC = () => {
                                     </span>
                                 </CardHeader>
                                 <CardContent className="!px-0">
-                                    <div className="flex items-end justify-between">
-                                        <p className="text-xs !text-muted-foreground line-clamp-2 leading-tight">{item.description}</p>
+                                    <div className="flex items-end justify-between gap-2">
+                                        <p className="text-xs !text-muted-foreground line-clamp-2 leading-tight text-wrap min-w-0">{item.description.substring(0,130)}</p>
                                         {currentView !== "trash" && (
-                                            <span>
+                                            <span className="flex-shrink-0">
                                                 <StarIcon 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
