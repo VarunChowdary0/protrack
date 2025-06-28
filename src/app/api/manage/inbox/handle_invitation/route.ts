@@ -98,12 +98,6 @@ export async function POST(req: Request) {
                     url: slug ? `/org/${slug}` : "/admin/organizations"
                 })
             }
-
-            
-            return new Response(JSON.stringify({ message: "Invitation accepted and organization assigned." }), {
-                status: 200,
-                headers: { "Content-Type": "application/json" },
-            });
         }
         else if(action === InvitationAction.EXTERNAL_PROJECT_INVITATION){
             if(!projectId || !role) {
