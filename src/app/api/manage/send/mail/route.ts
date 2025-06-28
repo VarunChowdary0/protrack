@@ -38,7 +38,7 @@ export async function POST(request: Request) {
             type: InboxItemType.MESSAGE,
         });
 
-        await send_Notification({
+        send_Notification({
             userIds: toIds,
             title: subject,
             body: text.substring(0, 30)+"...", // Limit body length for notification

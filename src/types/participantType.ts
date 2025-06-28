@@ -1,6 +1,10 @@
 import { User } from "./userTypes";
 
 export enum ParticipantRole {
+
+  // 🧑‍💼 ADMIN
+  CREATOR = "creator",
+
   // 🔧 Technical Roles
   LEAD = "lead",
   DEVELOPER = "developer",
@@ -78,5 +82,5 @@ export interface Participant {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  user?: User;
+  user?: Partial<User> | null;
 }

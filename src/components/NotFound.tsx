@@ -2,12 +2,20 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Ghost, Sparkles } from 'lucide-react'
+import { ArrowLeft, Ghost, Loader2, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
 
 const NotFound = () => {
   const router = useRouter()
+  const auth = useSelector((state: RootState) => state.auth);
 
+  if(!auth.user){
+    return <div className=' w-full h-screen flex items-center justify-center'>
+      <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+    </div>
+  }
   return (
     <div className="container mx-auto min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Stars */}
