@@ -20,8 +20,8 @@ export async function getUser(
     console.log("Fetching user with ID:", userId);
     const user = await db.select({
         id: users.id,
-        firstName: users.firstname,
-        lastName: users.lastname,
+        firstname: users.firstname,
+        lastname: users.lastname,
         email: users.email,
         profilePicture: users.profilePicture,
         role: users.role,
@@ -46,7 +46,7 @@ export async function getUser(
             participant: undefined
         }
     }
-    console.log("User found:", user[0].firstName);
+    console.log("User found:", user[0].firstname);
     const accessUser:Partial<User> = {
         ...user[0],
         access: [userAccess,orgUser,orgManager,admin]

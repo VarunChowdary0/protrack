@@ -10,9 +10,9 @@ export const activities = pgTable("activities", {
                     .references(
                             () => projects.id,
                             { onDelete: 'cascade' }
-                        ), 
+                        ).notNull(), 
     date: text('date').notNull(),
-    status: text("status").$type<activityStatus>().default(activityStatus.PENDING),
+    status: text("status").$type<activityStatus>().default(activityStatus.PENDING).notNull(),
     title   : text("title").notNull(),
     description: text("description").notNull(),
     location: text("location").notNull(),

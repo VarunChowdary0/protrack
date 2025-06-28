@@ -8,15 +8,24 @@ import Resources from './widgets/Resources'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import ChangeThemeColor from '@/lib/ChangeThemeColor'
+import { Loader2 } from 'lucide-react'
 
 
 const MainComponent = () => {
-  const isDarkMode = useSelector((state:RootState)=> state.booleans.isDarkMode)
+  const isDarkMode = useSelector((state:RootState)=> state.booleans.isDarkMode);
+  const project = useSelector((state:RootState)=> state.selectedProject);
   useEffect(()=>{
     if(isDarkMode){
       ChangeThemeColor("#171717");
     }
   },[isDarkMode])
+  if(!project.isLoaded){
+    return (
+      <div className='flex h-screen items-center justify-center'>
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      </div>
+    )
+  }
   return (
     <div className=' flex h-full max-sm:pb-32 dark:max-sm:bg-primary-foreground gap-10 flex-col snap-mandatory snap-y items-center py-20 max-sm:py-5'>
       <DescriptionCard />

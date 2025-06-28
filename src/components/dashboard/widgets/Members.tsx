@@ -3,38 +3,16 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { CalendarClock, MessagesSquareIcon, PlusCircle } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from '@/components/ui/button'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { useRouter } from 'next/navigation'
 
-const MockTeamMembers = [
-  {
-    name: "Sai Varun Poludasu",
-    role: "Team Leader"
-  },
-  {
-    name: "John Doe",
-    role: "Developer"
-  },
-  {
-    name: "Jane Smith",
-    role: "Designer"
-  },
-  {
-    name: "Alice Johnson",
-    role: "Tester"
-  }
-];
 
-const MockSupervisors = [
-  {
-    name: "Dr. Smith",
-    role: "Project Mentor"
-  },
-  {
-    name: "Prof. Johnson",
-    role: "Technical Advisor"
-  }
-]
 
 const Members = () => {
+  const router = useRouter();
+  const auth = useSelector((state: RootState) => state.auth);
+  const project = useSelector((state: RootState) => state.selectedProject.project);
   return (
       <div className=' w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-5'>
         <Card className=' max-sm:shadow-none max-sm:!border-none'>
@@ -44,19 +22,19 @@ const Members = () => {
           </CardHeader>
           <CardContent>
             <div className=' flex flex-col gap-2.5 divide-y'>
-              {
-                MockTeamMembers.map((member, index) => (
+              {project?.participants &&
+                project?.participants.filter((x=> x.isTeamMember)).map((member, index) => (
                   <div key={index} className=' max-sm:pr-5 flex gap-3 min-w-[280px] pb-2.5 items-center justify-between'>
                     <div className='flex gap-3 items-center'>
-                      <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" />
+                     <Avatar>
+                        <AvatarImage src={member.user?.profilePicture} />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                       <div className=' flex flex-col'>
-                        <span className=' text-sm'>{member.name}</span>
+                        <span className=' text-sm capitalize'>{member.user?.firstname}  {member.user?.lastname}</span>
                         {
-                          member.role.trim().length > 0 &&
-                          <span className=' text-muted-foreground text-xs'>{member.role}</span>
+                          member.role && member.role.trim().length > 0 &&
+                          <span className=' text-muted-foreground capitalize text-xs'>{member.role.replaceAll("_"," ")}</span>
                         }
                       </div>
                     </div>
@@ -67,12 +45,13 @@ const Members = () => {
                 ))
               }
             </div>
-            <div className=' w-full flex items-center justify-center'>
-              <Button> 
+            { auth.user?.access?.createProjects &&
+              <div className=' w-full flex items-center justify-center'>
+              <Button onClick={()=>  router.push(`/${project?.id}/manage-participants`)}> 
                 <PlusCircle size={16} className=' text-green-600 cursor-pointer' />
                 Add Member
               </Button>
-            </div>
+            </div>}
           </CardContent>
         </Card>
 
@@ -83,19 +62,20 @@ const Members = () => {
           </CardHeader>
           <CardContent>
             <div className=' flex flex-col gap-2.5 divide-y'>
-              {
-                MockSupervisors.map((mentor, index) => (
+              {project?.participants &&
+                project?.participants.filter((x=> !x.isTeamMember)).map((member, index) => (
                   <div key={index} className='max-sm:pr-5 flex gap-3 min-w-[280px] pb-2.5 items-center justify-between'>
+
                     <div className='flex gap-3 items-center'>
                       <Avatar>
-                        <AvatarImage src="https://github.com/evilrabbit.png" />
+                        <AvatarImage src={member.user?.profilePicture} />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                       <div className=' flex flex-col'>
-                        <span className=' text-sm'>{mentor.name}</span>
+                        <span className=' text-sm capitalize'>{member.user?.firstname}  {member.user?.lastname}</span>
                         {
-                          mentor.role.trim().length > 0 &&
-                          <span className=' text-muted-foreground text-xs'>{mentor.role}</span>
+                          member.role && member.role.trim().length > 0 &&
+                          <span className=' text-muted-foreground capitalize text-xs'>{member.role.replaceAll("_"," ")}</span>
                         }
                       </div>
                     </div>
