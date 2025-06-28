@@ -28,7 +28,7 @@ export async function DELETE(req:Request) { // only authorized users can delete 
         }
 
         // -- permission check
-        if(!reqFromUser.user.access?.manageOrganization) {
+        if(reqFromUser.user.access?.editProjects && !reqFromUser.user.access?.manageOrganization) {
             return new Response(JSON.stringify({ error: "Unauthorized access to organization" }), {
                 status: 403,
                 headers: { "Content-Type": "application/json" },

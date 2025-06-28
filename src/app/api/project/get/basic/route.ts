@@ -1,4 +1,4 @@
-import { getProject } from "@/lib/GetProject";
+import { getBasicPrj } from "@/lib/GetBasicPrj";
 import { getUser } from "@/lib/GetUser";
 
 export async function GET(req: Request) {
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
             });
         }
         
-        const prj = await getProject(projectId);
+        const prj = await getBasicPrj(projectId);
 
         if (!prj) {
             return new Response(JSON.stringify({ error: "Project not found" }), {
@@ -40,22 +40,16 @@ export async function GET(req: Request) {
             });
         }
 
-        // Check if user is a participant
-        const isParticipant = prj.participants?.some((participant) => 
-            participant.userId === userId
-        );
-
-        if (isParticipant) {
-            return new Response(JSON.stringify(prj), {
-                status: 200,
-                headers: { "Content-Type": "application/json" },
-            });
-        } else {
-            return new Response(JSON.stringify({ error: "You are not a participant of this project" }), {
-                status: 403,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
+        return new Response(JSON.stringify({
+            name: prj.name,
+            code: prj.code,
+            problemStatement: prj.problemStatement,
+            status: prj.status,
+            visibility: prj.visibility
+        }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
 
     } catch (error) {
         console.error("Error fetching participants:", error);

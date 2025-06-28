@@ -1,6 +1,7 @@
 import { db } from "@/db/drizzle";
 import { projects } from "@/db/Schema/ProjectSchema";
 import { addParticipant } from "@/lib/AddParticipant";
+import { getBasicPrj } from "@/lib/GetBasicPrj";
 import { getUser } from "@/lib/GetUser";
 import send_Notification from "@/lib/SendNotification";
 import { ParticipantRole } from "@/types/participantType";
@@ -50,6 +51,20 @@ export async function POST(req:Request) {
         }
         if(!reqFromUser.user.access?.createProjects){
             return new Response(JSON.stringify({ error: "Access denied" }), {
+                status: 403,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+        const proj = await getBasicPrj(projectId);
+        if (!proj) {
+            return new Response(JSON.stringify({ error: "Project not found" }), {
+                status: 404,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        if(proj.creator_id !== reqFromUser.user.id ) {
+            return new Response(JSON.stringify({ error: "You are not authorized to add participants to this project" }), {
                 status: 403,
                 headers: { "Content-Type": "application/json" },
             });
@@ -110,7 +125,7 @@ export async function POST(req:Request) {
             url: `${projectId}/dashboard`,
             renotify: true,
         }
-        await send_Notification(nofiPayload);
+        send_Notification(nofiPayload);
 
         return new Response(JSON.stringify({ message: "Participant added successfully", participant: status.participant }), {
             status: 201,

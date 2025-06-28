@@ -31,7 +31,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Invitation, InvitationAction, InvitationStatus, OrganizationUserRole } from '@/types/invitationType'
+import { Invitation, InvitationAction, InvitationStatus } from '@/types/invitationType'
 import { 
   Table, 
   TableBody, 
@@ -48,13 +48,14 @@ import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import axiosInstance from '@/config/AxiosConfig'
 import { Tooltip,TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
+import { useParams } from 'next/navigation'
 import { ParticipantRole } from '@/types/participantType'
 
 const inviteFormSchema = z.object({
   toEmail: z.string().email({
     message: "Please enter a valid email address.",
   }),
-  role: z.nativeEnum(OrganizationUserRole),
+  role: z.nativeEnum(ParticipantRole),
   subject: z.string().min(5, {
     message: "Subject must be at least 5 characters.",
   }),
@@ -63,10 +64,8 @@ const inviteFormSchema = z.object({
   }),
 })
 
-interface Props{
-  orgId: string;
-}
-const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
+const InviteToProject:React.FC = () => {
+    const {project_id} = useParams();
   const [invitations, setInvitations] = React.useState<Invitation[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [isInviting, setIsInviting] = React.useState(false)
@@ -79,9 +78,9 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
     resolver: zodResolver(inviteFormSchema),
     defaultValues: {
       toEmail: "",
-      role: OrganizationUserRole.MEMBER,
-      subject: "Invitation to join organization",
-      message: "I'd like to invite you to join our organization on Protrack.",
+      role: ParticipantRole.DEVELOPER,
+      subject: "Invitation to contribute",
+      message: "I'd like to invite you to join our project on Protrack as a contributor.",
     },
   })
 
@@ -90,8 +89,8 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
     console.log("Fetching invitations for org:", id)
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get(`/api/get/org/invitations`, {
-        params: { orgId: id }
+      const response = await axiosInstance.get(`/api/project/get-invitations`, {
+        params: { projectId: id }
       });
       setInvitations(response.data);
     } catch (error) {
@@ -103,23 +102,19 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
   }
 
   React.useEffect(() => {
-    fetchInvitations(orgId);
-  },[orgId]);
+    fetchInvitations(project_id?.toString() ?? "");
+  },[project_id]);
 
-  React.useEffect(() => {
-    if(auth.user?.access.createOrganizationManagers){
-      form.setValue("role", OrganizationUserRole.MANAGER);
-      // form.setValue("")
-    }
-  },[auth,invitations])
 
   const onSubmit = async (values: z.infer<typeof inviteFormSchema>) => {
     setIsInviting(true)
     axiosInstance.post('/api/manage/send_invitation', {
         ...values,
-        org_id: orgId,
         fromId: auth.user?.id,
-        action: InvitationAction.INVITE_ORGANIZATION,
+        projectId: project_id,
+        role: values.role,
+        org_id: auth.user?.organizationId,
+        action: InvitationAction.EXTERNAL_PROJECT_INVITATION,
       })
       .then((res)=>{
         console.log(res.data.message);
@@ -139,7 +134,7 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
       setIsInviting(false);
       setDialogOpen(false);
       form.reset();
-      fetchInvitations(orgId || "");
+      fetchInvitations(Array.isArray(project_id) ? project_id[0] : project_id?.toString() ?? "");
     });
   }
 
@@ -160,16 +155,6 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
   }
 
 
-
-  const getRoleBadgeVariant = (role: OrganizationUserRole | ParticipantRole) => {
-    switch (role) {
-      // case OrganizationUserRole.ADMIN: return "default"
-      case OrganizationUserRole.MANAGER: return "secondary"
-      case OrganizationUserRole.MEMBER: return "outline"
-      default: return "secondary"
-    }
-  }
-
   const filteredInvitations = invitations.filter((invitation) =>
     invitation.toEmail.toLowerCase().includes(searchTerm.toLowerCase())
   ).sort((a, b) => {
@@ -182,15 +167,15 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
         <div className="flex items-center justify-between">
           <div className=' w-full flex items-center justify-between'>
             <div>
-              <CardTitle className="text-xl">Organization Invitations</CardTitle>
-              <CardDescription>Manage member invitations for the organization</CardDescription>
+              <CardTitle className="text-xl"> Invitations</CardTitle>
+              <CardDescription>Manage Contributor invitations for the project</CardDescription>
             </div>
             <div className="flex max-sm:flex-col-reverse items-end justify-end gap-2">
               {
                 isLoading ?
                   <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
                   :
-                <Button variant="outline" size="icon" className=' max-sm:!p-1' onClick={()=>fetchInvitations(orgId || '')}>
+                <Button variant="outline" size="icon" className=' max-sm:!p-1' onClick={()=>fetchInvitations(Array.isArray(project_id) ? project_id[0] : project_id?.toString() ?? '')}>
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               }
@@ -199,13 +184,8 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
                   <Button size="sm" className=' max-sm:!py-0 max-sm:scale-75 max-sm:translate-x-5 max-sm:text-xs'>
                     <UserPlus className="h-4 w-4 mr-2 max-sm:mr-0" />
                     Invite
-                    
                     <span className=' max-sm:hidden'>
-                     {
-                      auth.user?.access.createOrganizationUsers
-                        ? "Member"
-                        : "Manager"
-                    }
+                        Contributor
                     </span>
                   </Button>
                 </DialogTrigger>
@@ -217,11 +197,7 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
                         ? <UserPlus/>
                         :<LucideCrown/>
                     }
-                      Invite New {
-                      auth.user?.access.createOrganizationUsers
-                        ? "Member"
-                        : "Manager"
-                    }</DialogTitle>
+                      Invite New Contributor</DialogTitle>
                     <DialogDescription>
                       Send an invitation to join the organization
                     </DialogDescription>
@@ -244,8 +220,6 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
                           </FormItem>
                         )}
                       />
-                      {
-                        auth.user?.access.createOrganizationUsers ? 
                         <FormField
                         control={form.control}
                         name="role"
@@ -259,8 +233,8 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {Object.values(OrganizationUserRole)
-                                  .filter(role=> role !== OrganizationUserRole.MANAGER
+                                  {Object.values(ParticipantRole)
+                                  .filter(role=> role !== ParticipantRole.CREATOR
                                   ).map((role) => (
                                     <SelectItem key={role} value={role}>
                                       {role.charAt(0).toUpperCase() + role.slice(1)}
@@ -272,9 +246,6 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
                             </FormItem>
                           )}
                         />
-                        :
-                        <Badge variant={"default"}>Manager</Badge>
-                      }
                       <FormField
                         control={form.control}
                         name="subject"
@@ -365,7 +336,7 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
                 }`} key={invitation.id}>
                   <TableCell>{invitation.toEmail}</TableCell>
                   <TableCell>
-                    <Badge variant={getRoleBadgeVariant(invitation.role)}>
+                    <Badge variant="secondary">
                       {invitation.role}
                     </Badge>
                   </TableCell>
@@ -422,4 +393,4 @@ const InviteOrganizaionUsers:React.FC<Props> = ({orgId}) => {
   )
 }
 
-export default InviteOrganizaionUsers;
+export default InviteToProject;

@@ -1,5 +1,5 @@
 "use client";
-  import Header from "@/components/headers/Header";
+import Header from "@/components/headers/Header";
 import NotFound from "@/components/NotFound";
 import { fetchProject } from "@/redux/reducers/SelectedProject";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -12,8 +12,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
   const projectState = useSelector((state: RootState) => state.selectedProject);
   useEffect(() => {
-    if (project_id && !projectState.isLoaded) {
+    if (project_id && projectState.project?.id !== project_id ) {
       dispatch(fetchProject(project_id as string));
+      console.log("need load");
+    }
+    else{
+      console.log("no need load");
     }
   },[project_id, projectState.isLoaded]);
   if(projectState.isLoaded && projectState.project === null) {
@@ -21,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
   return (
     <>
-      <Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
         <Header/>
       </Suspense>
       <main>

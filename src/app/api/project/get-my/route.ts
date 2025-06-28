@@ -29,6 +29,7 @@ export async function GET(req:Request) {
         const my_projects = await db
             .selectDistinct({
                 id: projects.id,
+                creator_id: projects.creator_id,
                 name: projects.name,
                 domain: projects.domain,
                 problemStatement: projects.problemStatement,

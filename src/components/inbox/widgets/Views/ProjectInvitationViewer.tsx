@@ -17,12 +17,11 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { format } from 'date-fns'
-import { InvitationStatus, OrganizationUserRole } from '@/types/invitationType'
+import { InvitationStatus } from '@/types/invitationType'
 import { Inbox } from '@/types/inboxType'
 import axiosInstance from "@/config/AxiosConfig"
-import { Organization } from '@/types/organizationType'
+import { Project } from '@/types/projectType'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -43,63 +42,63 @@ interface Props {
   }) => void; // Function to handle item change
 }
 
-const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleTrashItem,handleArchiveItem,handleItemChange }) => {
-  const [organization, setOrganization] = useState<Organization | null>(null)
+const ProjectInvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleTrashItem,handleArchiveItem,handleItemChange }) => {
+  const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(false)
+  const [actionLoading, setActionLoading] = useState(false)
   const invitationData = invitation.invitation;
   const auth = useSelector((state: RootState) => state.auth); 
   const router = useRouter();
+
   useEffect(() => {
-    const fetchOrganization = async () => {
-      if (!invitationData?.org_id) return
+    const fetchProject = async () => {
+      if (!invitationData?.projectId) return;
       
       setLoading(true)
       try {
-        const response = await axiosInstance.get(`/api/get/org?orgId=${invitationData.org_id}`)
-        setOrganization(response.data)
+        const response = await axiosInstance.get(`/api/project/get/basic`,{
+            params: {
+                projectId: invitationData.projectId
+            }
+        });
+        setProject(response.data)
       } catch (error) {
-        console.error('Failed to fetch organization:', error)
+        console.error('Failed to fetch project:', error)
+        toast.error('Failed to fetch project details')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchOrganization()
-  }, [invitationData?.org_id])
+    fetchProject()
+  }, [invitationData?.projectId])
 
   const [Status,setStatus] = useState<InvitationStatus>(invitationData?.status || InvitationStatus.PENDING);
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
 
   const handleInvitationAction = async (action:InvitationStatus) => {
+    setActionLoading(true)
     axiosInstance.post('/api/manage/inbox/handle_invitation', {
       fromUserId: invitation.fromUser?.id || "",
       users_email: invitation.invitation?.toEmail || "",
       inboxId: invitation?.id,
       action: invitationData?.action,
       inviteId: invitationData?.id,
-      role: invitationData?.role || OrganizationUserRole.MEMBER,
-      orgId: invitationData?.org_id,
-      projectId: "",
-      slug: organization?.slug || "",
+      role: invitationData?.role,
+      projectId: invitationData?.projectId,
       status: action
     }).then(async (response) => {
       console.log('Invitation action response:', response.data);
-      handleItemChange(invitation.id || "", {
-        status: action,
-        seenAt: new Date().toISOString()
-      })
+      if (invitation.id) {
+        handleItemChange(invitation.id, {
+          status: action,
+          seenAt: new Date().toISOString()
+        })
+      }
+      setStatus(action);
       toast.success(`Invitation ${action.toLowerCase()} successfully!`, {
         duration: 3000,
-        description: `You have ${action.toLowerCase()} the invitation to join ${organization?.name || 'the organization'}.`
+        description: `You have ${action.toLowerCase()} the invitation to Contribute ${project?.name || 'the project'}.`
       })
-      setStatus(action);
       if(auth.user?.email){
         await RefreshToken(auth.user?.email);
       }
@@ -109,8 +108,47 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleT
         duration: 3000,
         description: error.response?.data?.error || 'An error occurred while processing the invitation.'
       })
+    }).finally(() => {
+      setActionLoading(false)
     })
   }
+
+//   const handleAcceptInvitation = async () => {
+//     setLoading(true)
+//     try {
+//       await axiosInstance.post(`/api/manage/invitations/${invitation.id}/accept`)
+//       if (invitation.id) {
+//         handleItemChange(invitation.id, { status: InvitationStatus.ACCEPTED })
+//       }
+//       toast.success('Invitation accepted successfully')
+//       if (invitationData?.projectId) {
+//         router.push(`/projects/${invitationData.projectId}`)
+//       } else if (invitationData?.org_id) {
+//         router.push(`/manage/${invitationData.org_id}`)
+//       }
+//     } catch (error) {
+//       console.error('Failed to accept invitation:', error)
+//       toast.error('Failed to accept invitation')
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
+
+//   const handleDeclineInvitation = async () => {
+//     setLoading(true)
+//     try {
+//       await axiosInstance.post(`/api/manage/invitations/${invitation.id}/decline`)
+//       if (invitation.id) {
+//         handleItemChange(invitation.id, { status: InvitationStatus.DECLINED })
+//       }
+//       toast.success('Invitation declined')
+//     } catch (error) {
+//       console.error('Failed to decline invitation:', error)
+//       toast.error('Failed to decline invitation')
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
 
   return (
     <div className="h-[calc(100vh - 60px)] relative max-sm:mt-12 max-sm:mb-20 w-full max-w-screen overflow-auto">
@@ -180,24 +218,18 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleT
         </div>
         :
       <div className=" mx-auto overflow-y-auto">
-          {/* Gmail-style email header - Mobile responsive */}
+          {/* Email header - Mobile responsive */}
           <div className="px-3 sm:px-6 py-3 sm:py-4 border-b">
             <div className="flex items-start gap-3 sm:gap-4">
-              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
-                  <AvatarImage src={organization?.logo || ''} alt={organization?.name || 'Organization Logo'} />
-                <AvatarFallback className="font-medium text-xs sm:text-sm">
-                  {organization ? getInitials(organization.name) : 'ORG'}
-                </AvatarFallback>
-              </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                   <div className="flex items-start sm:items-center gap-2 flex-wrap">
                     <h1 className="text-lg sm:text-xl capitalize font-normal leading-tight">
-                      {invitationData?.subject || 'Organization Invitation'}
+                      Project Invitation
                     </h1>
                     <Badge variant="secondary" className="text-xs">
                       <Shield className="h-3 w-3 mr-1" />
-                      Invitation
+                      Project Invitation
                     </Badge>
                   </div>
                   <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
@@ -206,13 +238,10 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleT
                 </div>
                 <div className="flex flex-wrap flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium truncate max-w-[150px] sm:max-w-none">
-                      {loading ? 'Loading...' : organization?.name || 'Organization'}
-                    </span>
-                    <span className="text-muted-foreground truncate">&lt;{invitation.fromUser?.email}&gt;</span>
+                    <span className="text-muted-foreground truncate">From: &lt;{invitation.fromUser?.email}&gt;</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">to</span>
+                    <span className="text-muted-foreground">To:</span>
                     <span className="font-medium truncate">{invitationData?.toEmail}</span>
                   </div>
                 </div>
@@ -226,66 +255,70 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleT
               {/* Message body */}
               <div className="leading-relaxed">
                 <p className="mb-4 text-sm sm:text-base">
-                  {invitationData?.message || `You've been invited to join ${organization?.name || 'our organization'}.`}
+                  {invitationData?.message || "You've been invited to join this project."}
                 </p>
               </div>
 
-              {/* Organization card - Gmail style - Mobile responsive */}
-              <div className="rounded-lg p-3 sm:p-4">
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-                    <AvatarFallback className="font-medium text-sm capitalize">
-                      {organization ? getInitials(organization.name) : 'ORG'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <Link href={"/org/"+organization?.slug} target='_blank' className="font-medium mb-1 text-sm sm:text-base">
-                      {loading ? 'Loading organization...' : organization?.name || 'Organization'}
-                    </Link>
-                    {organization?.description && (
-                      <p className="text-xs sm:text-sm mb-2 text-muted-foreground line-clamp-2">{organization.description}</p>
-                    )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                        <span className="text-muted-foreground min-w-[40px]">Role:</span>
-                        <span className="font-medium">
-                          {invitationData?.role || invitationData?.invitedTo}
+              {/* Project details */}
+              {project && (
+                <div className="rounded-lg p-3 sm:p-4 border">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-muted flex items-center justify-center">
+                        <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                          {project?.name?.charAt(0)?.toUpperCase()}
                         </span>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                        <span className="text-muted-foreground min-w-[100px] sm:min-w-[120px]">Organization ID:</span>
-                        <code className="text-xs px-2 py-1 w-fit rounded border truncate bg-muted font-mono break-all">
-                          {invitationData?.org_id ? invitationData.org_id.slice(0,8) + "x".repeat(invitationData.org_id.length - 8) : 'N/A'}
-                        </code>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <Link href={`/projects/${project.id}`} target='_blank' className="font-medium mb-1 text-sm sm:text-base">
+                        {project.name}
+                      </Link>
+                      <pre   className="text-xs sm:text-sm mb-2 text-muted-foreground ">
+                        {project.problemStatement}
+                      </pre>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs sm:text-sm rounded-full bg-muted px-3 py-1">
+                          {project.status}
+                        </span>
+                        <span className="text-xs sm:text-sm rounded-full bg-muted px-3 py-1">
+                          {project.visibility}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Action buttons - Mobile responsive */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Button 
                   className="w-full sm:w-auto px-4 sm:px-6 text-sm"
-                  disabled={Status !== InvitationStatus.PENDING}
+                  disabled={Status !== InvitationStatus.PENDING || actionLoading}
                   onClick={() => {
-                    // Handle accept invitation
                     handleInvitationAction(InvitationStatus.ACCEPTED)
                   }}
                 >
-                  <CheckCircle className="h-4 w-4 mr-2" />
+                  {actionLoading ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                  )}
                   Accept Invitation
                 </Button>
                 <Button 
                   variant="outline" 
                   className="w-full sm:w-auto px-4 sm:px-6 text-sm"
-                  disabled={Status !== InvitationStatus.PENDING}
+                  disabled={Status !== InvitationStatus.PENDING || actionLoading}
                   onClick={() => {
-                    // Handle decline invitation
                     handleInvitationAction(InvitationStatus.DECLINED)
                   }}
                 >
-                  <XCircle className="h-4 w-4 mr-2" />
+                  {actionLoading ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <XCircle className="h-4 w-4 mr-2" />
+                  )}
                   Decline
                 </Button>
               </div>
@@ -300,10 +333,9 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleT
                       <XCircle className="h-5 w-5 !text-red-500" />
                     }
                   <AlertTitle>Invitation action</AlertTitle>
-                  <AlertDescription className=' flex flex-wrap'>
-                    You have {Status.toLowerCase()} the invitation to join{' '}
-                    <span className="font-medium capitalize">{organization?.name || 'the organization'}</span>
-                    {Status === InvitationStatus.ACCEPTED && ' You can now access the organization dashboard and resources.'}
+                  <AlertDescription className='flex flex-wrap'>
+                    You have {Status.toLowerCase()} the invitation to join {project?.name && <span className="font-medium ml-1">{project.name}</span>}
+                    {Status === InvitationStatus.ACCEPTED && '. You can now access the project dashboard and resources.'}
                   </AlertDescription>
                 </Alert>
               }
@@ -336,4 +368,4 @@ const InvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,handleT
   )
 }
 
-export default InvitationViewer
+export default ProjectInvitationViewer

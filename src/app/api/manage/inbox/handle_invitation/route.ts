@@ -1,10 +1,12 @@
 import { db } from "@/db/drizzle";
 import { inbox } from "@/db/Schema/InboxSchema";
 import { invitations } from "@/db/Schema/InvitationSchema";
-import { participants } from "@/db/Schema/ParticipantSchema";
+import { projects } from "@/db/Schema/ProjectSchema";
 import { users } from "@/db/Schema/UserSchema";
+import { addParticipant } from "@/lib/AddParticipant";
 import send_Notification from "@/lib/SendNotification";
 import { InvitationAction, InvitationStatus } from "@/types/invitationType";
+import { ParticipantRole } from "@/types/participantType";
 import { and, eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -30,7 +32,9 @@ export async function POST(req: Request) {
             orgId,
             projectId,
             status,
-            slug
+            slug,
+            isLead,
+            isTeamMember,
         } = data;
 
         if(!inboxId || !action || !role) {
@@ -95,17 +99,13 @@ export async function POST(req: Request) {
                 })
             }
 
-            await db.update(invitations).set({
-                status: status
-            }).where(eq(invitations.id, inviteId));
-
             
             return new Response(JSON.stringify({ message: "Invitation accepted and organization assigned." }), {
                 status: 200,
                 headers: { "Content-Type": "application/json" },
             });
         }
-        if(action === InvitationAction.EXTERNAL_PROJECT_INVITATION){
+        else if(action === InvitationAction.EXTERNAL_PROJECT_INVITATION){
             if(!projectId || !role) {
                 return new Response(JSON.stringify({ error: " projectId, role required for invite type" }), {
                     status: 400,
@@ -113,18 +113,47 @@ export async function POST(req: Request) {
                 });
             }
 
-            await db.insert(participants).values({
-                id: crypto.randomUUID(),
-                userId: userId,
-                projectId: projectId,
-                role: role,
-                isLead: false, // default to false, can be updated later
-                isTeamMember: true, // default to true, can be updated later
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            })
-            // assign project.
+            let nofiPayload;
+            if(status === InvitationStatus.ACCEPTED){
+                const status0 = await addParticipant({
+                                userId: userId,
+                                projectId: projectId,
+                                isLead: isLead ?? false,
+                                isTeamMember: isTeamMember ?? true,
+                                role: role ?? ParticipantRole.CUSTOM
+                            });
+                    console.log(status0);
+            
+                    const [prj] = await db.select()
+                        .from(projects)
+                        .where(eq(projects.id, projectId));
+            
+                    nofiPayload = {
+                        userIds: [userId],
+                        title: prj.name || "Project Invitation",
+                        body: `You have been added to the project by
+                            as a ${role}.`,
+                        icon: "/favicon.ico",
+                        url: `${projectId}/dashboard`,
+                        renotify: true,
+                    }
+            }
+            else{
+                    nofiPayload = {
+                        userIds: [userId],
+                        title: users_email || "Project Invitation",
+                        body: `You have rejected the invitation to join the project as ${role}.`,
+                        icon: "/favicon.ico",
+                        // url: `${projectId}/dashboard`,
+                        renotify: true,
+                    }
+            }
+            send_Notification(nofiPayload);
         }
+
+        await db.update(invitations).set({
+            status: status
+        }).where(eq(invitations.id, inviteId));
 
         return new Response(JSON.stringify({ message: "Invitation action processed successfully." }), {
             status: 200,
