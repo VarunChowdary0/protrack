@@ -19,12 +19,13 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { useSelector } from "react-redux"
 import { RootState } from "@/redux/store"
-import { User } from "@/types/userTypes"
+import { User, UserRole } from "@/types/userTypes"
 import axiosInstance from "@/config/AxiosConfig"
 import OrganizationPeople from "./widgets/OrganizationPeople"
 import { Separator } from "../ui/separator"
 import ParticipantWid from "./widgets/ParticipantWid"
 import NotFound from "../NotFound"
+import InviteToProject from "./widgets/InviteToProject"
 
 const ManageParticipants = () => {
   const auth = useSelector((state: RootState) => state.auth);
@@ -63,43 +64,25 @@ const ManageParticipants = () => {
         setOrgLoading(false)
       }
     }
-    if (auth.user){
+    if (auth.user && auth.user.role !== UserRole.USER) {
       fetchOrgUsers()
     }
   },[auth.user])
 
-  if(!auth.user?.access.createProjects){
+  if(!auth.user || !project){
+    return <div className=" w-full h-screen flex items-center justify-center">
+      <Loader2 className="animate-spin h-8 w-8 text-muted-foreground" />
+    </div>
+  }
+
+  if((auth.user?.id !== project?.creator_id)){
     return <NotFound/>
   }
 
-  return (
-    <Card className="border shadow-sm rounded-none min-h-screen">
-      <CardHeader className="pb-4 max-sm:pb-0">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Users className="w-5 h-5 text-primary" /> Manage Participants
-          </CardTitle>
-        </div>
-        <CardDescription>Manage project participants and their roles</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className=" flex w-full gap-2 max-md:flex-col">
-          <ScrollArea className="h-[50vh] flex-3/4 pr-4">
-          {
-            selPrj.isLoaded ? 
-            <div className="space-y-3">
-              {project?.participants && project.participants.map((participant) => (
-                <ParticipantWid key={participant.id} {...participant}/>
-              ))}
-            </div>
-            :
-            <div className=" h-[80vh] flex  items-center justify-center ">
-              <Loader2 className="animate-spin h-8 w-8 text-muted-foreground" />
-            </div>
-          }
-          </ScrollArea>
-          <Separator orientation="vertical" className="h-full" />
-          <div className="space-y-4 flex-1/4 py-0">
+  
+
+  const orgMenbers = () => {
+    return           <div className="space-y-4 flex-1/4 py-0">
               <div className="relative">
                 <UserSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
@@ -136,7 +119,44 @@ const ManageParticipants = () => {
                 }
               </div>
           </div>
+  }
+
+  return (
+    <Card className="border shadow-sm rounded-none min-h-screen">
+      <CardHeader className="pb-4 max-sm:pb-0">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" /> Manage Participants
+          </CardTitle>
         </div>
+        <CardDescription>Manage project participants and their roles</CardDescription>
+      </CardHeader>
+      <CardContent className=" flex flex-col gap-4">
+        <div className=" flex w-full gap-2 max-md:flex-col">
+          <ScrollArea className=" h-fit flex-3/4 pr-4">
+          {
+            selPrj.isLoaded ? 
+            <div className="space-y-3">
+              {project?.participants && project.participants.map((participant) => (
+                <ParticipantWid key={participant.id} {...participant}/>
+              ))}
+            </div>
+            :
+            <div className=" h-[80vh] flex  items-center justify-center ">
+              <Loader2 className="animate-spin h-8 w-8 text-muted-foreground" />
+            </div>
+          }
+          </ScrollArea>
+          <Separator orientation="vertical" className="h-full" />
+          {
+            !(auth.user?.role === UserRole.USER) &&
+            orgMenbers()
+          }
+        </div>
+        {
+          (auth.user?.role === UserRole.USER) &&
+          <InviteToProject/>
+        }
       </CardContent>
     </Card>
   )

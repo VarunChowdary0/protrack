@@ -66,12 +66,13 @@ export async function POST(req:Request) {
         } // else if (action === InvitationAction.INVITE_PROJECT) normal user can invite to a project
 
         // --------
-            
-        if (!fromId || !toEmail || !subject || !message || !action || !org_id || !role) {
-            return new Response(JSON.stringify({ error: "Missing required fields" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
+        if(org_id){
+            if (!fromId || !toEmail || !subject || !message || !action || !org_id || !role) {
+                return new Response(JSON.stringify({ error: "Missing required fields" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
         }
         const invitationId = uuid();
     

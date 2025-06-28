@@ -13,6 +13,8 @@ const Members = () => {
   const router = useRouter();
   const auth = useSelector((state: RootState) => state.auth);
   const project = useSelector((state: RootState) => state.selectedProject.project);
+
+  console.log(auth.user?.id, project?.creator_id);
   return (
       <div className=' w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-5'>
         <Card className=' max-sm:shadow-none max-sm:!border-none'>
@@ -45,7 +47,7 @@ const Members = () => {
                 ))
               }
             </div>
-            { auth.user?.access?.createProjects &&
+            { (auth.user?.id === project?.creator_id) &&
               <div className=' w-full flex items-center justify-center'>
               <Button onClick={()=>  router.push(`/${project?.id}/manage-participants`)}> 
                 <PlusCircle size={16} className=' text-green-600 cursor-pointer' />

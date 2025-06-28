@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from 'react'
-import InvitationViewer from './Views/InvitationViewer';
+import InvitationViewer from './Views/OrgInvitationViewer';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import axiosInstance from '@/config/AxiosConfig';
@@ -12,6 +12,8 @@ import NotFound from '@/components/NotFound';
 import { InboxItemType } from '@/types/inboxType';
 import MessageViewer from './Views/MessageViewer';
 import { toast } from 'sonner';
+import { InvitationAction } from '@/types/invitationType';
+import ProjectInvitationViewer from './Views/ProjectInvitationViewer';
 
 const RenderMail:React.FC = () => {
     const { inbox_item } = useParams();
@@ -96,13 +98,28 @@ const RenderMail:React.FC = () => {
     const renderBLOCK = () => {
         switch (viewItem?.type) {
             case InboxItemType.INVITE:
-                return  <InvitationViewer 
+                if(viewItem.invitation?.action === InvitationAction.INVITE_ORGANIZATION) {
+                    return  <InvitationViewer 
+                            invitation={viewItem}
+                            handleArchiveItem={handleArchiveItem}
+                            handleStarToggle={handleStarToggle}
+                            handleTrashItem={handleTrashItem}
+                            handleItemChange={handleItemChange}
+                        />;
+                }
+                else if(viewItem.invitation?.action === InvitationAction.EXTERNAL_PROJECT_INVITATION) {
+                    return <ProjectInvitationViewer
                         invitation={viewItem}
-                        handleArchiveItem={handleArchiveItem}
                         handleStarToggle={handleStarToggle}
+                        handleArchiveItem={handleArchiveItem}
                         handleTrashItem={handleTrashItem}
                         handleItemChange={handleItemChange}
-                    />;
+                    />
+                }
+                else{
+                    return <NotFound />;
+                }
+                
             case InboxItemType.MESSAGE:
                 return <MessageViewer
                     message={viewItem}

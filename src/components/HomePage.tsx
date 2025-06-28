@@ -175,8 +175,8 @@ const ProjectCards = () => {
                       <CardTitle className="text-xl max-sm:text-[16px] font-semibold mb-1 max-sm:mb-0">
                         {project.name}
                       </CardTitle>
-                      <CardDescription className="text-sm mb-3">
-                        {project.problemStatement}
+                      <CardDescription className="text-sm mb-3 ">
+                        {project.problemStatement?.substring(0, Math.min(240,project.problemStatement.length))+"..." || "No description provided."}
                       </CardDescription>
                     </div>
                     {project.isDraft === 1 && (
@@ -191,6 +191,9 @@ const ProjectCards = () => {
                         </Link>
                       </div>
                     )}
+                    <div>{
+                        project.creator_id === user?.id && <Badge className=' bg-green-200 text-green-700 border-green-600'>Me</Badge>
+                      }</div>
                   </div>
 
                   <div className="flex items-center gap-2 mb-3">

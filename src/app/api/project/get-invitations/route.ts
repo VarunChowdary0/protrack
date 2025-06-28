@@ -1,8 +1,10 @@
-import { getProject } from "@/lib/GetProject";
+import { db } from "@/db/drizzle";
+import { invitations } from "@/db/Schema/InvitationSchema";
 import { getUser } from "@/lib/GetUser";
+import { eq } from "drizzle-orm";
 
 export async function GET(req: Request) {
-    try {
+    try{
         const authHeader = req.headers.get("Authorization");
         if (!authHeader || !authHeader.startsWith("USER_ID ")) {
             return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
@@ -20,46 +22,32 @@ export async function GET(req: Request) {
                 headers: { "Content-Type": "application/json" },
             });
         }
-        
+
         const url = new URL(req.url);
         const projectId = url.searchParams.get("projectId");
-
         if (!projectId) {
             return new Response(JSON.stringify({ error: "Project ID is required" }), {
                 status: 400,
                 headers: { "Content-Type": "application/json" },
             });
         }
+
+        // Fetch invitations for the project
+        const invs = await db.select()
+            .from(invitations)
+            .where(
+                eq(invitations.projectId, projectId)
+            );
         
-        const prj = await getProject(projectId);
-
-        if (!prj) {
-            return new Response(JSON.stringify({ error: "Project not found" }), {
-                status: 404,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
-        // Check if user is a participant
-        const isParticipant = prj.participants?.some((participant) => 
-            participant.userId === userId
-        );
-
-        if (isParticipant) {
-            return new Response(JSON.stringify(prj), {
-                status: 200,
-                headers: { "Content-Type": "application/json" },
-            });
-        } else {
-            return new Response(JSON.stringify({ error: "You are not a participant of this project" }), {
-                status: 403,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
-    } catch (error) {
-        console.error("Error fetching participants:", error);
-        return new Response(JSON.stringify({ error: "Failed to fetch participants" }), {
+        return new Response(JSON.stringify(invs), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
+            
+    }
+    catch (error) {
+        console.error("Error fetching invitations:", error);
+        return new Response(JSON.stringify({ error: "Failed to fetch invitations" }), {
             status: 500,
             headers: { "Content-Type": "application/json" },
         });
