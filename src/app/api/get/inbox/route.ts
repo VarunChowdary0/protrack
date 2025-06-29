@@ -3,7 +3,7 @@ import { calendar } from "@/db/Schema/CalendarSchema";
 import { inboxAttachments } from "@/db/Schema/InboxAttachmentSchema";
 import { inbox } from "@/db/Schema/InboxSchema";
 import { invitations } from "@/db/Schema/InvitationSchema";
-import { tasks } from "@/db/Schema/TaskSchema";
+import { tasks } from "@/db/Schema/project/TaskSchema";
 import { users } from "@/db/Schema/UserSchema";
 import { getUser } from "@/lib/GetUser";
 import { InboxItemType } from "@/types/inboxType";

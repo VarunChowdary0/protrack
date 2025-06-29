@@ -1,7 +1,7 @@
 import { pgTable, text } from "drizzle-orm/pg-core";
 import { participants } from "../ParticipantSchema";
 import { sql } from "drizzle-orm";
-import { projects } from "../ProjectSchema";
+import { projects } from "../project/ProjectSchema";
 
 export const chats = pgTable("chats", {
     id: text("id").primaryKey(),

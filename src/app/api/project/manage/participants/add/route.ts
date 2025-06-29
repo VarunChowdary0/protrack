@@ -1,5 +1,5 @@
 import { db } from "@/db/drizzle";
-import { projects } from "@/db/Schema/ProjectSchema";
+import { projects } from "@/db/Schema/project/ProjectSchema";
 import { addParticipant } from "@/lib/AddParticipant";
 import { getBasicPrj } from "@/lib/GetBasicPrj";
 import { getUser } from "@/lib/GetUser";

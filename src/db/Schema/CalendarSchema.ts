@@ -1,6 +1,6 @@
 import { pgTable, text } from "drizzle-orm/pg-core"
 import { participants } from "./ParticipantSchema";
-import { projects } from "./ProjectSchema";
+import { projects } from "./project/ProjectSchema";
 import { sql } from "drizzle-orm";
 
 export const calendar = pgTable("calendar", {

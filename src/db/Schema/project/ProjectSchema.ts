@@ -1,8 +1,8 @@
 import { ProjectStatus, Visibility } from "@/types/projectType";
 import { sql } from "drizzle-orm";
 import {text ,integer, pgTable, date} from "drizzle-orm/pg-core";
-import { organizations } from "./OrganizationSchema";
-import { users } from "./UserSchema";
+import { organizations } from "../OrganizationSchema";
+import { users } from "../UserSchema";
 
 export const projects = pgTable("projects", {
   id: text("id").primaryKey(),

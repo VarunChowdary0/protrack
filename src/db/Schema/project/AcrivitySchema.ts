@@ -1,7 +1,7 @@
 import { pgTable, text } from "drizzle-orm/pg-core";
-import { projects } from "./ProjectSchema";
 import { activityStatus } from "@/types/activityType";
 import { sql } from "drizzle-orm";
+import { projects } from "./ProjectSchema";
 
 
 export const activities = pgTable("activities", {

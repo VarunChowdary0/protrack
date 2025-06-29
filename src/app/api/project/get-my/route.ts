@@ -1,6 +1,6 @@
 import { db } from "@/db/drizzle";
 import { participants } from "@/db/Schema/ParticipantSchema";
-import { projects } from "@/db/Schema/ProjectSchema";
+import { projects } from "@/db/Schema/project/ProjectSchema";
 import { users } from "@/db/Schema/UserSchema";
 import { getUser } from "@/lib/GetUser";
 import { and, eq, or } from "drizzle-orm";

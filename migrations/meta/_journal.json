@@ -218,6 +218,20 @@
       "when": 1751086616665,
       "tag": "0030_lyrical_norman_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1751182896054,
+      "tag": "0031_fantastic_spitfire",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1751189558479,
+      "tag": "0032_heavy_sphinx",
+      "breakpoints": true
     }
   ]
 }

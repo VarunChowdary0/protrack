@@ -2,10 +2,10 @@ import { db } from "@/db/drizzle";
 import { getUser } from "@/lib/GetUser";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm";
-import { projects } from "@/db/Schema/ProjectSchema";
 import { ProjectStatus } from "@/types/projectType";
 import { addParticipant } from "@/lib/AddParticipant";
 import { ParticipantRole } from "@/types/participantType";
+import { projects } from "@/db/Schema/project/ProjectSchema";
 
 export async function PUT(req: Request) {
   try {

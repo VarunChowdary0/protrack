@@ -1,5 +1,5 @@
 import { boolean, pgTable, text } from "drizzle-orm/pg-core";
-import { projects } from "./ProjectSchema";
+import { projects } from "./project/ProjectSchema";
 import { users } from "./UserSchema";
 import { sql } from "drizzle-orm";
 import { ParticipantRole } from "@/types/participantType";

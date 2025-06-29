@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { eq } from "drizzle-orm";
 import { Project } from "@/types/projectType";
-import { projects } from "@/db/Schema/ProjectSchema";
+import { projects } from "@/db/Schema/project/ProjectSchema";
 
 export async function getBasicPrj(projectId?: string): Promise<Partial<Project> | null> {
   if (!projectId) return null;
