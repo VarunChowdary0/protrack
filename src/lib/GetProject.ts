@@ -1,12 +1,13 @@
 import { db } from "@/db/drizzle";
 import { eq } from "drizzle-orm";
 import { Project } from "@/types/projectType";
-import { projects } from "@/db/Schema/ProjectSchema";
+import { projects } from "@/db/Schema/project/ProjectSchema";
 import { participants } from "@/db/Schema/ParticipantSchema";
-import { activities } from "@/db/Schema/AcrivitySchema";
-import { timeLines } from "@/db/Schema/TimeLineSchema";
-import { resources } from "@/db/Schema/ResourseSchema";
+import { activities } from "@/db/Schema/project/AcrivitySchema";
+import { timeLines } from "@/db/Schema/timeline/TimeLineSchema";
+import { resources } from "@/db/Schema/project/ResourseSchema";
 import { users } from "@/db/Schema/UserSchema";
+import { documents } from "@/db/Schema/DoumentSchema";
 
 export async function getProject(projectId?: string): Promise<Project | null> {
   if (!projectId) return null;
@@ -44,7 +45,26 @@ export async function getProject(projectId?: string): Promise<Project | null> {
     .where(eq(participants.projectId, projectId)),
     db.select().from(activities).where(eq(activities.projectId, projectId)),
     db.select().from(timeLines).where(eq(timeLines.projectId, projectId)),
-    db.select().from(resources).where(eq(resources.projectId, projectId)),
+    db.select({
+      id: resources.id,
+      projectId: resources.projectId,
+      ownerId: resources.ownerId,
+      documentId: resources.documentId,
+      createdAt: resources.createdAt,
+      updatedAt: resources.updatedAt,
+      document: {
+        id: documents.id,
+        name: documents.name,
+        description: documents.description,
+        filePath: documents.filePath,
+        fileType: documents.fileType,
+        createdAt: documents.createdAt,
+        updatedAt: documents.updatedAt,
+      }
+    })
+    .from(resources)
+    .leftJoin(documents, eq(resources.documentId, documents.id))
+    .where(eq(resources.projectId, projectId)),
   ]);
 
   // Construct the final object
@@ -53,6 +73,6 @@ export async function getProject(projectId?: string): Promise<Project | null> {
     participants: participantRows.map(p => ({ ...p, user: p.user || undefined })),
     activities: activityRows,
     timelines: timelineRows,
-    resources: resourceRows,
+    resources: resourceRows.map(r => ({...r, document: r.document || undefined })),
   };
 }

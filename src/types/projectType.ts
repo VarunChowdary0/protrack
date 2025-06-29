@@ -1,6 +1,6 @@
 import { Activity } from "./activityType";
 import { Participant } from "./participantType";
-import { Resourse } from "./resourseType";
+import { Resource } from "./resourceType";
 import { Timeline } from "./timelineType";
 
 export enum Visibility{
@@ -47,5 +47,5 @@ export interface Project {
     participants?: Partial<Participant>[]; // Optional array of participants in the project
     activities?: Partial<Activity>[];
     timelines?: Partial<Timeline>[];
-    resources?: Partial<Resourse>[];
+    resources?: Partial<Resource>[];
 }

@@ -1,7 +1,7 @@
 import { integer, pgTable, text } from "drizzle-orm/pg-core";
 import { inbox } from "./InboxSchema";
-import { FileType } from "@/types/timelineType";
 import { sql } from "drizzle-orm";
+import { FileType } from "@/types/documentType";
 
 export const inboxAttachments = pgTable("inbox_attachments", {
     id: text("id").primaryKey(),

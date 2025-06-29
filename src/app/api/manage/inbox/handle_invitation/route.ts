@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { inbox } from "@/db/Schema/InboxSchema";
 import { invitations } from "@/db/Schema/InvitationSchema";
-import { projects } from "@/db/Schema/ProjectSchema";
+import { projects } from "@/db/Schema/project/ProjectSchema";
 import { users } from "@/db/Schema/UserSchema";
 import { addParticipant } from "@/lib/AddParticipant";
 import send_Notification from "@/lib/SendNotification";

@@ -1,5 +1,5 @@
 import { pgTable, text } from "drizzle-orm/pg-core";
-import { projects } from "../ProjectSchema";
+import { projects } from "../project/ProjectSchema";
 import { sql } from "drizzle-orm";
 
 export const group = pgTable("group", {

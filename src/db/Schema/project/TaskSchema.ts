@@ -1,6 +1,6 @@
 import {text ,integer, pgTable, boolean} from "drizzle-orm/pg-core";
 import { projects } from "./ProjectSchema";
-import { participants } from "./ParticipantSchema";
+import { participants } from "../ParticipantSchema";
 import { TaskStatus } from "@/types/taskTypes";
 import { sql } from "drizzle-orm";
 

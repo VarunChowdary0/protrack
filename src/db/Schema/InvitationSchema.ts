@@ -2,7 +2,7 @@ import { pgTable, text } from "drizzle-orm/pg-core";
 import { users } from "./UserSchema";
 import { InvitationAction, InvitationStatus, OrganizationUserRole } from "@/types/invitationType";
 import { organizations } from "./OrganizationSchema";
-import { projects } from "./ProjectSchema";
+import { projects } from "./project/ProjectSchema";
 import { sql } from "drizzle-orm";
 
 export const invitations = pgTable("invitations", {

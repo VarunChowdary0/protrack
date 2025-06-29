@@ -1,7 +1,7 @@
 import { CalendarType } from "./calendarType";
 import { Invitation } from "./invitationType";
 import { Task } from "./taskTypes";
-import { FileType } from "./timelineType";
+import { FileType } from "./documentType";
 import { User } from "./userTypes";
 
 export interface InboxAttachment{
