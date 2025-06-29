@@ -4,10 +4,10 @@ import { Project } from "@/types/projectType";
 import { projects } from "@/db/Schema/project/ProjectSchema";
 import { participants } from "@/db/Schema/ParticipantSchema";
 import { activities } from "@/db/Schema/project/AcrivitySchema";
-import { timeLines } from "@/db/Schema/timeline/TimeLineSchema";
 import { resources } from "@/db/Schema/project/ResourseSchema";
 import { users } from "@/db/Schema/UserSchema";
 import { documents } from "@/db/Schema/DoumentSchema";
+import { getProjectTimeLines } from "./GetProjectTimeLines";
 
 export async function getProject(projectId?: string): Promise<Project | null> {
   if (!projectId) return null;
@@ -44,7 +44,7 @@ export async function getProject(projectId?: string): Promise<Project | null> {
       .leftJoin(users, eq(participants.userId, users.id))
     .where(eq(participants.projectId, projectId)),
     db.select().from(activities).where(eq(activities.projectId, projectId)),
-    db.select().from(timeLines).where(eq(timeLines.projectId, projectId)),
+    getProjectTimeLines(projectId),
     db.select({
       id: resources.id,
       projectId: resources.projectId,

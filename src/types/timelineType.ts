@@ -7,6 +7,11 @@ export enum TimelineEventType {
     CANCELLED = "CANCELLED",
     POSTPONED = "POSTPONED",
 }
+export enum DocSubmissionStatus{
+    PENDING = "PENDING",
+    APPROVED = "APPROVED",
+    REJECTED = "REJECTED",
+}
 
 export interface RequiredDocument {
     id: string;
@@ -23,10 +28,12 @@ export interface DocumentSubmission{
     id: string;
     timelineId: string;
     submittedById: string;
+    referenceDocumentId: string;
     documentId: string;
     remarks?: string;
     reviewedAt?: string;
     reviewedById?: string;
+    status: DocSubmissionStatus;
     createdAt: string;
     updatedAt: string;
     document?: DocumentType;

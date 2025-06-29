@@ -85,6 +85,10 @@ export async function POST(request: Request) {
                 },
                 renotify: true,
             })
+            return new Response(JSON.stringify(newPhase[0]), {
+                status: 201,
+                headers: { "Content-Type": "application/json" },
+            });
         }
         else{
             return new Response(JSON.stringify({ error: "You are not the creator of this project" }), {

@@ -8,7 +8,7 @@ interface UploadFileParams {
   fileType: FileType;
   file: File | null; // optional for mock
 }
-
+// also try to compress the file before uploading
 export async function uploadFile(data: UploadFileParams): Promise<DocumentType> {
   if (!data.name || !data.description || !data.fileType) {
     throw new Error("Name, description, and file type are required.");
