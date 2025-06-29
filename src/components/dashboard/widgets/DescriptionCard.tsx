@@ -11,7 +11,7 @@ const DescriptionCard = () => {
   return (
     <Card className='w-fit h-fit max-sm:shadow-none max-sm:!border-none'>
         <CardHeader style={{
-          zIndex: 1000
+          // zIndex: 1000
         }} className=' dark:bg-primary-foreground max-sm:py-3 max-sm:pt-4 max-sm:!gap-0 sticky max-sm:top-0'>
           <h2 className='text-2xl font-bold'>Dashboard</h2>
           <p className='text-sm text-muted-foreground'>Welcome to your dashboard!</p>

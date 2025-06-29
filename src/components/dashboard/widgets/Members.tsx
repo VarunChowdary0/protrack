@@ -51,7 +51,7 @@ const Members = () => {
               <div className=' w-full flex items-center justify-center'>
               <Button onClick={()=>  router.push(`/${project?.id}/manage-participants`)}> 
                 <PlusCircle size={16} className=' text-green-600 cursor-pointer' />
-                Add Member
+                Manage Member
               </Button>
             </div>}
           </CardContent>
