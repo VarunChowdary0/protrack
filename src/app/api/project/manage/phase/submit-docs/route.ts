@@ -97,7 +97,7 @@ export async function POST(request: Request) {
       result = {
         id: updated.id,
         timelineId: updated.timelineId,
-        submittedById: updated.submittedBy,
+        submittedBy: updated.submittedBy,
         referenceDocumentId: updated.referenceDocumentId,
         documentId: updated.documentId,
         remarks: updated.remarks || "",
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
       result = {
         id: inserted.id,
         timelineId: inserted.timelineId,
-        submittedById: inserted.submittedBy,
+        submittedBy: inserted.submittedBy,
         referenceDocumentId: inserted.referenceDocumentId,
         documentId: inserted.documentId,
         remarks: inserted.remarks || "",

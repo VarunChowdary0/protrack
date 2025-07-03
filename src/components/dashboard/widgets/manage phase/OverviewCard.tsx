@@ -1,6 +1,6 @@
 // File: widgets/manage phase/OverviewCard.tsx
 
-import { Timeline } from "@/types/timelineType";
+import { DocumentSubmission, RequiredDocument, Timeline } from "@/types/timelineType";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { TabsContent } from "@/components/ui/tabs";
@@ -8,8 +8,8 @@ import { Calendar, FileText, CheckCircle2 } from "lucide-react";
 
 interface OverviewCardProps {
     phaseData: Timeline & {
-        requiredDocuments?: any[];
-        submittedDocs?: any[];
+        requiredDocuments?: RequiredDocument[];
+        submittedDocs?: DocumentSubmission[];
     };
 }
 
@@ -19,10 +19,10 @@ export const OverviewCard: React.FC<OverviewCardProps> = ({ phaseData }) => {
     const progress = (verifiedDocs / Math.max(totalDocs, 1)) * 100;
 
     return (
-        <TabsContent value="overview" className="space-y-6">
-            <div className="flex flex-col md:flex-row gap-6">
+        <TabsContent value="overview" className="space-y-6 w-full flex">
+            <div className="flex flex-col w-full md:flex-row gap-6">
                 {/* Phase Details - Left */}
-                <Card className="border-0 shadow-md bg-gradient-to-br from-background to-background/50">
+                <Card className="border-0 w-full max-w-[450px] shadow-md bg-gradient-to-br from-background to-background/50">
                     <CardHeader className="pb-6">
                         <div className="flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-primary/10">
@@ -93,7 +93,7 @@ export const OverviewCard: React.FC<OverviewCardProps> = ({ phaseData }) => {
                 </Card>
 
                 {/* Phase Progress - Right */}
-                <Card className="w-full md:w-1/2 relative overflow-hidden border-0 shadow-md bg-gradient-to-br from-background to-background/50">
+                <Card className="w-full relative overflow-hidden border-0 shadow-md bg-gradient-to-br from-background to-background/50">
                     <CardHeader className="pb-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-primary/10">

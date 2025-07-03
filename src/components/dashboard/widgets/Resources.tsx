@@ -81,9 +81,14 @@ const Resources: React.FC = () => {
   }
 
   return (
-    <div className='grid grid-cols-2 px-3 max-sm:px-0 max-md:grid-cols-1 w-full gap-5'>
+    <div className=' mx-10 px-3 max-sm:px-0 max-md:grid-cols-1 w-full gap-5'>
       {/* Upload Resource Dialog */}
-      <Dialog>
+      {/* Resource List */}
+      <Card className='w-full max-sm:shadow-none max-sm:!border-none'>
+        <CardHeader>
+          <h2 className='text-lg font-semibold'>Resources</h2>
+          <p className='text-sm text-muted-foreground'>Manage your project resources here.</p>
+          <Dialog>
         <DialogTrigger className='flex items-center max-md:w-full !h-full'>
           <Card className='max-sm:mx-6 !border-dashed border-2 flex items-center justify-center w-full h-full border-pr hover:cursor-pointer transition-all hover:border-gray-400/30'>
             <CardContent className='h-full flex items-center justify-center'>
@@ -179,12 +184,6 @@ const Resources: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Resource List */}
-      <Card className='w-full max-sm:shadow-none max-sm:!border-none'>
-        <CardHeader>
-          <h2 className='text-lg font-semibold'>Resources</h2>
-          <p className='text-sm text-muted-foreground'>Manage your project resources here.</p>
         </CardHeader>
         <CardContent>
           {resources.length > 0 ? (

@@ -4,7 +4,7 @@ import { db } from "@/db/drizzle";
 import { document_submissions } from "@/db/Schema/timeline/DocumentSubmissions";
 import { getUser } from "@/lib/GetUser";
 import { DocSubmissionStatus } from "@/types/timelineType";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 
 export async function DELETE(request: Request) {
     try{
@@ -38,12 +38,14 @@ export async function DELETE(request: Request) {
             and(
                 eq(document_submissions.referenceDocumentId, refDocumentId),
                 eq(document_submissions.timelineId, timelineId),
-                eq(document_submissions.submittedBy, reqFromUser.user.id),
-                eq(document_submissions.status,DocSubmissionStatus.PENDING)
+                or(
+                    eq(document_submissions.status, DocSubmissionStatus.PENDING),
+                    eq(document_submissions.status, DocSubmissionStatus.REJECTED)
+                )
             )
         ).returning();
         if (deleted.length === 0) {
-            return new Response(JSON.stringify({ error: "No pending submission found to delete" }), {
+            return new Response(JSON.stringify({ error: "No unApproved submission found to delete" }), {
                 status: 404,
                 headers: { "Content-Type": "application/json" },
             });

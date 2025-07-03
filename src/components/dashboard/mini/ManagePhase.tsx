@@ -3,7 +3,7 @@
 import NotFound from '@/components/NotFound';
 import axiosInstance from '@/config/AxiosConfig';
 import { RootState } from '@/redux/store';
-import { Timeline, DocumentSubmission, RequiredDocument } from '@/types/timelineType';
+import { Timeline, DocumentSubmission, RequiredDocument, DocSubmissionStatus } from '@/types/timelineType';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -25,7 +25,6 @@ const ManagePhase: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [phaseData, setPhaseData] = useState<Timeline>();
   const [activeTab, setActiveTab] = useState('overview');
-  const [uploadingFiles, setUploadingFiles] = useState<{ [key: string]: boolean }>({});
 
   const isCreator = auth?.user?.id === project?.project?.creator_id;
 
@@ -44,33 +43,26 @@ const ManagePhase: React.FC = () => {
     else setIsLoading(false);
   }, [timeline_id]);
 
-  const handleFileSubmission = async (docId: string, file: File) => {
-    setUploadingFiles(prev => ({ ...prev, [docId]: true }));
-    const formData = new FormData();
-    formData.append('timelineId', timeline_id as string);
-    formData.append('referenceDocumentId', docId);
-    formData.append('fileType', 'pdf'); // or detect from file
-    formData.append('file', file);
+  useEffect(() => {
+    console.log(phaseData)
+  },[phaseData])
 
-    try {
-      await axiosInstance.post('/api/project/manage/phase/submit-docs', formData);
-      toast.success('Document submitted successfully');
-      fetchPhaseData();
-    } catch {
-      toast.error('Failed to submit document');
-    } finally {
-      setUploadingFiles(prev => ({ ...prev, [docId]: false }));
-    }
-  };
+
+  const participant = project.project?.participants?.find(
+    (p) => p.user?.id === auth.user?.id
+  ) || null;
 
   const handleEvaluateSubmission = async (
     submissionId: string,
-    status: 'approved' | 'rejected'
+    status: DocSubmissionStatus,
+    feedback?: string
   ) => {
     try {
       await axiosInstance.post('/api/project/manage/phase/submit-docs/review', {
         documentSubmissionId: submissionId,
         status,
+        remarks: feedback || '',
+        reviewdBy: participant?.id
       });
       toast.success('Submission reviewed');
       fetchPhaseData();
@@ -131,10 +123,11 @@ const ManagePhase: React.FC = () => {
               <RequiredDocSection
                 isCreator={isCreator}
                 timelineId={timeline_id as string}
-                docs={phaseData.requiredDocuments as RequiredDocument[]}
+                requiredDocuments={phaseData.requiredDocuments as RequiredDocument[]}
+                // uploadingFiles={uploadingFiles}
                 fetchPhaseData={fetchPhaseData}
-                uploadingFiles={uploadingFiles}
-                handleFileSubmission={handleFileSubmission}
+
+                submissions={phaseData.documentSubmissions || []}
               />
             </TabsContent>
 
