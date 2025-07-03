@@ -52,6 +52,6 @@ export interface Timeline {
     remarks?: string;
     createdAt: string;
     updatedAt: string;
-    requiredDoucments?: RequiredDocument[]; 
+    requiredDocuments?: RequiredDocument[]; 
     documentSubmissions?: DocumentSubmission[]; 
 }

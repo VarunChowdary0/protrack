@@ -10,7 +10,7 @@ import { RequiredDocument } from "@/types/timelineType";
 import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
-    try{
+    try {
         const authHeader = request.headers.get("Authorization");
         if (!authHeader || !authHeader.startsWith("USER_ID ")) {
             return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
@@ -32,8 +32,15 @@ export async function POST(request: Request) {
         const name = form.get("name") as string;
         const description = form.get("description") as string;
         const fileType = form.get("fileType") as FileType;
-        const file = form.get("file") as File;
-        
+        const file = form.get("file");
+
+        if (!file || !(file instanceof Blob)) {
+            return new Response(JSON.stringify({ error: "Valid file upload is required" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
         if (!timelineId || !name || !description || !fileType || !(file instanceof File)) {
             return new Response(JSON.stringify({ error: "All fields including file are required." }), {
                 status: 400,
@@ -54,18 +61,18 @@ export async function POST(request: Request) {
         const projectBasic = await getBasicPrj(projectId);
         if (!projectBasic) {
             return new Response(JSON.stringify({ error: "Project not found" }), {
-            status: 404,
-            headers: { "Content-Type": "application/json" },
+                status: 404,
+                headers: { "Content-Type": "application/json" },
             });
         }
 
         if (projectBasic.creator_id === reqFromUser.user.id) {
             // add required documents to the phase
             const newDoc = await uploadFile({
-                name:name,
-                description:description,
-                fileType:fileType,
-                file:file,
+                name: name,
+                description: description,
+                fileType: fileType,
+                file: file,
             });
 
 
@@ -78,14 +85,14 @@ export async function POST(request: Request) {
                 description: description,
             }).returning();
 
-            if(!newReqDoc || newReqDoc.length === 0) {
+            if (!newReqDoc || newReqDoc.length === 0) {
                 return new Response(JSON.stringify({ error: "Failed to add required document" }), {
                     status: 500,
                     headers: { "Content-Type": "application/json" },
                 });
             }
 
-            const result:RequiredDocument = {
+            const result: RequiredDocument = {
                 id: newReqDoc[0].id,
                 timelineId: newReqDoc[0].timelineId,
                 referenceDocumentId: newReqDoc[0].referenceDocumentId,
@@ -109,13 +116,13 @@ export async function POST(request: Request) {
                 headers: { "Content-Type": "application/json" },
             });
         }
-        else{
+        else {
             return new Response(JSON.stringify({ error: "You are not authorized to add required documents to this phase" }), {
                 status: 403,
                 headers: { "Content-Type": "application/json" },
             });
         }
-        
+
     }
     catch (error) {
         console.error("Error in POST request:", error);
