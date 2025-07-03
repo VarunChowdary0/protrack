@@ -27,8 +27,9 @@ export interface RequiredDocument {
 export interface DocumentSubmission{
     id: string;
     timelineId: string;
-    submittedById: string;
+    submittedBy: string;
     referenceDocumentId: string;
+    requiredDocument?: RequiredDocument;
     documentId: string;
     remarks?: string;
     reviewedAt?: string;
@@ -52,6 +53,6 @@ export interface Timeline {
     remarks?: string;
     createdAt: string;
     updatedAt: string;
-    requiredDoucments?: RequiredDocument[]; 
+    requiredDocuments?: RequiredDocument[]; 
     documentSubmissions?: DocumentSubmission[]; 
 }

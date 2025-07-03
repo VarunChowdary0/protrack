@@ -71,28 +71,37 @@ export async function GET(request: Request) {
           .leftJoin(documents, eq(requiredDocuments.referenceDocumentId, documents.id))
           .where(eq(requiredDocuments.timelineId, timelineId));
 
-        const submittedDocs = await db
-            .select({
-                id: document_submissions.id,
-                timelineId: document_submissions.timelineId,
-                documentId: document_submissions.documentId,
-                submittedBy: document_submissions.submittedBy,
-                status: document_submissions.status,
-                createdAt: document_submissions.createdAt,
-                updatedAt: document_submissions.updatedAt,
-                referenceDocument: {
-                    id: documents.id,
-                    name: documents.name,
-                    description: documents.description,
-                    fileType: documents.fileType,
-                    filePath: documents.filePath,
-                    createdAt: documents.createdAt,
-                    updatedAt: documents.updatedAt,
-                }
-            })
-            .from(document_submissions)
-            .leftJoin(documents, eq(document_submissions.referenceDocumentId, documents.id))
-            .where(eq(document_submissions.timelineId, timelineId));
+        const rawSubmittedDocs = await db
+        .select({
+            id: document_submissions.id,
+            timelineId: document_submissions.timelineId,
+            documentId: document_submissions.documentId,
+            submittedBy: document_submissions.submittedBy,
+            status: document_submissions.status,
+            createdAt: document_submissions.createdAt,
+            updatedAt: document_submissions.updatedAt,
+            referenceDocumentId: document_submissions.referenceDocumentId,
+            document: {
+            id: documents.id,
+            name: documents.name,
+            description: documents.description,
+            fileType: documents.fileType,
+            filePath: documents.filePath,
+            createdAt: documents.createdAt,
+            updatedAt: documents.updatedAt,
+            },
+        })
+        .from(document_submissions)
+        .leftJoin(documents, eq(document_submissions.documentId, documents.id))
+        .where(eq(document_submissions.timelineId, timelineId));
+
+        const submittedDocs = rawSubmittedDocs.map((submission) => {
+        const requiredDoc = reqDocs.find((doc) => doc.id === submission.referenceDocumentId) || null;
+        return {
+            ...submission,
+            requiredDocument: requiredDoc,
+        };
+        });
    
         
     
@@ -100,7 +109,7 @@ export async function GET(request: Request) {
         const result = {
             ...currTimeline,
             requiredDocuments: reqDocs,
-            submittedDocs: submittedDocs
+            documentSubmissions: submittedDocs
         };
 
 

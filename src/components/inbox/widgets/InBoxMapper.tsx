@@ -25,7 +25,6 @@ import {
   Search, 
   StarIcon,
   Trash2,
-  Construction,
   Mail
 } from 'lucide-react'
 import {
@@ -48,6 +47,7 @@ import { format, isToday, isYesterday, isThisYear, parseISO } from 'date-fns'
 import {  fetchInboxItems, selectInboxItem, updateInboxItem } from '@/redux/reducers/InboxReducer'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import SentMails from './SentMails'
 
 const InboxMapper: React.FC = () => {
 
@@ -263,26 +263,26 @@ const InboxMapper: React.FC = () => {
     }
 
     // Under Development Card Component
-    const UnderDevelopmentCard = () => (
-        <div className="flex-1 flex items-center justify-center p-8">
-            <Card className="max-w-md w-full text-center">
-                <CardHeader className="pb-4">
-                    <div className="mx-auto w-16 h-16 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-4">
-                        <Construction className="w-8 h-8 text-orange-600 dark:text-orange-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold">Under Development</h3>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground mb-4">
-                        The sent items feature is currently being developed and will be available soon.
-                    </p>
-                    <div className="text-sm text-muted-foreground">
-                        Check back later for updates!
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    );
+    // const UnderDevelopmentCard = () => (
+    //     <div className="flex-1 flex items-center justify-center p-8">
+    //         <Card className="max-w-md w-full text-center">
+    //             <CardHeader className="pb-4">
+    //                 <div className="mx-auto w-16 h-16 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-4">
+    //                     <Construction className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+    //                 </div>
+    //                 <h3 className="text-xl font-semibold">Under Development</h3>
+    //             </CardHeader>
+    //             <CardContent>
+    //                 <p className="text-muted-foreground mb-4">
+    //                     The sent items feature is currently being developed and will be available soon.
+    //                 </p>
+    //                 <div className="text-sm text-muted-foreground">
+    //                     Check back later for updates!
+    //                 </div>
+    //             </CardContent>
+    //         </Card>
+    //     </div>
+    // );
 
     // Empty State Component
     const EmptyState = () => {
@@ -391,7 +391,8 @@ const InboxMapper: React.FC = () => {
     const renderInboxList = () => {
         // Show under development card for sent view
         if (currentView === "sent") {
-            return <UnderDevelopmentCard />;
+            // return <UnderDevelopmentCard />;
+            return <SentMails/>;
         }
 
         // Show empty state if no items after filtering

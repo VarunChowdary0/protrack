@@ -30,6 +30,7 @@ export async function POST(request: Request) {
         const body = await request.json();
         const {
             documentSubmissionId,
+            reviewedBy,
             status,
             remarks,
         } = body;
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
             remarks: remarks !== undefined ? remarks : submissionWithTimeline[0].document_submissions?.remarks,
             status: status !== undefined ? status : submissionWithTimeline[0].document_submissions?.status,
             reviewedAt: new Date().toISOString(),
-            reviewedBy: reqFromUser.user.id,
+            reviewedBy: reviewedBy,
             updatedAt: new Date().toISOString(),
         })
         .where(eq(document_submissions.id, documentSubmissionId))
