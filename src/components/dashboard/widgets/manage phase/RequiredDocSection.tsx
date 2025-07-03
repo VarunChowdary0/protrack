@@ -53,7 +53,7 @@ export const RequiredDocSection: React.FC<RequiredDocSectionProps> = ({
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>subract Required Document</DialogTitle>
+              <DialogTitle>Add Required Document</DialogTitle>
               <DialogDescription>Define a new document requirement.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
