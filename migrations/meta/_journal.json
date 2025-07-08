@@ -253,6 +253,13 @@
       "when": 1751199639168,
       "tag": "0035_mixed_tenebrous",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1751972335885,
+      "tag": "0036_colossal_cobalt_man",
+      "breakpoints": true
     }
   ]
 }

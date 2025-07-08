@@ -114,7 +114,7 @@ const InboxMapper: React.FC = () => {
             item?.fromUser?.lastname?.toLowerCase().includes(searchTerm) ||
             item.type.toLowerCase().includes(searchTerm) ||
             item.attachments?.some((attachment) =>
-                attachment.name.toLowerCase().includes(searchTerm)
+                attachment.document?.name.toLowerCase().includes(searchTerm)
             )
         );
 
@@ -484,10 +484,10 @@ const InboxMapper: React.FC = () => {
                                         <Link href={`mail/${item.id}`} className="flex flex-col gap-1">
                                             <p className="break-words line-clamp-2 text-muted-foreground whitespace-pre-wrap">{item.description}</p>
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                {item?.attachments?.map((attachment) => (
+                                                {item?.attachments?.map((attachment,idx) => (
                                                     <div key={attachment.id} className="text-xs text-muted-foreground">
                                                         <Badge variant={item.seenAt.length !== 0 ? "secondary" : "default"} className={item.seenAt.length !== 0 ? "text-muted-foreground" : ""}>
-                                                            {attachment.name}
+                                                            {attachment?.document?.name || `Attachment ${idx+1}`}
                                                         </Badge>
                                                     </div>
                                                 ))}         
@@ -621,12 +621,12 @@ const InboxMapper: React.FC = () => {
                                     </div>
                                     {Array.isArray(item?.attachments) && item.attachments.length > 0 && (
                                         <div className="mt-2 flex flex-wrap gap-2">
-                                            {item.attachments.map((attachment) => (
+                                            {item.attachments.map((attachment,idx) => (
                                                 <Badge 
                                                     key={attachment.id}
                                                     className={`text-xs ${item.seenAt.length !== 0 && "!opacity-40"}`}
                                                 >
-                                                    {attachment.name} - {attachment.size}
+                                                                                                        {attachment?.document?.name || `Attachment ${idx+1}`} - {attachment.document?.fileType}
                                                 </Badge>
                                             ))}
                                         </div>

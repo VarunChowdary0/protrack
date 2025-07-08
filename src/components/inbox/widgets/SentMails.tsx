@@ -57,7 +57,8 @@ const SentMails = () => {
     }
 
     return (
-        <div>
+        <div className=' max-h-screen overflow-y-auto'>
+            <div className=' sticky top-3 z-10 hidden max-sm:block left-5 h-10 bg-card w-12 rounded-full '></div>
             {/* Desktop Table View */}
             <div className="overflow-auto max-sm:hidden">
                 <Table>
@@ -89,11 +90,11 @@ const SentMails = () => {
                                             {item.description}
                                         </p>
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            {item?.attachments?.map((attachment) => (
+                                            {item?.attachments?.map((attachment,idx) => (
                                                 <div key={attachment.id} className="text-xs text-muted-foreground">
                                                     <Badge variant={false ? "secondary" : "default"} 
                                                           className={ false ? "text-muted-foreground" : ""}>
-                                                        {attachment.name}
+                                                        {attachment?.document?.name || `Attachment ${idx+1}`}
                                                     </Badge>
                                                 </div>
                                             ))}         
@@ -124,13 +125,13 @@ const SentMails = () => {
             </div>
 
             {/* Mobile Card View */}
-            <div className="mt-0 flex max-sm:flex flex-col gap-0 sm:hidden">
+            <div className="mt-0 max-sm:flex flex-col gap-0 mb-20 overflow-y-auto sm:hidden">
                 {sentMails.map((item) => (
                     <div key={item.id}>
-                        <div className={`py-4 px-3 gap-3 items-start ${
+                        <div className={`py-4 px-3 gap-3 flex items-start ${
                             false ? "dark:bg-black/15 bg-[#00000007]" : ""
                         }`}>
-                            <div className="flex items-center justify-between mt-4">
+                            <div className="flex z-[1] items-center justify-between mt-4">
                                 <Avatar>
                                     <AvatarImage 
                                         src={item.fromUser?.profilePicture}
@@ -166,12 +167,12 @@ const SentMails = () => {
                                     </p>
                                     {Array.isArray(item?.attachments) && item.attachments.length > 0 && (
                                         <div className="mt-2 flex flex-wrap gap-2">
-                                            {item.attachments.map((attachment) => (
+                                            {item.attachments.map((attachment,idx) => (
                                                 <Badge 
                                                     key={attachment.id}
                                                     className={`text-xs ${false && "!opacity-40"}`}
                                                 >
-                                                    {attachment.name}
+                                                    {attachment?.document?.name || `Attachment ${idx+1}`}
                                                 </Badge>
                                             ))}
                                         </div>

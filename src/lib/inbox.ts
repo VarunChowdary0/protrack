@@ -15,7 +15,7 @@ interface InboxInput {
   calendarId?: string | null;
 }
 
-export async function createInboxEntry(data: InboxInput) {
+export async function createInboxEntry(data: InboxInput):Promise<string> {
   const {
     fromId,
     participantId,
@@ -34,9 +34,9 @@ export async function createInboxEntry(data: InboxInput) {
   }
 
   const now = new Date().toISOString();
-
+  const id =crypto.randomUUID();
   const entries = userIds.map((userId) => ({
-    id: crypto.randomUUID(),
+    id,
     fromId,
     participantId,
     userId,
@@ -51,7 +51,6 @@ export async function createInboxEntry(data: InboxInput) {
     updatedAt: now,
   }));
 
-  const createdInboxEntries = await db.insert(inbox).values(entries).returning();
-
-  return createdInboxEntries;
+  await db.insert(inbox).values(entries);
+  return id;
 }

@@ -10,7 +10,7 @@ export async function GET(req: Request) {
                 headers: { "Content-Type": "application/json" },
             });
         }
-        
+
         const userId = authHeader.split(" ")[1];
         const reqFromUser = await getUser(userId);
 
