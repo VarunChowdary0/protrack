@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { Inbox } from '@/types/inboxType';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import ViewAttachment from './ViewAttachment';
 
 interface MessageViewerProps {
   message: Partial<Inbox>;
@@ -169,14 +170,28 @@ const MessageViewer: React.FC<MessageViewerProps> = ({
 
             {/* Attachments section (if needed) */}
             {message.attachments && message.attachments.length > 0 && (
-              <div className="mt-6 border-t pt-4">
-                <h3 className="text-sm font-medium mb-3">Attachments</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {message.attachments.map((attachment, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 border rounded-lg">
-                      {/* Add attachment preview/download functionality here */}
-                    </div>
-                  ))}
+               <div className="mt-6 border-t pt-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                  Attachments
+                </h3>
+
+                <div className=" flex flex-wrap gap-4">
+                  {message.attachments.map((attachment, index) => {
+                    const doc = attachment.document;
+
+                    return doc ? (
+                      <div key={index} className="border rounded-md">
+                        <ViewAttachment document={doc} />
+                      </div>
+                    ) : (
+                      <div
+                        key={index}
+                        className="p-4 border rounded-md bg-muted text-sm text-muted-foreground"
+                      >
+                        {`Attachment ${index + 1} not available`}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

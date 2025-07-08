@@ -1,15 +1,16 @@
 import { CalendarType } from "./calendarType";
+import { DocumentType } from "./documentType";
 import { Invitation } from "./invitationType";
 import { Task } from "./taskTypes";
-import { FileType } from "./documentType";
 import { User } from "./userTypes";
 
 export interface InboxAttachment{
     id: string;
-    name: string;
     inboxId: string;
-    type: FileType;
-    size: number; // Size in bytes
+    documentId: string; // ID of the attached document
+    document?: DocumentType;
+    createdAt?: string; // Timestamp when the attachment was created
+    updatedAt?: string; // Timestamp when the attachment was last updated
 }
 export enum InboxItemType{
     INVITE ='invite',

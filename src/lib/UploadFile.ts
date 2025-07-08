@@ -28,6 +28,7 @@ export async function uploadFile(data: UploadFileParams): Promise<DocumentType> 
     png: "/mock/file.png",
     jpg: "/mock/file.jpg",
     jpeg: "/mock/file.jpeg",
+    webp: "/mock/file.webp",
     gif: "/mock/file.gif",
     mp4: "/mock/file.mp4",
     mp3: "/mock/file.mp3",

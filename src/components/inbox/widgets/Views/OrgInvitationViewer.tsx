@@ -332,6 +332,7 @@ const OrgInvitationViewer: React.FC<Props> = ({ invitation,handleStarToggle,hand
             </div>
           </div>
       </div>}
+      
     </div>
   )
 }

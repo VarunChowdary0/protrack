@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Paperclip, Image, Link2, MoreVertical, Send ,Trash2, XIcon } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import { Paperclip, Image, Link2, MoreVertical, Send, Trash2, XIcon, FileText } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react'
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
@@ -24,21 +24,88 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
   const [selectedRecipients, setSelectedRecipients] = useState<Partial<User>[]>([]);
   const [sending, setSending] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     to: replyTo || '',
     cc: '',
     bcc: '',
     subject: subject ? `Re: ${subject}` : '',
     message: '',
+    attachments: attachments
   });
   
   const [minimized, setMinimized] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  // Handle file selection
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const maxFileSize = 10 * 1024 * 1024; // 10MB limit
+    const maxFiles = 5; // Maximum 5 files
+
+    if (attachments.length + files.length > maxFiles) {
+      toast.error(`You can only attach up to ${maxFiles} files`);
+      return;
+    }
+
+    const validFiles = files.filter(file => {
+      if (file.size > maxFileSize) {
+        toast.error(`File "${file.name}" is too large. Maximum size is 10MB`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length > 0) {
+      setAttachments(prev => [...prev, ...validFiles]);
+      setFormData(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, ...validFiles]
+      }));
+      toast.success(`${validFiles.length} file(s) attached`);
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Remove attachment
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => {
+      const newAttachments = prev.filter((_, i) => i !== index);
+      setFormData(prevData => ({
+        ...prevData,
+        attachments: newAttachments
+      }));
+      return newAttachments;
+    });
+  };
+
+  // Format file size
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Get file icon based on file type
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) {
+      return <Image className="h-4 w-4" />;
+    }
+    return <FileText className="h-4 w-4" />;
   };
 
   const handleSend = async () => {
@@ -57,56 +124,64 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
     return emails.split(',').map(email => email.trim()).join(', ');
   };
 
+  useEffect(() => {
+    const debounceTimeout = setTimeout(async () => {
+      if (formData.to.length < 2) {
+        return;
+      }
+      try {
+        const response = await axiosInstance.get('/api/get/tomail-suggestions', {
+          params: {
+            query: formData.to.trim()
+          }
+        });
+        setSuggestions(response.data);
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+        setSuggestions([]);
+      }
+    }, 300);
 
-    useEffect(() => {
-        const debounceTimeout = setTimeout(async () => {
-            if (formData.to.length < 2) {
-                // setSuggestions([]);
-                return;
-            }
-            try {
-                const response = await axiosInstance.get('/api/get/tomail-suggestions', {
-                    params: {
-                        query: formData.to.trim()
-                    }
-                });
-                setSuggestions(response.data);
-            } catch (error) {
-                console.error("Error fetching suggestions:", error);
-                setSuggestions([]);
-            }
-        }, 300); // 300ms debounce delay
+    return () => clearTimeout(debounceTimeout);
+  }, [formData.to]);
 
-        return () => clearTimeout(debounceTimeout);
-    }, [formData.to]);
+  const filterSeen = suggestions.filter((ele) => {
+    return !selectedRecipients.some((rec) => rec.email === ele.email);
+  });
 
-    const filterSeen = suggestions.filter((ele) => {
-        return !selectedRecipients.some((rec) => rec.email === ele.email);
-    });
+  const sendEmail = async () => {
+    const tos = selectedRecipients.map(rec => rec.id);
+    setSending(true);
+    
+    try {
+      // Create FormData for file uploads
+      const emailData = new FormData();
+      emailData.append('toIds', JSON.stringify(tos));
+      emailData.append('subject', formData.subject);
+      emailData.append('text', formData.message);
+      
+      // Append attachments
+      attachments.forEach((file) => {
+        emailData.append(`attachments`, file);
+      });
 
-    const sendEmail = async () => {
-        const tos = selectedRecipients.map(rec => rec.id);
-        setSending(true);
-        axiosInstance.post('/api/manage/send/mail', {
-            toIds: tos,
-            subject: formData.subject,
-            text: formData.message,
-            image: "", // Add image handling if needed
-        })
-            .then(response => {
-                console.log("Email sent successfully:", response.data);
-                toast.success("Email sent successfully!");
-                closeCompose();
-            }
-            )
-            .catch(error => {
-                console.error("Error sending email:", error);
-                toast.error("Failed to send email");
-            })
-            .finally(() => {
-                setSending(false);
-            }); 
+      const response = await axiosInstance.post('/api/manage/send/mail', emailData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log("Email sent successfully:", response.data);
+      toast.success("Email sent successfully!");
+      closeCompose();
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("Failed to send email");
+    } finally {
+      setSending(false);
     }
+  };
+
   if (minimized) {
     return (
       <Card className="fixed bottom-0 right-4 w-80 shadow-lg">
@@ -116,6 +191,12 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
             {formData.subject || 'New Message'}
           </span>
           <div className="flex items-center gap-2">
+            {attachments.length > 0 && (
+              <div className="flex items-center gap-1 text-xs">
+                <Paperclip className="h-3 w-3" />
+                {attachments.length}
+              </div>
+            )}
             <XIcon className="h-4 w-4 hover:text-primary-foreground/80" 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -127,9 +208,8 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
     );
   }
 
-
   return (
-    <div className="h-[calc(100vh-60px)] relative max-sm:mt-12 max-sm:mb-20 w-full max-w-screen overflow-auto">
+    <div className="h-[calc(100vh-60px)] max-sm:pb-16 relative max-sm:mt-12 max-sm:mb-20 w-full max-w-screen overflow-auto">
       <div style={{ zIndex: 2000 }} 
            className="border-b max-sm:fixed pt-2 max-sm:pt-0 top-0 left-0 right-0 z-10 bg-card">
         <div className="px-4 py-3 flex items-center justify-between border-b">
@@ -181,7 +261,7 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
                 value={formData.to}
                 onChange={(e) => handleInputChange('to', formatRecipients(e.target.value))}
                 onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // slight delay to allow click
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               {
@@ -190,7 +270,7 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
                     {
                         filterSeen.map((ele,idx)=>
                             <div key={idx}
-                                onMouseDown={(e) => e.preventDefault()} // prevents input blur
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={()=>{
                                     setSelectedRecipients(prev => [...prev, ele]);
                                     handleInputChange('to', formatRecipients(""));
@@ -216,6 +296,7 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
           </div>
 
           <Separator />
+          
           {/* Subject */}
           <Input
             placeholder="Subject"
@@ -247,13 +328,59 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
             </Tooltip>
             <Tooltip>
               <TooltipTrigger>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Paperclip className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Attach files</TooltipContent>
             </Tooltip>
+            
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFileSelect}
+              // accept="*/*"
+            />
           </div>
+
+          {/* Attachments Display */}
+          {attachments.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-muted-foreground">
+                Attachments ({attachments.length})
+              </div>
+              <div className="space-y-2">
+                {attachments.map((file, index) => (
+                  <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+                    <div className="flex-shrink-0">
+                      {getFileIcon(file.name)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{file.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatFileSize(file.size)}
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeAttachment(index)}
+                      className="flex-shrink-0 h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <XIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Message body */}
           <Textarea
@@ -261,7 +388,6 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
             value={formData.message}
             onChange={(e) => handleInputChange('message', e.target.value)}
             className="min-h-[300px] h-[100%] max-sm:min-h-[440px] resize-none flex-1 border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-
           />
 
           {/* Action buttons */}
@@ -284,6 +410,9 @@ const ComposeMail: React.FC<ComposeMailProps> = ({ closeCompose, replyTo, subjec
                   <>
                     <Send className="h-4 w-4 mr-2" />
                     Send
+                    {attachments.length > 0 && (
+                      <span className="ml-1 text-xs">({attachments.length})</span>
+                    )}
                   </>
                 )}
               </Button>

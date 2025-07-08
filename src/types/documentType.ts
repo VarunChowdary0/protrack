@@ -9,6 +9,7 @@ export enum FileType{
     PNG = "png",
     JPG = "jpg",
     JPEG = "jpeg",
+    WEBP = "webp",
     GIF = "gif",
     MP4 = "mp4",
     MP3 = "mp3",
