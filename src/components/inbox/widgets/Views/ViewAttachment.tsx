@@ -22,7 +22,7 @@ const ViewAttachment: React.FC<ViewAttachmentProps> = ({ document }) => {
   const isPDF = document.fileType === FileType.PDF;
 
   return (
-    <div className=' flex flex-col w-[200px] max-sm:w-[180px] rounded h-[120px] border'>
+    <div className=' flex flex-col w-[200px] max-sm:w-[160px] rounded h-[120px] border'>
         <div className=' h-[90px] overflow-hidden w-full flex  items-center justify-center'>
              {isImage && (
                 <img
@@ -44,12 +44,12 @@ const ViewAttachment: React.FC<ViewAttachmentProps> = ({ document }) => {
                 </div>
                 )}
         </div>
-        <div className=' h-[30px] bg-secondary pt-1 w-full flex px-2'>
+        <div className=' h-[30px] bg-secondary pt-1 max-sm:pt-0.5 w-full flex px-2'>
             
-            <div className=' flex-2/3 max-w-[150px] max-sm:max-w-[100px] truncate'>
+            <div className=' flex-2/3 max-w-[150px] max-sm:max-w-[85px] truncate'>
                 <Tooltip>
                     <TooltipTrigger>
-                    <span className=' overflow-x-hidden text-sm '>
+                    <span className=' overflow-x-hidden max-sm:text-xs text-sm '>
                         {fileName}
                     </span>
                     </TooltipTrigger>
