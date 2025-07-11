@@ -22,7 +22,7 @@ const ViewAttachment: React.FC<ViewAttachmentProps> = ({ document }) => {
   const isPDF = document.fileType === FileType.PDF;
 
   return (
-    <div className=' flex flex-col w-[200px] rounded h-[120px] border'>
+    <div className=' flex flex-col w-[200px] max-sm:w-[180px] rounded h-[120px] border'>
         <div className=' h-[90px] overflow-hidden w-full flex  items-center justify-center'>
              {isImage && (
                 <img
@@ -46,7 +46,7 @@ const ViewAttachment: React.FC<ViewAttachmentProps> = ({ document }) => {
         </div>
         <div className=' h-[30px] bg-secondary pt-1 w-full flex px-2'>
             
-            <div className=' flex-2/3 max-w-[150px] truncate'>
+            <div className=' flex-2/3 max-w-[150px] max-sm:max-w-[100px] truncate'>
                 <Tooltip>
                     <TooltipTrigger>
                     <span className=' overflow-x-hidden text-sm '>
@@ -73,50 +73,6 @@ const ViewAttachment: React.FC<ViewAttachmentProps> = ({ document }) => {
         </div>
     </div>
   );
-
-//   return (
-//     <div className="relative group max-w-[240px] h-full border rounded-xl flex-col shadow-sm hover:shadow-lg flex overflow-hidden bg-white dark:bg-muted transition-all">
-//       {/* Preview Area */}
-    //   <div className="w-full aspect-[4/3] flex-1  bg-gray-100 flex items-center justify-center">
-    //     {isImage && (
-    //       <img
-    //         src={fileUrl}
-    //         alt={fileName}
-    //         className="object-cover w-full h-full"
-    //       />
-    //     )}
-
-    //     {isPDF && (
-    //       <div className="text-sm font-semibold text-white bg-red-600 px-4 py-2 rounded">
-    //         PDF Preview
-    //       </div>
-    //     )}
-
-    //     {!isImage && !isPDF && (
-    //       <div className="text-xs text-muted-foreground text-center px-2">
-    //         Preview not available
-    //       </div>
-    //     )}
-    //   </div>
-
-//       {/* Footer */}
-//       <div className="flex items-center justify-between p-2">
-        // <span className="text-sm font-medium truncate max-w-[140px]">{fileName}</span>
-        // <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        //   <a href={fileUrl} download target="_blank" rel="noopener noreferrer">
-        //     <Button variant="ghost" size="icon" className="h-7 w-7">
-        //       <Download className="h-4 w-4" />
-        //     </Button>
-        //   </a>
-        //   <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-        //     <Button variant="ghost" size="icon" className="h-7 w-7">
-        //       <ExternalLink className="h-4 w-4" />
-        //     </Button>
-        //   </a>
-        // </div>
-//       </div>
-//     </div>
-//   );
 };
 
 export default ViewAttachment;

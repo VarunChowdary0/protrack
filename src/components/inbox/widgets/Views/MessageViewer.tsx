@@ -175,7 +175,7 @@ const MessageViewer: React.FC<MessageViewerProps> = ({
                   Attachments
                 </h3>
 
-                <div className=" flex flex-wrap gap-4">
+                <div className=" flex flex-wrap max-sm:justify-between gap-4">
                   {message.attachments.map((attachment, index) => {
                     const doc = attachment.document;
 
