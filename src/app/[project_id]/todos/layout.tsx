@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Star, Calendar, Users, User, List, GripIcon, ReplyIcon } from 'lucide-react';
+import { Star, Calendar, Users, User, List, GripIcon, ReplyIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/redux/store';
+import { addTask, fetchTasks } from '@/redux/reducers/TasksReducer';
+import AddNewTask from '@/components/todos/AddNewTask';
 
 const tabs = [
     { id: 'all', label: 'All', icon: List },
@@ -20,12 +24,17 @@ interface TodosLayoutProps {
 
 export default function TodosLayout({ children }: TodosLayoutProps) {
     const path = usePathname();
-    const [activeTab, setActiveTab] = useState('all');
     const {project_id} = useParams();
+    const dispatch = useDispatch<AppDispatch>();
+    const user_id = useSelector((state:RootState)=> state.auth.user?.id); 
+    const participants = useSelector((state:RootState)=> state.selectedProject.project?.participants); 
+    const [activeTab, setActiveTab] = useState('all');
     const [isOpen, setIsOpen] = useState(false);
     React.useEffect(() => {
         setIsOpen(false);
     },[activeTab]);
+
+    const taskStore = useSelector((state:RootState)=> state.tasks)
 
     useEffect(() => {
         if(path.endsWith("important")){
@@ -43,10 +52,26 @@ export default function TodosLayout({ children }: TodosLayoutProps) {
         else{
             setActiveTab('all');
         }
-    },[path])
+    },[path]);
+
+    useEffect(()=>{
+        if(participants){
+            console.log("Tasks loading...")
+            dispatch(fetchTasks({
+                projectId: project_id?.toLocaleString() || "",
+                participantId: participants?.find((parti) => parti.userId === user_id)?.id || ''
+            }));
+        }
+    },[user_id,participants])
 
   return (
     <>
+      <div className=' fixed bottom-0 pb-5 max-sm:pb-20 right-4'>
+                <AddNewTask setTasks={(new_) => {
+                        dispatch(addTask(new_));
+                    }}
+                />
+            </div>
         <div className="flex max-sm:hidden flex-col h-full bg-background">
             {/* Navigation Header */}
             <div style={{
@@ -72,31 +97,43 @@ export default function TodosLayout({ children }: TodosLayoutProps) {
                     })}
                 </div>
             </div>
-
             {/* Content Area */}
-            <div className="flex-1  overflow-y-auto">
-                {children || (
-                <div className="p-6 ">
-                    <div className="text-center py-12">
-                    <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                        {React.createElement(tabs.find(tab => tab.id === activeTab)?.icon || List, {
-                        className: "h-8 w-8 text-muted-foreground"
-                        })}
+            {
+                taskStore.isLoaded ?
+                    taskStore.error ? 
+                    <div className=' flex w-full h-[80vh] items-center justify-center'>
+                       {taskStore.error}
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">
-                        {tabs.find(tab => tab.id === activeTab)?.label} Tasks
-                    </h3>
-                    <p className="text-muted-foreground max-w-sm mx-auto">
-                        {activeTab === 'important' && "Focus on your most critical tasks and priorities."}
-                        {activeTab === 'planned' && "Review tasks scheduled for specific dates and times."}
-                        {activeTab === 'assigned' && "Manage tasks that have been assigned to team members."}
-                        {activeTab === 'my-tasks' && "View all tasks assigned specifically to you."}
-                        {activeTab === 'all' && "See all your tasks in one comprehensive view."}
-                    </p>
-                    </div>
+                     :
+                        <div className="flex-1  overflow-y-auto">
+                            {children || (
+                            <div className="p-6 ">
+                                <div className="text-center py-12">
+                                <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                                    {React.createElement(tabs.find(tab => tab.id === activeTab)?.icon || List, {
+                                    className: "h-8 w-8 text-muted-foreground"
+                                    })}
+                                </div>
+                                <h3 className="text-lg font-semibold mb-2">
+                                    {tabs.find(tab => tab.id === activeTab)?.label} Tasks
+                                </h3>
+                                <p className="text-muted-foreground max-w-sm mx-auto">
+                                    {activeTab === 'important' && "Focus on your most critical tasks and priorities."}
+                                    {activeTab === 'planned' && "Review tasks scheduled for specific dates and times."}
+                                    {activeTab === 'assigned' && "Manage tasks that have been assigned to team members."}
+                                    {activeTab === 'my-tasks' && "View all tasks assigned specifically to you."}
+                                    {activeTab === 'all' && "See all your tasks in one comprehensive view."}
+                                </p>
+                                </div>
+                            </div>
+                            )}
+                        </div>
+                :
+                <div className=' flex w-full h-[80vh] items-center justify-center'>
+                    <Loader2 className=' animate-spin'/>
                 </div>
-                )}
-            </div>
+              
+            }
         </div>
 
         <div className="max-sm:flex hidden h-screen bg-background">
@@ -145,9 +182,21 @@ export default function TodosLayout({ children }: TodosLayoutProps) {
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto">
-                {children}
-            </div>
+            {
+                taskStore.isLoaded ?
+                   taskStore.error ? 
+                    <div className=' flex w-full h-[80vh] items-center justify-center'>
+                       {taskStore.error}
+                    </div>
+                    :
+                    <div className="flex-1 overflow-y-auto">
+                        {children}
+                    </div>
+                :
+                <div className=' flex w-full h-full items-center justify-center'>
+                    <Loader2 className=' animate-spin'/>
+                </div>
+            }
         </div>
     </>
   );

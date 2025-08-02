@@ -55,10 +55,10 @@ export async function GET(req:Request) {
                 )
             );
 
-        return new Response(JSON.stringify(my_projects), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
+            return new Response(JSON.stringify(my_projects), {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+            });
         }
         catch(error){
         console.error("Error fetching participants:", error);
