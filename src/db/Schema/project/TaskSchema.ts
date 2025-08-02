@@ -17,5 +17,6 @@ export const tasks = pgTable("tasks", {
     status: text("status").$type<TaskStatus>().default(TaskStatus.PENDING).notNull(), // 
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    completedAt: text("completed_at"),
     priority: integer("priority").notNull().default(0),
 });

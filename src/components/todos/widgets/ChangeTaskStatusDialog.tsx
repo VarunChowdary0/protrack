@@ -23,6 +23,7 @@ interface ChangeTaskStatusDialogProps {
     onClose: () => void;
     onStatusChange: (newStatus: TaskStatus) => void;
     currentStatus: string;
+    allowAll: boolean;
 }
 
 const ChangeTaskStatusDialog: React.FC<ChangeTaskStatusDialogProps> = ({
@@ -30,6 +31,7 @@ const ChangeTaskStatusDialog: React.FC<ChangeTaskStatusDialogProps> = ({
     onClose,
     onStatusChange,
     currentStatus,
+    allowAll
 }) => {
     const [status, setStatus] = React.useState<TaskStatus>(currentStatus as TaskStatus);
 
@@ -55,11 +57,22 @@ const ChangeTaskStatusDialog: React.FC<ChangeTaskStatusDialogProps> = ({
                             <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         <SelectContent>
-                            {Object.values(TaskStatus).map((statusOption) => (
-                                <SelectItem key={statusOption} value={statusOption}>
-                                    {statusOption}
-                                </SelectItem>
-                            ))}
+                            {
+                                allowAll ?
+                                Object.values(TaskStatus).map((statusOption) => (
+                                    <SelectItem key={statusOption} value={statusOption}>
+                                        {statusOption.replaceAll("_",' ')}
+                                    </SelectItem>
+                                ))
+                                :
+                                Object.values(TaskStatus).filter((sts)=> 
+                                    sts !== TaskStatus.CANCELLED && sts !== TaskStatus.ON_HOLD 
+                                ).map((statusOption) => (
+                                    <SelectItem key={statusOption} value={statusOption}>
+                                        {statusOption.replaceAll("_",' ')}
+                                    </SelectItem>
+                                ))
+                            }
                         </SelectContent>
                     </Select>
                 </div>

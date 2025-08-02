@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { Task, TaskStatus } from '@/types/taskTypes';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { 
   Tooltip,
   TooltipContent,
@@ -29,9 +29,13 @@ import {
   Edit3, 
   Trash2,
   AlertTriangle,
-  ChartLineIcon
+  ChartLineIcon,
+  ArrowBigRightDash
 } from 'lucide-react';
 import ChangeTaskStatusDialog from './ChangeTaskStatusDialog';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const statusIconMap = {
   [TaskStatus.PENDING]: <Clock className="w-4 h-4 text-amber-500" />,
@@ -59,6 +63,14 @@ const TaskCard: React.FC<{
   const [isStatusDialogOpen, setIsStatusDialogOpen] = React.useState(false);
   const isCompleted = task.status === TaskStatus.COMPLETED;
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !isCompleted;
+  
+  
+  const user_id = useSelector((state:RootState)=> state.auth.user?.id); 
+  const participants = useSelector((state:RootState)=> state.selectedProject.project?.participants);
+  
+  const assignedBy = participants?.find((x)=> x.id === task.assignedBy_id);
+  const assignedTo = participants?.find((x)=> x.id === task.assignedTo_id);
+
 
   const getPriorityConfig = (priority: number) => {
     switch (priority) {
@@ -69,9 +81,11 @@ const TaskCard: React.FC<{
     }
   };
 
+
+
   const priorityConfig = getPriorityConfig(task.priority);
-    const touchStartTimeRef = useRef<number | null>(null);
-    const LONG_PRESS_THRESHOLD = 500; // in milliseconds
+  const touchStartTimeRef = useRef<number | null>(null);
+  const LONG_PRESS_THRESHOLD = 500; // in milliseconds
 
   return (
       <Card
@@ -91,7 +105,7 @@ const TaskCard: React.FC<{
         }}
           
         className={`group transition-all max-sm:bg-transparent max-sm:border-none max-sm:shadow-none
-         max-sm:p-2 max-sm:py-2 duration-200 hover:shadow-md hover:border-primary/20 ${
+         max-sm:p-2 max-sm:py-2 duration-200 pt-3 hover:shadow-md hover:border-primary/20 ${
         isCompleted ? 'opacity-70 bg-muted/30' : ''
       } ${isOverdue ? 'border-destructive/30 bg-destructive/5' : ''}`}>
         <ChangeTaskStatusDialog
@@ -99,8 +113,9 @@ const TaskCard: React.FC<{
           onClose={()=> setIsStatusDialogOpen(false)} 
           onStatusChange={(newStatus) => onStatusChange(task.id,newStatus)}
           currentStatus={task.status}
+          allowAll={user_id === assignedBy?.userId}
         />
-        <CardContent className="p-4 max-sm:p-0">
+        <CardContent className="p-4 pb-0 max-sm:p-0">
           <div className="flex items-start gap-3 ">
             {/* Completion Toggle */}
             <div className="flex-shrink-0 pt-0.5">
@@ -145,14 +160,17 @@ const TaskCard: React.FC<{
                       {statusLabelMap[task.status]}
                     </Badge>
                   </div>
+
+                  <div className=' flex w-full '>
+                    <h3 className={`font-semibold max-sm:text-sm text-base leading-tight ${
+                      isCompleted 
+                        ? 'line-through text-muted-foreground' 
+                        : 'text-foreground'
+                    }`}>
+                      {task.title}
+                    </h3>
+                  </div>
                   
-                  <h3 className={`font-semibold max-sm:text-sm text-base leading-tight ${
-                    isCompleted 
-                      ? 'line-through text-muted-foreground' 
-                      : 'text-foreground'
-                  }`}>
-                    {task.title}
-                  </h3>
                 </div>
 
                 {/* Action Buttons */}
@@ -176,28 +194,29 @@ const TaskCard: React.FC<{
                       <p>{task.isImportant ? 'Remove from important' : 'Mark as important'}</p>
                     </TooltipContent>
                   </Tooltip>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40">
-                      <DropdownMenuItem onClick={() => onEdit(task)}>
-                        <Edit3 className="h-4 w-4 mr-2" />
-                        Edit task
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={() => onDelete(task.id)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete task
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  { assignedBy?.userId === user_id &&
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuItem onClick={() => onEdit(task)}>
+                          <Edit3 className="h-4 w-4 mr-2" />
+                          Edit task
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => onDelete(task.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete task
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  }
                 </div>
               </div>
 
@@ -265,6 +284,71 @@ const TaskCard: React.FC<{
             </div>
           </div>
         </CardContent>
+        <CardFooter className=' !pt-0'>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className=' w-full items-start justify-around'>
+                  {
+                    assignedBy?.userId === user_id ?
+                    (task.assignedBy_id === task.assignedTo_id) ?
+                    <></>
+                    :
+                    <div className=' flex items-center gap-5'>
+                      {/* <div className=' font-thin'>To</div> */}
+                      <div className='flex gap-1.5 items-center'>
+                        <div className=' flex items-center gap-3'>
+                          <Avatar>
+                              <AvatarImage src={assignedBy?.user?.profilePicture} />
+                              <AvatarFallback>{assignedBy?.user?.firstname?.substring(0,1)}</AvatarFallback>
+                          </Avatar>
+                          <ArrowBigRightDash className=' text-muted-foreground'/>
+                          <Avatar>
+                              <AvatarImage src={assignedTo?.user?.profilePicture} />
+                              <AvatarFallback>{assignedTo?.user?.firstname?.substring(0,1)}</AvatarFallback>
+                          </Avatar>
+                        </div>
+                            <div className=' flex items-start flex-col'>
+                              <span className=' text-xs capitalize'>{assignedTo?.user?.firstname} {assignedTo?.user?.lastname}
+                              </span>
+                              {
+                                assignedTo?.role && assignedTo?.role.trim().length > 0 &&
+                                <span className=' text-muted-foreground capitalize text-xs'>{assignedTo?.role.replaceAll("_"," ")}</span>
+                              }
+                            </div>
+                        </div>
+                    </div>
+                    :
+                    <div className=' flex items-center gap-5'>
+                      {/* <div>From</div> */}
+                      <div className='flex gap-1.5 items-center'>
+                        <div className=' flex items-center gap-3'>
+                          <Avatar>
+                              <AvatarImage src={assignedBy?.user?.profilePicture} />
+                              <AvatarFallback>{assignedBy?.user?.firstname?.substring(0,1)}</AvatarFallback>
+                          </Avatar>
+                          <ArrowBigRightDash className=' text-muted-foreground'/>
+                          <Avatar>
+                              <AvatarImage src={assignedTo?.user?.profilePicture} />
+                              <AvatarFallback>{assignedTo?.user?.firstname?.substring(0,1)}</AvatarFallback>
+                          </Avatar>
+                        </div>
+                          <div className=' flex items-start flex-col'>
+                            <span className=' text-xs capitalize'>{assignedBy?.user?.firstname} {assignedTo?.user?.lastname} (me)</span>
+                            {
+                              assignedBy?.role && assignedBy?.role.trim().length > 0 &&
+                              <span className=' text-muted-foreground capitalize text-xs'>{assignedBy?.role.replaceAll("_"," ")}</span>
+                            }
+                          </div>
+                      </div>
+                    </div>
+                  }
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+            Assigned by {assignedBy?.user?.firstname} to {assignedTo?.user?.firstname}
+            </TooltipContent>
+          </Tooltip>
+        </CardFooter>
       </Card>      
   );
 };

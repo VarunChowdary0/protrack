@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
-import { mockTasks } from './MockData';
+// import { mockTasks } from './MockData';
 import TaskCard from './widgets/TaskCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Task, TaskStatus } from '@/types/taskTypes';
@@ -18,65 +18,82 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import AddNewTask from './AddNewTask';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/redux/store';
+import { deleteTaskAsync, updateTaskAsync } from '@/redux/reducers/TasksReducer';
 
 const AllTasks: React.FC = () => {
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
-  const [tasks, setTasks] = useState<Task[]>(mockTasks.slice().sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));// sort by due date
+  const tasks = useSelector((state:RootState)=> state.tasks.tasks);
+  const dispatch = useDispatch<AppDispatch>();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  const handleStatusChange = (taskId: string,NewStatus:TaskStatus) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === taskId 
-          ? { 
-              ...task, 
-              status: NewStatus
-            }
-          : task
-      )
-    );
+  // Handles status change
+  const handleStatusChange = (taskId: string, newStatus: TaskStatus) => {
+    const taskToUpdate = tasks.find(task => task.id === taskId);
+    if (!taskToUpdate) {
+      toast.error("Task not found");
+      return;
+    }
+
+    const updatedTask = {
+      ...taskToUpdate,
+      status: newStatus,
+      updatedAt: new Date().toISOString(),
+    };
+
+    dispatch(updateTaskAsync(updatedTask));
     toast.success("Task status updated successfully");
   };
 
-  const confirmDeleteTask = (taskId: string) => {
-    setDeleteTaskId(taskId);
-  };
-
+  // Handles task deletion
   const executeDelete = () => {
     if (deleteTaskId) {
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== deleteTaskId));
+      dispatch(deleteTaskAsync(deleteTaskId))
       setDeleteTaskId(null);
       toast.success("Task deleted successfully");
-    }
-    else{
+    } else {
       toast.error("No task selected for deletion");
     }
   };
 
+  // Toggle importance
   const handleToggleImportant = (taskId: string) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === taskId ? { ...task, isImportant: !task.isImportant } : task
-      )
-    );
-    toast.success("Save Task as Important");
+    const taskToUpdate = tasks.find(task => task.id === taskId);
+    if (!taskToUpdate) {
+      toast.error("Task not found");
+      return;
+    }
+
+    const updatedTask = {
+      ...taskToUpdate,
+      isImportant: !taskToUpdate.isImportant,
+      updatedAt: new Date().toISOString(),
+    };
+
+    dispatch(updateTaskAsync(updatedTask));
+    toast.success(updatedTask.isImportant ? "Marked as Important" : "Unmarked as Important");
   };
 
+  // Save edits
+  const handleSaveEdit = (updatedTask: Task) => {
+    dispatch(updateTaskAsync({
+      ...updatedTask,
+      updatedAt: new Date().toISOString(),
+    }));
+    setEditingTask(null);
+    toast.success("Task updated successfully");
+  };
+  
+
+  const confirmDeleteTask = (taskId: string) => {
+    setDeleteTaskId(taskId);
+  };
   const handleEdit = (task: Task) => {
     setEditingTask(task);
     setEditDialogOpen(true);
   };
-
-  const handleSaveEdit = (updatedTask: Task) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => task.id === updatedTask.id ? updatedTask : task)
-    );
-    setEditingTask(null);
-    toast.success("Task updated successfully");
-  };  
-
   const completedTasks = tasks.filter(task => task.status === TaskStatus.COMPLETED);
   const pausedTasks = tasks.filter(task => task.status === TaskStatus.ON_HOLD);
   const overdeueTasks = tasks.filter(task => {
@@ -122,7 +139,6 @@ const AllTasks: React.FC = () => {
             {pausedTasks.length} on-hold
           </Badge>
         </div> */}
-        <AddNewTask setTasks={setTasks} />
       </div>
 
         <div className="  p-0">

@@ -15,31 +15,34 @@ import {
   AlertDialogCancel,    
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import AddNewTask from './AddNewTask';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/redux/store';
+import { deleteTaskAsync, updateTaskAsync } from '@/redux/reducers/TasksReducer';
 
 interface CommonTasksProps {
     tasks: Task[];
     title: string;
 }
 const CommonTasks:React.FC<CommonTasksProps> = (props) => {
+    const dispatch = useDispatch<AppDispatch>();
     const [editingTask, setEditingTask] = React.useState<Task | null>(null);
     const [editDialogOpen, setEditDialogOpen] = React.useState(false);
     const [deleteTaskId, setDeleteTaskId] = React.useState<string | null>(null);
     const [tasks, setTasks] = React.useState<Task[]>(props.tasks); // sort by due date
 
-    const handleStatusChange = (taskId: string,NewStatus:TaskStatus) => {
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task.id === taskId 
-            ? { 
-                ...task, 
-                status: NewStatus
-              }
-            : task
-        )
+    
+    const handleStatusChange = (taskId: string, NewStatus: TaskStatus) => {
+      const updated = tasks.map(task =>
+        task.id === taskId ? { ...task, status: NewStatus } : task
       );
+      const updatedTask = updated.find(t => t.id === taskId);
+      if (!updatedTask) return;
+
+      setTasks(updated);
+      dispatch(updateTaskAsync(updatedTask));
       toast.success("Task status updated successfully");
     };
+
 
   const confirmDeleteTask = (taskId: string) => {
     setDeleteTaskId(taskId);
@@ -47,23 +50,29 @@ const CommonTasks:React.FC<CommonTasksProps> = (props) => {
 
   const executeDelete = () => {
     if (deleteTaskId) {
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== deleteTaskId));
+      setTasks(prev => prev.filter(task => task.id !== deleteTaskId));
+      dispatch(deleteTaskAsync(deleteTaskId));
       setDeleteTaskId(null);
       toast.success("Task deleted successfully");
-    }
-    else{
+    } else {
       toast.error("No task selected for deletion");
     }
   };
 
+
   const handleToggleImportant = (taskId: string) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === taskId ? { ...task, isImportant: !task.isImportant } : task
-      )
+    const updatedTasks = tasks.map(task =>
+      task.id === taskId ? { ...task, isImportant: !task.isImportant } : task
     );
-    toast.success("Save Task as Important");
+    const updatedTask = updatedTasks.find(task => task.id === taskId);
+    if (!updatedTask) return;
+
+    setTasks(updatedTasks);
+    dispatch(updateTaskAsync(updatedTask));
+    toast.success("Task updated");
   };
+
+
 
   const handleEdit = (task: Task) => {
     setEditingTask(task);
@@ -71,12 +80,14 @@ const CommonTasks:React.FC<CommonTasksProps> = (props) => {
   };
 
   const handleSaveEdit = (updatedTask: Task) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => task.id === updatedTask.id ? updatedTask : task)
+    setTasks(prev =>
+      prev.map(task => task.id === updatedTask.id ? updatedTask : task)
     );
     setEditingTask(null);
+    dispatch(updateTaskAsync(updatedTask));
     toast.success("Task updated successfully");
-  };  
+  };
+  
 
   return (
     <div className="max-w-6xl mx-auto p-6 max-sm:p-3 space-y-6">
@@ -93,7 +104,7 @@ const CommonTasks:React.FC<CommonTasksProps> = (props) => {
                   {pausedTasks.length} on-hold
               </Badge>
             </div> */}
-            <AddNewTask setTasks={setTasks}/>
+            {/* <AddNewTask setTasks={setTasks}/> */}
         </div>
         <div className='grid grid-cols-1 max-sm:mb-10 max-sm:mt-3 md:grid-cols-2 max-sm:!divide-y lg:grid-cols-3 max-sm:gap-2 gap-6'>
                 {tasks.map((task,idx) => (

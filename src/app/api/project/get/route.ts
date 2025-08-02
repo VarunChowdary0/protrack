@@ -32,7 +32,7 @@ export async function GET(req: Request) {
         }
         
         const prj = await getProject(projectId);
-
+        
         if (!prj) {
             return new Response(JSON.stringify({ error: "Project not found" }), {
                 status: 404,

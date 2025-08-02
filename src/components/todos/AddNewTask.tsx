@@ -1,7 +1,7 @@
 import { Task, TaskStatus } from '@/types/taskTypes';
-import { PlusCircle } from 'lucide-react'
+import { Loader2, PlusCircle } from 'lucide-react'
 import { useParams } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -16,64 +16,100 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import axiosInstance from '@/config/AxiosConfig';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Participant } from '@/types/participantType';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 interface AddNewTaskProps {
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  setTasks: (task:Task) => void;
 }
 
 const AddNewTask: React.FC<AddNewTaskProps> = ({ setTasks }) => {
   const params = useParams();
-  const projectId = params.projectId as string;
-  const assignedBy_id = "assignedBy_id"; // Replace with actual assignedBy_id logic
+  const projectId = params.project_id as string;
+  const [isLoading, setloading] = useState<boolean>(false);
+  const user_id = useSelector((state:RootState)=> state.auth.user?.id); 
+  const participants = useSelector((state:RootState)=> state.selectedProject.project?.participants);
+  const assignedBy_id = participants?.find((parti) => parti.userId === user_id)?.id; 
   const [isOpen, setIsOpen] = useState(false);
+  const [selecedParticipant, setSelected] = useState<Partial<Participant>>();
   const [newTask, setNewTask] = useState<Partial<Task>>({
+    projectId: projectId,
     title: '',
     description: '',
-    status: TaskStatus.PENDING,
-    projectId: projectId,
-    assignedBy_id: assignedBy_id,
-    assignedTo_id: '', // Added missing required field
+    dueDate: new Date().toISOString(),
+    assignedTo_id: assignedBy_id || '', // Added missing required field
+    assignedBy_id: assignedBy_id || '',
     isPlanned: false,
     isImportant: false,
-    priority: 1,
-    dueDate: new Date().toISOString(),
+    status: TaskStatus.PENDING,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     completedAt: '',
+    priority: 1,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    console.log("Test0000: ",user_id, assignedBy_id);
+  },[user_id, participants])
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     // Validate required fields
     if (!newTask.title?.trim()) {
       toast.error('Title is required');
       return;
     }
+    if (!newTask.description?.trim()) {
+      toast.error('Description is required');
+      return;
+    }
 
-    const taskToAdd: Task = {
-      id: Date.now().toString(),
-      title: newTask.title.trim(),
-      description: newTask.description || '',
-      projectId: projectId,
-      assignedBy_id: assignedBy_id,
-      assignedTo_id: newTask.assignedTo_id || '', // You might want to add a field for this
-      isPlanned: newTask.isPlanned || false,
-      isImportant: newTask.isImportant || false,
-      priority: newTask.priority || 1,
-      status: TaskStatus.PENDING,
-      dueDate: newTask.dueDate || new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      completedAt: '',
-    };
-
-    setTasks(prev => [...prev, taskToAdd]);
-
-    // Reset form
-    resetForm();
-    setIsOpen(false);
-    toast.success('Task added successfully!');
+    let filteredTask;
+    if(newTask.assignedTo_id === ""){
+      if(isForAnother){
+        filteredTask = {
+          ...newTask,
+          assignedBy_id,
+          assignedTo_id: selecedParticipant?.id,
+          projectId: projectId
+        }
+      }
+      else{
+        filteredTask = {
+          ...newTask,
+          assignedBy_id,
+          assignedTo_id: assignedBy_id,
+          projectId: projectId
+        }
+      }
+    }else{
+      filteredTask = {
+        ...newTask,
+        assignedBy_id,
+        projectId: projectId
+      }
+    }
+    console.log(filteredTask);
+    try{
+      setloading(true);
+      const response = await axiosInstance.post("/api/manage/tasks/new",filteredTask);
+      setTasks(response.data);
+      resetForm();
+      setIsOpen(false);
+      toast.success('Task added successfully!');
+    }
+    catch(error){
+      console.error(error);
+      toast.error("Failed to add task");
+    }
+    finally{
+      setloading(false);
+    }
   };
 
   const resetForm = () => {
@@ -82,7 +118,7 @@ const AddNewTask: React.FC<AddNewTaskProps> = ({ setTasks }) => {
       description: '',
       projectId,
       assignedBy_id,
-      assignedTo_id: '',
+      assignedTo_id: assignedBy_id,
       isPlanned: false,
       isImportant: false,
       priority: 1,
@@ -92,6 +128,8 @@ const AddNewTask: React.FC<AddNewTaskProps> = ({ setTasks }) => {
       completedAt: '',
     });
   };
+
+  const [isForAnother,setForOther] =  useState<boolean>(false);
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -103,13 +141,12 @@ const AddNewTask: React.FC<AddNewTaskProps> = ({ setTasks }) => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <div className='flex flex-col items-center justify-center 
-          border-dashed border-2 gap-0 active:scale-95 select-none transition-all w-fit px-10 hover:cursor-pointer 
-          max-sm:mt-10 h-fit rounded-2xl p-4'>
+        <div className='flex flex-col items-center justify-center bg-amber-500 hover:cursor-pointer 
+          max-sm:mt-10 h-fit rounded-full p-2'>
           <span>
-            <PlusCircle size={46}/>
+            <PlusCircle size={24}/>
           </span>
-          <span>New Task</span>
+          {/* <span>New Task</span> */}
         </div>
       </DialogTrigger>
       
@@ -152,22 +189,85 @@ const AddNewTask: React.FC<AddNewTaskProps> = ({ setTasks }) => {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="priority">Priority</Label>
-            <Select
-              value={newTask.priority?.toString() || '1'}
-              onValueChange={(value) => setNewTask({...newTask, priority: parseInt(value)})}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">Low</SelectItem>
-                <SelectItem value="2">Medium</SelectItem>
-                <SelectItem value="3">High</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className=' flex items-center justify-between w-full'>
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select
+                value={newTask.priority?.toString() || '1'}
+                onValueChange={(value) => setNewTask({...newTask, priority: parseInt(value)})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Low</SelectItem>
+                  <SelectItem value="2">Medium</SelectItem>
+                  <SelectItem value="3">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div> 
+            {
+              isForAnother 
+              ?
+              <div className=' w-fit py-1 mt-4'>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    {
+                      selecedParticipant?
+                      <div className=' flex items-center gap-2'>
+                        Assign to
+                        <Avatar>
+                          <AvatarImage src={selecedParticipant?.user?.profilePicture} />
+                          <AvatarFallback>{selecedParticipant?.user?.firstname?.substring(0,1)}</AvatarFallback>
+                        </Avatar>
+                        <div className=' flex items-start flex-col'>
+                          <span className=' text-xs capitalize'>{selecedParticipant?.user?.firstname} {selecedParticipant?.user?.lastname}
+                          </span>
+                          {
+                            selecedParticipant?.role && selecedParticipant?.role.trim().length > 0 &&
+                            <span className=' text-muted-foreground capitalize text-xs'>{selecedParticipant?.role.replaceAll("_"," ")}</span>
+                          }
+                        </div>
+                      </div>
+                      :
+                      <Button>Select Participant</Button>
+                    }
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Assign to</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {
+                      participants?.map((ele)=>
+                        <DropdownMenuItem key={ele.id} onClick={()=>{
+                            setSelected(ele);
+                            setNewTask({...newTask, assignedTo_id: ele.id})
+                          }
+                        }>
+                          <div className=' flex items-center gap-2'>
+                            <Avatar>
+                              <AvatarImage src={ele?.user?.profilePicture} />
+                              <AvatarFallback>{ele?.user?.firstname?.substring(0,1)}</AvatarFallback>
+                            </Avatar>
+                            <div className=' flex items-start flex-col'>
+                              <span className=' text-xs capitalize'>{ele?.user?.firstname} {ele?.user?.lastname}
+                              </span>
+                              {
+                                ele?.role && ele?.role.trim().length > 0 &&
+                                <span className=' text-muted-foreground capitalize text-xs'>{ele?.role.replaceAll("_"," ")}</span>
+                              }
+                            </div>
+                          </div>
+                        </DropdownMenuItem>
+                      )
+                    }
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              :
+              <Button onClick={()=> setForOther(true)}>Assign task</Button>
+            }
           </div>
+
 
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
@@ -189,7 +289,8 @@ const AddNewTask: React.FC<AddNewTaskProps> = ({ setTasks }) => {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+          {!isLoading ?
+            <div className="flex justify-end gap-2 pt-4">
             <Button
               type="button"
               variant="outline"
@@ -201,6 +302,11 @@ const AddNewTask: React.FC<AddNewTaskProps> = ({ setTasks }) => {
               Add Task
             </Button>
           </div>
+          :
+          <div className=' w-full flex items-center justify-center'>
+            <Loader2 className=' animate-spin'/>  
+          </div>
+        }
         </form>
       </DialogContent>
     </Dialog>
